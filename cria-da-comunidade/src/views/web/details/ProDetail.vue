@@ -131,43 +131,41 @@
 
       <!-- Aside -->
       <aside class="detail-aside">
+        <!-- Contato -->
         <div class="aside-card">
           <h4 class="aside-title">Falar com {{ pro.name.split(' ')[0] }}</h4>
-          <div class="aside-btns">
-            <a
-              v-if="pro.whatsapp"
-              :href="`https://wa.me/${pro.whatsapp.replace(/\D/g, '')}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-wa"
-            >
-              📱 WhatsApp
-            </a>
-            <button class="btn-schedule">📅 Agendar serviço</button>
-            <button class="ghost-btn">🕒 Próximos horários</button>
-          </div>
+          <a
+            v-if="pro.whatsapp"
+            :href="`https://wa.me/${pro.whatsapp.replace(/\D/g, '')}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-wa"
+          >
+            📱 Chamar no WhatsApp
+          </a>
+          <p v-else class="no-contact">Contato não disponível</p>
         </div>
 
+        <!-- Info rápida -->
         <div class="aside-card">
-          <h4 class="aside-title">Disponibilidade</h4>
-          <div class="mini-cal">
-            <div
-              v-for="(day, i) in availability"
-              :key="i"
-              class="cal-cell"
-              :class="day.status"
-            >{{ day.num }}</div>
-          </div>
-          <div class="cal-legend">
-            <span class="legend-item free">Livre</span>
-            <span class="legend-item busy">Ocupado</span>
-          </div>
-        </div>
-
-        <div class="aside-card">
-          <h4 class="aside-title">Conquistas</h4>
-          <div class="badges-wrap">
-            <span v-for="b in badges" :key="b" class="badge-pill">{{ b }}</span>
+          <h4 class="aside-title">Informações</h4>
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="info-k">Categoria</span>
+              <span class="info-v">{{ pro.category }}</span>
+            </div>
+            <div class="info-row" v-if="pro.price">
+              <span class="info-k">A partir de</span>
+              <span class="info-v orange">R$ {{ pro.price }}</span>
+            </div>
+            <div class="info-row" v-if="pro.responseTime">
+              <span class="info-k">Resposta</span>
+              <span class="info-v green">{{ pro.responseTime }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-k">Atendimentos</span>
+              <span class="info-v">{{ pro.attendances }}</span>
+            </div>
           </div>
         </div>
       </aside>
@@ -199,12 +197,6 @@ const reviews = [
   { author: 'Renata S.', initials: 'RS', color: '#FFD23F', stars: 4, time: 'há 2 sem', text: 'Ótimo atendimento, preço justo. Só achei o tempo um pouco longo mas o resultado compensou.', service: 'unhas decoradas' },
 ]
 
-const availability = Array.from({ length: 21 }, (_, i) => ({
-  num: i + 1,
-  status: i % 7 === 0 ? 'busy' : i % 3 === 0 ? 'busy' : 'free',
-}))
-
-const badges = ['✓ verificada', '⭐ Top rated', '🏘️ Cria desde 2019', '💯 100+ atendimentos', '⚡ Resp. rápido']
 </script>
 
 <style scoped>
@@ -288,25 +280,16 @@ const badges = ['✓ verificada', '⭐ Top rated', '🏘️ Cria desde 2019', '�
 .aside-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); padding: 18px; }
 .aside-title { font-family: var(--display); font-size: 15px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.02em; }
 
-.aside-btns { display: flex; flex-direction: column; gap: 8px; }
-.btn-wa { display: block; text-align: center; text-decoration: none; padding: 11px; border-radius: 10px; background: var(--green); color: var(--black); font-weight: 700; font-size: 13px; box-shadow: var(--shadow-cta-green); transition: all 0.15s; }
+.btn-wa { display: block; text-align: center; text-decoration: none; padding: 12px; border-radius: 10px; background: var(--green); color: var(--black); font-weight: 700; font-size: 14px; box-shadow: var(--shadow-cta-green); transition: all 0.15s; }
 .btn-wa:hover { background: var(--green-deep); transform: translateY(-1px); }
-.btn-schedule { padding: 11px; border-radius: 10px; background: var(--orange); color: white; font-weight: 700; font-size: 13px; box-shadow: var(--shadow-cta-orange); transition: all 0.15s; }
-.btn-schedule:hover { background: var(--orange-deep); transform: translateY(-1px); }
-.ghost-btn { padding: 11px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--cream); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-.ghost-btn:hover { border-color: var(--line-strong); background: var(--card-2); }
+.no-contact { font-size: 13px; color: var(--muted); text-align: center; padding: 8px 0; }
 
-.mini-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 10px; }
-.cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; }
-.cal-cell.free { background: rgba(43,217,107,0.15); color: var(--green); }
-.cal-cell.busy { background: rgba(255,94,26,0.12); color: var(--orange); }
-.cal-legend { display: flex; gap: 12px; }
-.legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
-.legend-item.free::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
-.legend-item.busy::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); }
-
-.badges-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-.badge-pill { padding: 5px 10px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); font-size: 11px; color: var(--cream); }
+.info-rows { display: flex; flex-direction: column; gap: 10px; }
+.info-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.info-k { color: var(--muted); }
+.info-v { font-weight: 600; color: var(--cream); }
+.info-v.orange { color: var(--orange); }
+.info-v.green { color: var(--green); }
 
 @media (max-width: 768px) {
   .pro-detail { padding: 16px; }
