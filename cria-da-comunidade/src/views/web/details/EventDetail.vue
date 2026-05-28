@@ -132,10 +132,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 
 const ui = useUiStore()
-const event = ui.selectedEvent
+const event = computed(() => ui.selectedEvent)
 
 const rsvpOptions = [
   { value: 'going' as const, icon: '✓', label: 'Vou' },

@@ -10,8 +10,9 @@
     </div>
 
     <!-- Evento em destaque -->
-    <div class="featured-event">
-      <div class="fe-bg" :style="{ background: `linear-gradient(135deg, ${data.events[0].c1}, ${data.events[0].c2})` }">
+    <div v-if="featuredEvent" class="featured-event" @click="ui.openEvent(featuredEvent)">
+      <div class="fe-bg" :style="{ background: `linear-gradient(135deg, ${featuredEvent.c1}, ${featuredEvent.c2})` }">
+        <img v-if="featuredEvent.imagemCapaUrl" :src="featuredEvent.imagemCapaUrl" class="fe-cover-img" :alt="featuredEvent.title" />
         <div class="fe-pattern"></div>
         <div class="fe-overlay"></div>
       </div>
@@ -19,33 +20,42 @@
         <div class="fe-left">
           <div class="fe-tag">
             <span class="tag-dot"></span>
-            destaque · sex 22h
+            destaque · {{ featuredEvent.time }}
           </div>
-          <h2 class="fe-title display">{{ data.events[0].title }}</h2>
-          <p class="fe-desc">{{ data.events[0].description.slice(0, 140) }}...</p>
+          <h2 class="fe-title display">{{ featuredEvent.title }}</h2>
+          <p class="fe-desc">{{ featuredEvent.description.slice(0, 140) }}…</p>
           <div class="fe-meta">
-            <span>🕒 {{ data.events[0].time }}</span>
-            <span>📍 {{ data.events[0].place }}</span>
-            <span>👥 {{ data.events[0].going }} confirmados</span>
-            <span class="free-tag" v-if="data.events[0].free">Entrada gratuita</span>
+            <span>🕒 {{ featuredEvent.time }}</span>
+            <span>📍 {{ featuredEvent.place }}</span>
+            <span>👥 {{ featuredEvent.going }} confirmados</span>
+            <span class="free-tag" v-if="featuredEvent.free">Entrada gratuita</span>
           </div>
           <div class="fe-actions">
-            <button class="btn-rsvp" @click="ui.openEvent(data.events[0])">Confirmar presença</button>
-            <button class="ghost-btn small">Compartilhar</button>
+            <button class="btn-rsvp" @click.stop="ui.openEvent(featuredEvent)">Ver evento</button>
+            <button class="ghost-btn small" @click.stop>Compartilhar</button>
           </div>
         </div>
         <div class="fe-right">
           <div class="fe-date-card">
-            <div class="fdc-day">{{ data.events[0].day }}</div>
-            <div class="fdc-month">{{ data.events[0].month }}</div>
-            <div class="fdc-dow">sexta-feira</div>
+            <div class="fdc-day">{{ featuredEvent.day }}</div>
+            <div class="fdc-month">{{ featuredEvent.month }}</div>
           </div>
           <div class="fe-going">
-            <div class="fg-count">+{{ data.events[0].going }}</div>
+            <div class="fg-count">+{{ featuredEvent.going }}</div>
             <div class="fg-label">confirmados</div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Loading / vazio -->
+    <div v-else-if="data.loading" class="empty-state">
+      <div class="empty-icon">🎉</div>
+      <div class="empty-text">Carregando eventos…</div>
+    </div>
+    <div v-else class="empty-state">
+      <div class="empty-icon">🎉</div>
+      <div class="empty-text">Nenhum evento nesta comunidade ainda</div>
     </div>
 
     <!-- Calendar strip -->
@@ -114,6 +124,8 @@ const eventCats = [
   { label: 'workshop', icon: '📚', color: '#2BD96B' },
 ]
 
+const featuredEvent = computed(() => data.events[0] ?? null)
+
 const filteredEvents = computed(() =>
   ui.eventsFilters.catActive === 'Todos'
     ? data.events
@@ -161,9 +173,24 @@ const calendarDays = [
   border-radius: var(--radius-2xl);
   overflow: hidden;
   margin-bottom: 20px;
+  cursor: pointer;
 }
+.featured-event:hover .fe-overlay { background: linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 70%); }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; height: 180px; border-radius: var(--radius-2xl);
+  background: var(--card); border: 1px dashed var(--line); margin-bottom: 20px;
+}
+.empty-icon { font-size: 32px; }
+.empty-text { font-size: 14px; color: var(--muted); }
 .fe-bg {
   position: absolute; inset: 0;
+}
+.fe-cover-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
 }
 .fe-pattern {
   position: absolute; inset: 0;

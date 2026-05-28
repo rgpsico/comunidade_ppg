@@ -94,11 +94,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 
 const ui = useUiStore()
-const vaga = ui.selectedVaga
+const vaga = computed(() => ui.selectedVaga)
 const activeTab = ref('Descrição')
 const tabs = ['Descrição', 'Empresa', 'Similares (8)']
 </script>

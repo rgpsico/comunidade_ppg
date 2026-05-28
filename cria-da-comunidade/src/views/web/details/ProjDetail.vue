@@ -173,17 +173,17 @@ import { ref, computed } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 
 const ui = useUiStore()
-const proj = ui.selectedProj
+const proj = computed(() => ui.selectedProj)
 const activeTab = ref('Sobre')
 const tabs = ['Sobre', 'Atividades', 'Equipe', 'Galeria']
 
-const activities = computed(() => proj?.activities ?? [
+const activities = computed(() => proj.value?.activities ?? [
   { title: 'Reforço escolar', days: 'Seg, Qua e Sex', time: '14h – 16h', desc: 'Apoio em matemática, português e ciências para crianças de 7 a 14 anos.', spots: 20 },
   { title: 'Capoeira', days: 'Terça e Quinta', time: '17h – 18h30', desc: 'Aulas de capoeira angola para todas as idades.', spots: 15 },
   { title: 'Teatro comunitário', days: 'Sábado', time: '10h – 12h', desc: 'Oficina de expressão corporal e teatro para jovens de 12 a 18 anos.', spots: 12 },
 ])
 
-const tutors = computed(() => proj?.tutors ?? [
+const tutors = computed(() => proj.value?.tutors ?? [
   { name: 'Prof. Marcus Vinícius', role: 'Educação & Reforço', initials: 'MV', color: '#FF5E1A', bio: 'Professor formado em pedagogia com 8 anos de experiência em educação comunitária.' },
   { name: 'Mestre Jair', role: 'Capoeira Angola', initials: 'MJ', color: '#FFD23F', bio: 'Mestre de capoeira angola há 22 anos, fundador do grupo Raízes do Alemão.' },
   { name: 'Fabiana Luz', role: 'Teatro & Expressão', initials: 'FL', color: '#2BD96B', bio: 'Atriz e educadora social, formada pela UniRio com ênfase em teatro popular.' },
