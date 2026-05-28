@@ -3,7 +3,7 @@
     <div class="page-head">
       <div>
         <div class="eyebrow">❤ projetos sociais</div>
-        <h1 class="page-title display">Projetos que <span class="text-gradient-green">mudam</span> a quebrada</h1>
+        <h1 class="page-title display">Projetos que <span class="text-gradient-green">mudam</span> a comunidade</h1>
       </div>
     </div>
 

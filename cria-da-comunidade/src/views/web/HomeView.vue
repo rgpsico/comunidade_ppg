@@ -110,7 +110,7 @@
       <div class="section-head">
         <div>
           <div class="eyebrow">❤ projetos sociais</div>
-          <h2 class="section-title display">Projetos que <span class="text-gradient-green">mudam</span> a quebrada</h2>
+          <h2 class="section-title display">Projetos que <span class="text-gradient-green">mudam</span> a comunidade</h2>
         </div>
         <button class="link-btn" @click="ui.goTo('projetos')">Ver todos →</button>
       </div>
