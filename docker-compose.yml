@@ -1,0 +1,66 @@
+services:
+
+  # ─── API Laravel ──────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: comunidade_api
+    volumes:
+      - ./cria-da-comunidade-api:/var/www
+    working_dir: /var/www
+    depends_on:
+      - mysql
+    networks:
+      - comunidade_net
+      - proxy_net
+
+  api_nginx:
+    image: nginx:alpine
+    container_name: comunidade_api_nginx
+    expose:
+      - "80"
+    volumes:
+      - ./cria-da-comunidade-api:/var/www
+      - ./docker/nginx/api.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+    networks:
+      - comunidade_net
+      - proxy_net
+
+  # ─── Frontend Vue ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile.frontend
+    container_name: comunidade_frontend
+    expose:
+      - "80"
+    networks:
+      - proxy_net
+
+  # ─── Banco de dados ───────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: comunidade_mysql
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-comunidade}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_USER: ${DB_USERNAME:-comunidade}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "3309:3306"
+    volumes:
+      - comunidade_mysql_data:/var/lib/mysql
+    networks:
+      - comunidade_net
+
+networks:
+  comunidade_net:
+    driver: bridge
+  proxy_net:
+    external: true   # já existe — criado pelo projeto agendamento
+
+volumes:
+  comunidade_mysql_data:
