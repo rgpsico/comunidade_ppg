@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cria da Comunidade — Web & Mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --orange: #FF5E1A;
+    --orange-deep: #E84A06;
+    --yellow: #FFD23F;
+    --black: #0B0B0B;
+    --green: #2BD96B;
+    --cream: #F5F0E8;
+    --muted: #8B847B;
+    --muted-2: #5C564F;
+    --line: rgba(245, 240, 232, 0.08);
+    --line-strong: rgba(245, 240, 232, 0.16);
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --body: 'Sora', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--body);
+    background:
+      radial-gradient(1400px 900px at 80% -10%, rgba(255, 94, 26, 0.10), transparent 60%),
+      radial-gradient(1000px 800px at -10% 110%, rgba(255, 210, 63, 0.06), transparent 60%),
+      #060606;
+    color: var(--cream);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    padding: 56px 40px 80px;
+    max-width: 1680px;
+    margin: 0 auto;
+  }
+
+  /* ===== Top intro ===== */
+  .intro {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: end;
+    margin-bottom: 56px;
+  }
+  .intro-left .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .intro-left .eyebrow .dot {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(255,94,26,0.2);
+    animation: pulse 1.6s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(255,94,26,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(255,94,26,0.05); }
+  }
+  .intro h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(40px, 5.5vw, 76px);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+    max-width: 920px;
+  }
+  .intro h1 .y { color: var(--yellow); }
+  .intro h1 .o { color: var(--orange); }
+  .intro h1 .it { font-style: italic; font-weight: 400; }
+
+  .intro p {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.55;
+    max-width: 520px;
+    margin-top: 20px;
+  }
+
+  .intro-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .pill-set { display: flex; gap: 6px; justify-content: flex-end; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 6px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--cream);
+    background: rgba(255,255,255,0.02);
+  }
+  .pill.accent { color: var(--orange); border-color: rgba(255,94,26,0.4); background: rgba(255,94,26,0.08); }
+  .meta-line {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted-2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ===== Devices showcase ===== */
+  .devices {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 32px;
+    align-items: stretch;
+  }
+
+  /* ===== Device card shared ===== */
+  .device-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .device-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+  .device-label .left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .device-label .ico {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: rgba(255,94,26,0.1);
+    color: var(--orange);
+    border: 1px solid rgba(255,94,26,0.25);
+    display: grid;
+    place-items: center;
+  }
+  .device-label .ico.green {
+    background: rgba(43,217,107,0.1);
+    color: var(--green);
+    border-color: rgba(43,217,107,0.25);
+  }
+  .device-label .name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .device-label .sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .device-label .dim {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ===== Desktop browser frame ===== */
+  .browser {
+    background: #1a1816;
+    border-radius: 18px;
+    border: 1px solid var(--line-strong);
+    overflow: hidden;
+    box-shadow:
+      0 40px 80px -20px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.03) inset,
+      0 80px 160px -40px rgba(255, 94, 26, 0.15);
+    position: relative;
+  }
+  .browser-bar {
+    height: 38px;
+    background: linear-gradient(180deg, #211d19, #1a1714);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 12px;
+  }
+  .traffic {
+    display: flex;
+    gap: 6px;
+  }
+  .traffic span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .traffic .r { background: #ff5f57; }
+  .traffic .y { background: #febc2e; }
+  .traffic .g { background: #28c840; }
+  .addr {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .addr .lock { color: var(--green); }
+  .addr .url { color: var(--cream); }
+  .browser-actions {
+    display: flex;
+    gap: 4px;
+    color: var(--muted);
+  }
+  .browser-iframe-wrap {
+    width: 100%;
+    height: 900px;
+    overflow: hidden;
+    position: relative;
+    background: #0D0B09;
+  }
+  .browser-iframe-wrap iframe {
+    width: 1440px;
+    height: 1500px;
+    border: 0;
+    transform: scale(var(--desktop-scale, 0.66));
+    transform-origin: top left;
+    display: block;
+  }
+  /* responsive scaling — wrapper sized to scaled dims */
+  @media (min-width: 1200px) {
+    .browser-iframe-wrap { height: 990px; }
+  }
+
+  /* ===== Phone frame ===== */
+  .phone-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 0;
+    position: relative;
+  }
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--black);
+    border-radius: 52px;
+    border: 12px solid #1a1816;
+    box-shadow:
+      0 0 0 1.5px #2a2622,
+      0 40px 80px -20px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.03) inset,
+      0 80px 160px -40px rgba(255, 210, 63, 0.18);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .phone .notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 30px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .phone iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #0D0B09;
+    border-radius: 40px;
+    display: block;
+  }
+
+  /* ===== Bottom feature row ===== */
+  .features {
+    margin-top: 64px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .feat {
+    background: rgba(28, 25, 22, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feat:hover {
+    transform: translateY(-3px);
+    border-color: var(--line-strong);
+  }
+  .feat .ic {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+  .feat.f1 .ic { background: rgba(255,94,26,0.12); color: var(--orange); }
+  .feat.f2 .ic { background: rgba(255,210,63,0.12); color: var(--yellow); }
+  .feat.f3 .ic { background: rgba(43,217,107,0.12); color: var(--green); }
+  .feat.f4 .ic { background: rgba(245,240,232,0.06); color: var(--cream); }
+  .feat .h {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.015em;
+    margin-bottom: 4px;
+  }
+  .feat .p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    margin-top: 64px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-2);
+  }
+  .footer .heart { color: var(--orange); margin: 0 4px; }
+  .footer .links {
+    display: flex;
+    gap: 18px;
+  }
+  .footer a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer a:hover { color: var(--cream); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1100px) {
+    .devices { grid-template-columns: 1fr; }
+    .intro { grid-template-columns: 1fr; align-items: start; }
+    .intro-right { text-align: left; align-items: flex-start; }
+    .pill-set { justify-content: flex-start; }
+    .features { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .features { grid-template-columns: 1fr; }
+    .browser-iframe-wrap { height: 600px; }
+    .browser-iframe-wrap iframe { transform: scale(0.4); }
+    .phone { transform: scale(0.85); transform-origin: top center; }
+  }
+
+  /* fade-in */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .intro, .devices, .features { animation: fadeUp 0.6s ease both; }
+  .devices { animation-delay: 0.1s; }
+  .features { animation-delay: 0.2s; }
+</style>
+</head>
+<body>
+
+<div class="page" data-screen-label="Showcase">
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-left">
+      <div class="eyebrow">
+        <span class="dot"></span>
+        Cria da Comunidade · case study
+      </div>
+      <h1>
+        Mesma alma. <span class="it">Duas</span> <span class="o">telas.</span><br />
+        <span class="y">Feita pra cria</span> em qualquer lugar.
+      </h1>
+      <p>Web pra quem trampa do escritório, do café, da lan house — e mobile pra quem tá na rua, no busão, na quebrada. Mesma identidade, mesmos dados, layout adaptado pra cada momento.</p>
+    </div>
+    <div class="intro-right">
+      <div class="pill-set">
+        <span class="pill accent">vue.js 3</span>
+        <span class="pill">responsivo</span>
+        <span class="pill">dark mode</span>
+      </div>
+      <div class="meta-line" style="margin-top: 10px;">desktop · 1440 × 900</div>
+      <div class="meta-line">mobile · 390 × 844</div>
+    </div>
+  </div>
+
+  <!-- DEVICES -->
+  <div class="devices">
+    <!-- DESKTOP -->
+    <div class="device-card">
+      <div class="device-label">
+        <div class="left">
+          <div class="ico">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="name">Versão Web</div>
+            <div class="sub">desktop · navegador</div>
+          </div>
+        </div>
+        <div class="dim">1440 × 900</div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="traffic">
+            <span class="r"></span>
+            <span class="y"></span>
+            <span class="g"></span>
+          </div>
+          <div class="addr">
+            <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="url">cria.com.br</span>
+            <span style="opacity: 0.5">/inicio</span>
+          </div>
+          <div class="browser-actions">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="browser-iframe-wrap">
+          <iframe src="Cria da Comunidade - Web.html" loading="eager" title="Versão Web"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE -->
+    <div class="device-card">
+      <div class="device-label">
+        <div class="left">
+          <div class="ico green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="6" y="2" width="12" height="20" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="name">Versão App</div>
+            <div class="sub">mobile · iOS / Android</div>
+          </div>
+        </div>
+        <div class="dim">390 × 844</div>
+      </div>
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <iframe src="Cria da Comunidade.html?embed=phone" loading="eager" title="Versão Mobile"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="features">
+    <div class="feat f1">
+      <div class="ic">🎨</div>
+      <div class="h">Mesmo design system</div>
+      <div class="p">Cores, tipografia, espaçamento e tom de voz idênticos. Web e mobile compartilham a mesma alma.</div>
+    </div>
+    <div class="feat f2">
+      <div class="ic">⚡</div>
+      <div class="h">Mesmos dados</div>
+      <div class="p">Profissionais, eventos, vagas e feed sincronizados. Posta no mobile, aparece na web em segundos.</div>
+    </div>
+    <div class="feat f3">
+      <div class="ic">📱</div>
+      <div class="h">Layout adaptado</div>
+      <div class="p">Web tem sidebar e grids amplos. Mobile tem bottom nav e scroll horizontal. Cada um no seu contexto.</div>
+    </div>
+    <div class="feat f4">
+      <div class="ic">✊</div>
+      <div class="h">Feita pra cria</div>
+      <div class="p">Linguagem da quebrada, paleta urbana brasileira, hierarquia clara. Acessível pra qualquer morador.</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>feito com <span class="heart">♥</span> de cria · pra cria · 2026</div>
+    <div class="links">
+      <a href="Cria da Comunidade - Web.html">abrir web</a>
+      <a href="Cria da Comunidade.html">abrir app</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Adjust desktop iframe scale based on container width
+  function fitDesktop() {
+    const wrap = document.querySelector('.browser-iframe-wrap');
+    if (!wrap) return;
+    const iframe = wrap.querySelector('iframe');
+    const w = wrap.clientWidth;
+    const scale = Math.min(1, w / 1440);
+    iframe.style.transform = 'scale(' + scale + ')';
+    // also fit height
+    const ifh = 1500;
+    wrap.style.height = (ifh * scale) + 'px';
+  }
+  window.addEventListener('resize', fitDesktop);
+  window.addEventListener('load', fitDesktop);
+  // also try immediately
+  setTimeout(fitDesktop, 50);
+  setTimeout(fitDesktop, 300);
+</script>
+
+</body>
+</html>

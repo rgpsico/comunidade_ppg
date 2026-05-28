@@ -1,0 +1,19 @@
+# Arquivos compactados
+*.zip
+*.tar.gz
+*.rar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Variáveis de ambiente na raiz
+.env
+.env.local
+.env.*.local
+
+# Editores
+.vscode/
+.idea/
+*.suo
+*.sw?

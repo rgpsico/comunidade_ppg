@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cria da Comunidade — App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/vue@3.4.27/dist/vue.global.prod.js"></script>
+<style>
+  :root {
+    --orange: #FF5E1A;
+    --orange-deep: #E84A06;
+    --yellow: #FFD23F;
+    --yellow-deep: #F0B81B;
+    --black: #0B0B0B;
+    --ink: #161412;
+    --card: #1C1916;
+    --card-2: #221E1A;
+    --line: rgba(245, 240, 232, 0.08);
+    --line-strong: rgba(245, 240, 232, 0.16);
+    --green: #2BD96B;
+    --green-deep: #1AAB52;
+    --cream: #F5F0E8;
+    --muted: #8B847B;
+    --muted-2: #5C564F;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --body: 'Sora', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--body);
+    background:
+      radial-gradient(1200px 800px at 80% -10%, rgba(255, 94, 26, 0.18), transparent 60%),
+      radial-gradient(900px 700px at -10% 110%, rgba(255, 210, 63, 0.10), transparent 60%),
+      #060606;
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Page shell ---------- */
+  .page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    place-items: center;
+    padding: 32px 16px 56px;
+    position: relative;
+  }
+  .page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .stage {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1240px;
+    display: grid;
+    grid-template-columns: 1fr 390px 1fr;
+    align-items: center;
+    gap: 24px;
+  }
+  @media (max-width: 1100px) {
+    .stage { grid-template-columns: 1fr; }
+    .side-panel { display: none; }
+  }
+
+  /* ---------- Side context panels ---------- */
+  .side-panel { color: var(--cream); padding: 24px; }
+  .side-panel.left { text-align: right; }
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .brand-mark .dot {
+    width: 14px; height: 14px;
+    background: var(--orange);
+    border-radius: 4px;
+    transform: rotate(45deg);
+    box-shadow: 0 0 0 3px rgba(255, 94, 26, 0.18);
+  }
+  .side-panel h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(36px, 4vw, 56px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+  .side-panel h1 .accent { color: var(--orange); }
+  .side-panel h1 .underline {
+    background: linear-gradient(180deg, transparent 64%, var(--yellow) 64% 88%, transparent 88%);
+    padding: 0 4px;
+  }
+  .side-panel p {
+    color: var(--muted);
+    max-width: 320px;
+    font-size: 15px;
+    line-height: 1.55;
+    margin-left: auto;
+  }
+  .side-panel.right p { margin-left: 0; margin-right: auto; }
+  .side-panel.right { text-align: left; }
+  .meta-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .side-panel.right .meta-row { justify-content: flex-start; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--cream);
+    background: rgba(255,255,255,0.02);
+  }
+  .pill.live { color: var(--green); border-color: rgba(43, 217, 107, 0.4); }
+  .pill.live::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-right: 6px;
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(43,217,107,0.2);
+    animation: pulse 1.6s ease-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(43,217,107,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(43,217,107,0.05); }
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 28px;
+  }
+  .side-panel.left .stat-grid { direction: rtl; }
+  .stat {
+    direction: ltr;
+    text-align: left;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.015);
+  }
+  .stat .num {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+  }
+  .stat .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ---------- Phone frame ---------- */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--black);
+    border-radius: 52px;
+    border: 12px solid #1a1816;
+    box-shadow:
+      0 0 0 1.5px #2a2622,
+      0 40px 80px -20px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.03) inset,
+      0 80px 160px -40px rgba(255, 94, 26, 0.25);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    isolation: isolate;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #0D0B09;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 30px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 50;
+  }
+
+  /* ---------- Status bar ---------- */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 4px;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream);
+    z-index: 10;
+  }
+  .status-bar .icons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .status-bar svg { display: block; }
+
+  /* ---------- App header ---------- */
+  .app-header {
+    padding: 14px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(13,11,9,0.9), rgba(13,11,9,0));
+  }
+  .loc {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .loc-pin {
+    width: 32px; height: 32px;
+    background: var(--orange);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    color: var(--black);
+    box-shadow: 0 6px 14px -4px rgba(255, 94, 26, 0.5);
+  }
+  .loc-text .label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .loc-text .place {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    color: var(--cream);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s ease, background 0.2s;
+  }
+  .icon-btn:active { transform: scale(0.93); }
+  .icon-btn .badge {
+    position: absolute;
+    top: -3px; right: -3px;
+    width: 16px; height: 16px;
+    background: var(--orange);
+    color: var(--black);
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    border: 2px solid #0D0B09;
+  }
+
+  /* ---------- Scroll area ---------- */
+  .scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 100px;
+    scrollbar-width: none;
+  }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    margin: 0 16px;
+    height: 280px;
+    border-radius: 26px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg, #1a0d05 0%, #2c1408 40%, #0d0703 100%);
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.6);
+  }
+  /* Aerial "favela" skyline made from stacked colored rooftops */
+  .skyline {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .sky {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 60% at 50% 0%, #3a1f0e 0%, #1a0d05 50%, #0a0402 100%),
+      linear-gradient(180deg, #2a160a 0%, #0a0402 100%);
+  }
+  .sky::after {
+    /* stars / lights */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle 1px at 12% 18%, var(--yellow) 100%, transparent 100%),
+      radial-gradient(circle 1px at 28% 12%, #FFF 100%, transparent 100%),
+      radial-gradient(circle 1px at 42% 22%, var(--yellow) 100%, transparent 100%),
+      radial-gradient(circle 1px at 64% 16%, #FFF 100%, transparent 100%),
+      radial-gradient(circle 1px at 78% 24%, var(--yellow) 100%, transparent 100%),
+      radial-gradient(circle 1px at 88% 10%, #FFF 100%, transparent 100%),
+      radial-gradient(circle 1px at 8% 30%, var(--yellow) 100%, transparent 100%);
+    opacity: 0.7;
+  }
+  .moon {
+    position: absolute;
+    top: 26px;
+    right: 28px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFF6E0, var(--yellow));
+    box-shadow: 0 0 24px rgba(255, 210, 63, 0.4), 0 0 60px rgba(255, 210, 63, 0.15);
+  }
+  .rooftops {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75%;
+  }
+  .row {
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .row.r1 { bottom: 0; height: 50%; z-index: 4; }
+  .row.r2 { bottom: 32%; height: 38%; z-index: 3; opacity: 0.92; }
+  .row.r3 { bottom: 52%; height: 28%; z-index: 2; opacity: 0.75; }
+  .row.r4 { bottom: 66%; height: 20%; z-index: 1; opacity: 0.55; }
+  .house {
+    flex: 1;
+    height: 100%;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    position: relative;
+    background: #2a1810;
+  }
+  .house.c1 { background: #3b1f10; }
+  .house.c2 { background: #4d2a15; }
+  .house.c3 { background: #2a1810; }
+  .house.c4 { background: #5a3320; }
+  .house.c5 { background: #38200f; }
+  .house.tall { transform: translateY(-12px); }
+  .house.taller { transform: translateY(-22px); }
+  .house.shortest { transform: translateY(8px); }
+  .house .win {
+    position: absolute;
+    width: 22%;
+    height: 14%;
+    background: var(--yellow);
+    border-radius: 1px;
+    box-shadow: 0 0 8px rgba(255, 210, 63, 0.6);
+  }
+  .house .win.w1 { top: 30%; left: 18%; }
+  .house .win.w2 { top: 55%; left: 60%; background: var(--orange); box-shadow: 0 0 8px rgba(255, 94, 26, 0.7); }
+  .house .win.w3 { top: 18%; left: 60%; }
+  .house .win.off { background: #1a0f08; box-shadow: none; }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(11,11,11,0.7) 75%, rgba(11,11,11,0.95) 100%);
+    z-index: 5;
+  }
+  .hero-content {
+    position: absolute;
+    bottom: 18px;
+    left: 18px;
+    right: 18px;
+    z-index: 6;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 94, 26, 0.95);
+    color: var(--black);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .hero-tag::before {
+    content: "";
+    width: 6px; height: 6px;
+    background: var(--black);
+    border-radius: 50%;
+    animation: pulse-dark 1.5s ease-out infinite;
+  }
+  @keyframes pulse-dark {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .hero-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    color: var(--cream);
+    margin-bottom: 6px;
+    text-wrap: balance;
+  }
+  .hero-title .y { color: var(--yellow); }
+  .hero-sub {
+    font-size: 13px;
+    color: rgba(245,240,232,0.7);
+    line-height: 1.4;
+  }
+
+  /* ---------- Search ---------- */
+  .search-wrap {
+    margin: 16px;
+    padding: 6px 6px 6px 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .search-wrap:focus-within {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 4px rgba(255, 94, 26, 0.15);
+  }
+  .search-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--cream);
+    font-family: var(--body);
+    font-size: 14px;
+    padding: 12px 0;
+  }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-go {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: var(--black);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 14px -4px rgba(255, 94, 26, 0.6);
+    transition: transform 0.15s;
+  }
+  .search-go:active { transform: scale(0.92); }
+
+  /* ---------- Quick actions ---------- */
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 0 16px;
+    margin-bottom: 8px;
+  }
+  .qa {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 6px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .qa:active { transform: scale(0.95); }
+  .qa:hover { border-color: var(--line-strong); background: var(--card-2); }
+  .qa-icon {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+  }
+  .qa-icon.b1 { background: rgba(255, 94, 26, 0.15); color: var(--orange); }
+  .qa-icon.b2 { background: rgba(255, 210, 63, 0.15); color: var(--yellow); }
+  .qa-icon.b3 { background: rgba(43, 217, 107, 0.15); color: var(--green); }
+  .qa-icon.b4 { background: rgba(245, 240, 232, 0.08); color: var(--cream); }
+  .qa-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cream);
+    text-align: center;
+  }
+  .qa-new {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--card);
+  }
+
+  /* ---------- Section ---------- */
+  .section { margin-top: 24px; }
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 16px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .emoji {
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    background: rgba(255,94,26,0.15);
+  }
+  .section-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .section-link {
+    font-size: 12px;
+    color: var(--orange);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .hscroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+  }
+  .hscroll::-webkit-scrollbar { display: none; }
+  .hscroll > * { scroll-snap-align: start; }
+
+  /* ---------- Pro card ---------- */
+  .pro-card {
+    flex: 0 0 220px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .pro-card:active { transform: scale(0.98); }
+  .pro-photo {
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pro-photo .gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--c1, var(--orange)), var(--c2, var(--orange-deep)));
+  }
+  .pro-photo .pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 12px);
+    mix-blend-mode: multiply;
+  }
+  .pro-photo .initials {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 56px;
+    color: rgba(11,11,11,0.55);
+    letter-spacing: -0.04em;
+  }
+  .pro-photo .verified {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(11,11,11,0.75);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 8px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .pro-photo .verified::before {
+    content: "✓";
+    background: var(--green);
+    color: var(--black);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 800;
+  }
+  .pro-photo .price {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    background: var(--black);
+    color: var(--yellow);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .pro-body {
+    padding: 12px 14px 14px;
+  }
+  .pro-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+    line-height: 1.1;
+  }
+  .pro-role {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .pro-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+  .pro-stars {
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .pro-stars .num {
+    color: var(--cream);
+    font-weight: 600;
+  }
+  .pro-stars .count {
+    color: var(--muted);
+  }
+  .pro-dist {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .pro-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .btn-wpp, .btn-profile {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 8px;
+    font-family: var(--body);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: transform 0.15s, background 0.2s;
+  }
+  .btn-wpp {
+    background: var(--green);
+    color: var(--black);
+  }
+  .btn-wpp:active { transform: scale(0.95); }
+  .btn-wpp:hover { background: var(--green-deep); }
+  .btn-profile {
+    background: rgba(245,240,232,0.06);
+    color: var(--cream);
+    border: 1px solid var(--line);
+  }
+  .btn-profile:hover { background: rgba(245,240,232,0.1); }
+
+  /* ---------- Event cards ---------- */
+  .event-card {
+    flex: 0 0 280px;
+    height: 200px;
+    border-radius: 22px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .event-card:active { transform: scale(0.98); }
+  .event-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--ev1, #FF5E1A), var(--ev2, #E84A06));
+  }
+  .event-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15), transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0,0,0,0.2), transparent 50%);
+  }
+  .event-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(-45deg, transparent 0 14px, rgba(0,0,0,0.07) 14px 16px);
+  }
+  .event-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(11,11,11,0.85) 100%);
+  }
+  .event-date {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: rgba(11,11,11,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 6px 10px;
+    text-align: center;
+    color: var(--cream);
+  }
+  .event-date .day {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .event-date .month {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--yellow);
+  }
+  .event-cat {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: rgba(11,11,11,0.7);
+    backdrop-filter: blur(8px);
+    color: var(--cream);
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 5px 9px;
+    border-radius: 999px;
+  }
+  .event-info {
+    position: absolute;
+    bottom: 14px; left: 14px; right: 14px;
+    color: var(--cream);
+  }
+  .event-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    text-wrap: balance;
+  }
+  .event-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: rgba(245,240,232,0.85);
+  }
+  .event-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .event-going {
+    display: flex;
+    align-items: center;
+    gap: -6px;
+    margin-top: 8px;
+  }
+  .event-going .avatars {
+    display: flex;
+  }
+  .event-going .av {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid #1a0d05;
+    margin-left: -7px;
+    background: var(--yellow);
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--black);
+  }
+  .event-going .av:first-child { margin-left: 0; }
+  .event-going .av.a1 { background: var(--yellow); }
+  .event-going .av.a2 { background: var(--green); }
+  .event-going .av.a3 { background: var(--cream); }
+  .event-going .count {
+    font-size: 11px;
+    margin-left: 6px;
+    color: rgba(245,240,232,0.9);
+    font-weight: 500;
+  }
+
+  /* ---------- Project cards ---------- */
+  .project-card {
+    flex: 0 0 260px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .project-card:active { transform: scale(0.98); }
+  .project-card:hover { border-color: var(--line-strong); }
+  .project-card::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: var(--pcol, var(--green));
+    opacity: 0.08;
+    border-radius: 50%;
+    filter: blur(20px);
+  }
+  .project-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+  }
+  .project-icon {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    background: rgba(43, 217, 107, 0.15);
+    color: var(--green);
+  }
+  .project-icon.org { background: rgba(255, 210, 63, 0.15); color: var(--yellow); }
+  .project-icon.spt { background: rgba(255, 94, 26, 0.15); color: var(--orange); }
+  .project-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--green);
+    border: 1px solid rgba(43,217,107,0.3);
+    padding: 3px 7px;
+    border-radius: 999px;
+  }
+  .project-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .project-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .project-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .project-foot .impact {
+    color: var(--cream);
+    font-weight: 600;
+  }
+  .project-foot .impact .num {
+    color: var(--orange);
+  }
+  .arrow-btn {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--black);
+    display: grid;
+    place-items: center;
+    transition: transform 0.2s;
+  }
+  .project-card:hover .arrow-btn { transform: translateX(2px) rotate(-45deg); }
+
+  /* ---------- Vagas ---------- */
+  .vaga-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 16px;
+  }
+  .vaga {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .vaga:active { transform: scale(0.98); }
+  .vaga:hover { border-color: var(--line-strong); }
+  .vaga-logo {
+    width: 44px; height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--black);
+    background: var(--yellow);
+  }
+  .vaga-logo.v2 { background: var(--orange); }
+  .vaga-logo.v3 { background: var(--green); }
+  .vaga-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .vaga-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .vaga-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .vaga-company {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .vaga-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .vaga-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    background: rgba(245,240,232,0.04);
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  .vaga-tag.hot {
+    color: var(--orange);
+    border-color: rgba(255,94,26,0.3);
+    background: rgba(255,94,26,0.08);
+  }
+  .vaga-tag.new {
+    color: var(--green);
+    border-color: rgba(43,217,107,0.3);
+    background: rgba(43,217,107,0.08);
+  }
+  .vaga-pay {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--green);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Feed ---------- */
+  .feed-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 8px;
+    padding: 0 16px;
+  }
+  .feed-item {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .feed-item:active { transform: scale(0.98); }
+  .feed-item.tall {
+    grid-row: span 2;
+    aspect-ratio: 1 / 1.6;
+  }
+  .feed-item:not(.tall) {
+    aspect-ratio: 1;
+  }
+  .feed-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--f1, var(--orange)), var(--f2, var(--orange-deep)));
+  }
+  .feed-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 60%),
+      repeating-linear-gradient(0deg, transparent 0 4px, rgba(0,0,0,0.06) 4px 5px);
+  }
+  .feed-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11,11,11,0.05) 50%, rgba(11,11,11,0.85) 100%);
+  }
+  .feed-icon {
+    position: absolute;
+    top: 10px; right: 10px;
+    color: var(--cream);
+    background: rgba(11,11,11,0.5);
+    backdrop-filter: blur(8px);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+  .feed-author {
+    position: absolute;
+    top: 10px; left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(11,11,11,0.5);
+    backdrop-filter: blur(8px);
+    padding: 4px 10px 4px 4px;
+    border-radius: 999px;
+  }
+  .feed-author .av {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: var(--black);
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 800;
+    font-family: var(--display);
+  }
+  .feed-author .name {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--cream);
+  }
+  .feed-text {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    color: var(--cream);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .feed-stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: 10px;
+    color: rgba(245,240,232,0.85);
+  }
+  .feed-stats span { display: flex; align-items: center; gap: 3px; }
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: rgba(13, 11, 9, 0.9);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-top: 10px;
+    z-index: 30;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 4px;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-item.center { transform: translateY(-22px); }
+  .nav-item .label {
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .nav-item.active { color: var(--orange); }
+  .nav-item.active .label { font-weight: 600; }
+  .nav-item .dot {
+    position: absolute;
+    top: 0;
+    width: 24px; height: 3px;
+    background: var(--orange);
+    border-radius: 0 0 4px 4px;
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .nav-item.active .dot { transform: scaleX(1); }
+  .nav-center-btn {
+    width: 56px; height: 56px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%);
+    display: grid;
+    place-items: center;
+    color: var(--black);
+    box-shadow: 0 10px 24px -8px rgba(255, 94, 26, 0.6);
+    transition: transform 0.2s;
+  }
+  .nav-item.center:active .nav-center-btn { transform: scale(0.94) rotate(-8deg); }
+
+  /* ---------- Section: section dividers ---------- */
+  .section-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 24px 16px 0;
+  }
+
+  /* ---------- Other screens stubs ---------- */
+  .screen-stub {
+    padding: 24px 20px;
+    color: var(--cream);
+    flex: 1;
+    overflow-y: auto;
+  }
+  .stub-title {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.025em;
+    margin-bottom: 6px;
+  }
+  .stub-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 22px;
+  }
+
+  /* ---------- Buscar screen ---------- */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .cat {
+    aspect-ratio: 1.2;
+    border-radius: 18px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--cc1), var(--cc2));
+    color: var(--black);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .cat:active { transform: scale(0.97); }
+  .cat::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 14px, rgba(0,0,0,0.05) 14px 15px);
+  }
+  .cat .ico {
+    font-size: 28px;
+    position: relative;
+  }
+  .cat .name {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    position: relative;
+  }
+  .cat .cnt {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(11,11,11,0.7);
+    position: relative;
+    margin-top: 2px;
+  }
+
+  /* ---------- Postar screen ---------- */
+  .post-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .post-opt {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .post-opt:active { transform: scale(0.98); }
+  .post-opt:hover { border-color: var(--line-strong); }
+  .post-opt-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .post-opt-icon.o1 { background: rgba(255,94,26,0.15); color: var(--orange); }
+  .post-opt-icon.o2 { background: rgba(255,210,63,0.15); color: var(--yellow); }
+  .post-opt-icon.o3 { background: rgba(43,217,107,0.15); color: var(--green); }
+  .post-opt-icon.o4 { background: rgba(245,240,232,0.06); color: var(--cream); }
+  .post-opt-body { flex: 1; }
+  .post-opt-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .post-opt-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+
+  /* ---------- Messages screen ---------- */
+  .msg-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .msg-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .msg-av {
+    width: 48px; height: 48px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    background: var(--yellow);
+    color: var(--black);
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 18px;
+    position: relative;
+  }
+  .msg-av.online::after {
+    content: "";
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 12px; height: 12px;
+    background: var(--green);
+    border-radius: 50%;
+    border: 2.5px solid #0D0B09;
+  }
+  .msg-body { flex: 1; min-width: 0; }
+  .msg-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+  .msg-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+  .msg-time {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .msg-row2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .msg-preview {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+  }
+  .msg-preview.unread { color: var(--cream); font-weight: 500; }
+  .msg-unread {
+    background: var(--orange);
+    color: var(--black);
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Profile screen ---------- */
+  .profile-head {
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+  }
+  .profile-head::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -20px; right: -20px;
+    height: 120px;
+    background: linear-gradient(180deg, rgba(255,94,26,0.2), transparent);
+  }
+  .profile-av {
+    width: 96px; height: 96px;
+    border-radius: 30px;
+    margin: 0 auto 14px;
+    background: linear-gradient(135deg, var(--orange), var(--yellow));
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 42px;
+    color: var(--black);
+    box-shadow: 0 10px 30px -6px rgba(255,94,26,0.5);
+    position: relative;
+    z-index: 1;
+  }
+  .profile-name {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -0.025em;
+    position: relative;
+    z-index: 1;
+  }
+  .profile-handle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .profile-bio {
+    font-size: 13px;
+    color: var(--cream);
+    max-width: 260px;
+    margin: 0 auto 14px;
+    line-height: 1.45;
+    position: relative;
+    z-index: 1;
+  }
+  .profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin: 20px 0;
+    position: relative;
+    z-index: 1;
+  }
+  .pstat {
+    text-align: center;
+    padding: 14px 6px;
+    background: var(--card);
+    border-radius: 14px;
+    border: 1px solid var(--line);
+  }
+  .pstat .n {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+  }
+  .pstat .l {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+  .profile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 18px;
+  }
+  .pli {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .pli:hover { border-color: var(--line-strong); }
+  .pli-ico {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,94,26,0.15);
+    color: var(--orange);
+    display: grid;
+    place-items: center;
+  }
+  .pli-name {
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .pli-arr { color: var(--muted); }
+
+  /* ---------- Transitions between screens ---------- */
+  .screen-anim-enter-active, .screen-anim-leave-active {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .screen-anim-enter-from { opacity: 0; transform: translateY(8px); }
+  .screen-anim-leave-to { opacity: 0; transform: translateY(-8px); }
+  .screen-anim-leave-active { position: absolute; inset: 0; }
+
+  /* Fade-in stagger */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero, .search-wrap, .quick-actions, .section {
+    animation: fadeInUp 0.5s ease both;
+  }
+  .search-wrap { animation-delay: 0.08s; }
+  .quick-actions { animation-delay: 0.14s; }
+  .section:nth-of-type(1) { animation-delay: 0.2s; }
+  .section:nth-of-type(2) { animation-delay: 0.26s; }
+  .section:nth-of-type(3) { animation-delay: 0.32s; }
+  .section:nth-of-type(4) { animation-delay: 0.38s; }
+
+  /* Bricolage italic for emotional moments */
+  .italic { font-style: italic; }
+
+  /* ---------- Footer credit ---------- */
+  .credit {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-top: 32px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted-2);
+    letter-spacing: 0.06em;
+  }
+  .credit .heart { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="page">
+    <div class="stage">
+      <!-- LEFT CONTEXT PANEL -->
+      <aside class="side-panel left">
+        <div class="brand-mark" style="justify-content:flex-end;">
+          <span>Cria da Comunidade</span>
+          <span class="dot"></span>
+        </div>
+        <h1>
+          A favela <br />
+          <span class="accent">conectada</span><br />
+          <span class="underline">na palma</span><br />
+          da mão.
+        </h1>
+        <p>Plataforma que liga moradores a profissionais locais, eventos, projetos sociais e oportunidades de renda. Feito por cria, pra cria.</p>
+        <div class="meta-row">
+          <span class="pill live">no ar agora</span>
+          <span class="pill">beta v0.9</span>
+        </div>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="num">12k+</div>
+            <div class="label">moradores</div>
+          </div>
+          <div class="stat">
+            <div class="num">2.4k</div>
+            <div class="label">profissionais</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- PHONE -->
+      <div class="phone" data-screen-label="App">
+        <div class="phone-screen">
+          <div class="notch"></div>
+
+          <!-- Status bar -->
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="icons">
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+                <rect x="0" y="7" width="3" height="4" rx="0.5" fill="currentColor"/>
+                <rect x="4.3" y="5" width="3" height="6" rx="0.5" fill="currentColor"/>
+                <rect x="8.6" y="3" width="3" height="8" rx="0.5" fill="currentColor"/>
+                <rect x="12.9" y="0" width="3" height="11" rx="0.5" fill="currentColor"/>
+              </svg>
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
+                <path d="M7.5 2.5C9.7 2.5 11.7 3.4 13.2 4.8L14.4 3.6C12.6 1.9 10.2 0.9 7.5 0.9C4.8 0.9 2.4 1.9 0.6 3.6L1.8 4.8C3.3 3.4 5.3 2.5 7.5 2.5Z" fill="currentColor"/>
+                <path d="M7.5 5.8C8.9 5.8 10.2 6.4 11.2 7.3L12.4 6.1C11.1 4.9 9.4 4.2 7.5 4.2C5.6 4.2 3.9 4.9 2.6 6.1L3.8 7.3C4.8 6.4 6.1 5.8 7.5 5.8Z" fill="currentColor"/>
+                <circle cx="7.5" cy="9.4" r="1.4" fill="currentColor"/>
+              </svg>
+              <svg width="25" height="11" viewBox="0 0 25 11" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="10" rx="2.5" stroke="currentColor" opacity="0.5"/>
+                <rect x="2" y="2" width="16" height="7" rx="1.5" fill="currentColor"/>
+                <rect x="22.5" y="3.5" width="1.5" height="4" rx="0.5" fill="currentColor" opacity="0.5"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Screen content -->
+          <transition name="screen-anim" mode="out-in">
+            <component :is="currentScreenComponent" :key="currentScreen" v-bind="$data"></component>
+          </transition>
+
+          <!-- Bottom nav -->
+          <nav class="bottom-nav">
+            <div v-for="(item, idx) in navItems" :key="item.id"
+                 class="nav-item"
+                 :class="{ active: currentScreen === item.id, center: item.center }"
+                 @click="currentScreen = item.id">
+              <span class="dot" v-if="!item.center"></span>
+              <template v-if="item.center">
+                <div class="nav-center-btn">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="label" style="margin-top:4px;">{{ item.label }}</span>
+              </template>
+              <template v-else>
+                <span v-html="item.icon"></span>
+                <span class="label">{{ item.label }}</span>
+              </template>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- RIGHT CONTEXT PANEL -->
+      <aside class="side-panel right">
+        <div class="brand-mark">
+          <span class="dot"></span>
+          <span>protótipo · interativo</span>
+        </div>
+        <h1 style="font-size: clamp(28px, 3vw, 40px);">
+          Tudo que <br />
+          rola na <br />
+          quebrada — <br />
+          <span class="accent italic">em um app só.</span>
+        </h1>
+        <p>Profissionais, baile, projeto social, vaga, feed da comunidade. Toca em qualquer botão pra navegar pelo app.</p>
+        <div class="meta-row">
+          <span class="pill">vue.js 3</span>
+          <span class="pill">mobile-first</span>
+          <span class="pill">5 telas</span>
+        </div>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="num">390 × 844</div>
+            <div class="label">canvas</div>
+          </div>
+          <div class="stat">
+            <div class="num">R$ 0</div>
+            <div class="label">pra usar</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="credit">feito com <span class="heart">♥</span> de cria · pra cria · 2026</div>
+  </div>
+</div>
+
+<!-- ============== Vue templates as inline x-template ============== -->
+
+<!-- HOME -->
+<script type="text/x-template" id="screen-home">
+<div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+  <!-- App header -->
+  <div class="app-header">
+    <div class="loc">
+      <div class="loc-pin">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C8 2 5 5 5 9c0 5.5 7 12 7 12s7-6.5 7-12c0-4-3-7-7-7z" fill="currentColor"/>
+          <circle cx="12" cy="9" r="2.5" fill="#FF5E1A"/>
+        </svg>
+      </div>
+      <div class="loc-text">
+        <div class="label">SUA QUEBRADA</div>
+        <div class="place">
+          Complexo do Alemão
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" title="Notificações">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 21a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="badge">3</span>
+      </button>
+      <button class="icon-btn" title="Mensagens">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="scroll">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="skyline">
+        <div class="sky"></div>
+        <div class="moon"></div>
+        <div class="rooftops">
+          <div class="row r4">
+            <div v-for="n in 18" :key="'r4'+n" class="house" :class="['c'+ ((n%5)+1), n%4===0 ? 'tall' : (n%5===0 ? 'shortest' : '')]">
+              <div class="win w3 off"></div>
+            </div>
+          </div>
+          <div class="row r3">
+            <div v-for="n in 16" :key="'r3'+n" class="house" :class="['c'+ ((n%5)+1), n%3===0 ? 'tall' : '']">
+              <div class="win w1" :class="{ off: n%3===1 }"></div>
+              <div class="win w3 off"></div>
+            </div>
+          </div>
+          <div class="row r2">
+            <div v-for="n in 14" :key="'r2'+n" class="house" :class="['c'+ ((n%5)+1), n%4===0 ? 'taller' : (n%3===0 ? 'tall' : '')]">
+              <div class="win w1"></div>
+              <div class="win w2" v-if="n%2===0"></div>
+              <div class="win w3 off"></div>
+            </div>
+          </div>
+          <div class="row r1">
+            <div v-for="n in 12" :key="'r1'+n" class="house" :class="['c'+ ((n%5)+1), n%3===0 ? 'tall' : (n%5===0 ? 'taller' : '')]">
+              <div class="win w1"></div>
+              <div class="win w2" v-if="n%2===1"></div>
+              <div class="win w3" v-if="n%4===0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <span class="hero-tag">favela viva</span>
+        <h1 class="hero-title">Tudo que acontece na comunidade <span class="y">em um só lugar.</span></h1>
+        <p class="hero-sub">Profissional de confiança, baile do final de semana, vaga, projeto social. Tá tudo aqui.</p>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--muted)">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+        <path d="M21 21l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Qual serviço você procura?" />
+      <button class="search-go">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <div v-for="(qa, i) in quickActions" :key="qa.name" class="qa">
+        <div class="qa-icon" :class="'b' + ((i % 4) + 1)" v-html="qa.icon"></div>
+        <div class="qa-label">{{ qa.name }}</div>
+        <div class="qa-new" v-if="qa.new"></div>
+      </div>
+    </div>
+
+    <!-- SECTION: PROFISSIONAIS -->
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="emoji">⭐</span>
+            Profissionais em destaque
+          </div>
+          <div class="section-sub">perto de você · top avaliados</div>
+        </div>
+        <div class="section-link">
+          ver todos
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="hscroll">
+        <div v-for="p in pros" :key="p.name" class="pro-card">
+          <div class="pro-photo">
+            <div class="gradient" :style="{ '--c1': p.c1, '--c2': p.c2 }"></div>
+            <div class="pattern"></div>
+            <div class="initials">{{ p.initials }}</div>
+            <div class="verified" v-if="p.verified">verificado</div>
+            <div class="price">R$ {{ p.price }}</div>
+          </div>
+          <div class="pro-body">
+            <div class="pro-name">{{ p.name }}</div>
+            <div class="pro-role">{{ p.role }}</div>
+            <div class="pro-meta">
+              <div class="pro-stars">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span class="num">{{ p.stars }}</span>
+                <span class="count">({{ p.reviews }})</span>
+              </div>
+              <div class="pro-dist">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2C8 2 5 5 5 9c0 5.5 7 12 7 12s7-6.5 7-12c0-4-3-7-7-7z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ p.dist }}
+              </div>
+            </div>
+            <div class="pro-actions">
+              <button class="btn-wpp">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-1.6-.8-2.7-1.4-3.8-3.3-.3-.5.3-.5.8-1.5.1-.2 0-.3 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3.1 4.9 4.3 1.8.8 2.5.9 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4 0-.1-.2-.2-.4-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
+                </svg>
+                WhatsApp
+              </button>
+              <button class="btn-profile">Ver perfil</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: EVENTOS -->
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="emoji" style="background:rgba(255,210,63,0.15);color:var(--yellow);">🎵</span>
+            Rola na comunidade
+          </div>
+          <div class="section-sub">eventos · bailes · cultura</div>
+        </div>
+        <div class="section-link">
+          agenda
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="hscroll">
+        <div v-for="ev in events" :key="ev.title" class="event-card">
+          <div class="event-bg" :style="{ '--ev1': ev.c1, '--ev2': ev.c2 }"></div>
+          <div class="event-overlay"></div>
+          <div class="event-date">
+            <div class="day">{{ ev.day }}</div>
+            <div class="month">{{ ev.month }}</div>
+          </div>
+          <div class="event-cat">{{ ev.cat }}</div>
+          <div class="event-info">
+            <div class="event-title">{{ ev.title }}</div>
+            <div class="event-meta">
+              <span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                {{ ev.time }}
+              </span>
+              <span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2C8 2 5 5 5 9c0 5.5 7 12 7 12s7-6.5 7-12c0-4-3-7-7-7z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ ev.place }}
+              </span>
+            </div>
+            <div class="event-going">
+              <div class="avatars">
+                <div class="av a1">M</div>
+                <div class="av a2">R</div>
+                <div class="av a3">J</div>
+              </div>
+              <span class="count">+{{ ev.going }} confirmados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: PROJETOS SOCIAIS -->
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="emoji" style="background:rgba(43,217,107,0.15);color:var(--green);">✊</span>
+            Projetos sociais
+          </div>
+          <div class="section-sub">muda a quebrada · participa</div>
+        </div>
+        <div class="section-link">explorar</div>
+      </div>
+      <div class="hscroll">
+        <div v-for="pr in projects" :key="pr.name" class="project-card" :style="{ '--pcol': pr.color }">
+          <div class="project-head">
+            <div class="project-icon" :class="pr.iconClass">{{ pr.icon }}</div>
+            <span class="project-tag" :style="{ color: pr.color, borderColor: pr.color + '4D' }">{{ pr.tag }}</span>
+          </div>
+          <div>
+            <div class="project-name">{{ pr.name }}</div>
+            <div class="project-desc">{{ pr.desc }}</div>
+          </div>
+          <div class="project-foot">
+            <div class="impact"><span class="num">{{ pr.impact }}</span> {{ pr.impactLabel }}</div>
+            <div class="arrow-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: VAGAS -->
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="emoji" style="background:rgba(255,210,63,0.15);color:var(--yellow);">💼</span>
+            Vagas e oportunidades
+          </div>
+          <div class="section-sub">{{ vagas.length }} novas hoje · perto de você</div>
+        </div>
+        <div class="section-link">tudo</div>
+      </div>
+      <div class="vaga-list">
+        <div v-for="(v, i) in vagas" :key="v.title" class="vaga">
+          <div class="vaga-logo" :class="'v' + ((i%3)+1)">{{ v.logo }}</div>
+          <div class="vaga-info">
+            <div class="vaga-row">
+              <div>
+                <div class="vaga-title">{{ v.title }}</div>
+                <div class="vaga-company">{{ v.company }} · {{ v.place }}</div>
+              </div>
+              <div class="vaga-pay">{{ v.pay }}</div>
+            </div>
+            <div class="vaga-tags">
+              <span v-for="t in v.tags" :key="t.label" class="vaga-tag" :class="t.kind">{{ t.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: FEED -->
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <div class="section-title">
+            <span class="emoji" style="background:rgba(245,240,232,0.08);color:var(--cream);">📸</span>
+            Feed da comunidade
+          </div>
+          <div class="section-sub">história viva · em tempo real</div>
+        </div>
+        <div class="section-link">ao vivo →</div>
+      </div>
+      <div class="feed-grid">
+        <div v-for="(f, i) in feed" :key="f.author + i" class="feed-item" :class="{ tall: f.tall }">
+          <div class="feed-bg" :style="{ '--f1': f.c1, '--f2': f.c2 }"></div>
+          <div class="feed-overlay"></div>
+          <div class="feed-author">
+            <div class="av">{{ f.initial }}</div>
+            <div class="name">{{ f.author }}</div>
+          </div>
+          <div class="feed-icon" v-if="f.type === 'video'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+          <div class="feed-icon" v-else-if="f.type === 'multi'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 21h14a2 2 0 0 0 2-2V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="feed-text">
+            {{ f.caption }}
+            <div class="feed-stats">
+              <span>♥ {{ f.likes }}</span>
+              <span>💬 {{ f.comments }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding: 28px 16px 0; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--muted-2); text-transform: uppercase;">
+      você chegou no fim · feito por cria
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- BUSCAR -->
+<script type="text/x-template" id="screen-buscar">
+<div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+  <div class="app-header" style="padding-top:18px;">
+    <div>
+      <div style="font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);">descobrir</div>
+      <div style="font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.025em;">O que tu precisa hoje?</div>
+    </div>
+    <button class="icon-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="scroll" style="padding-bottom: 100px;">
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--orange)">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+        <path d="M21 21l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Busca por serviço, nome, baile..." />
+      <button class="search-go">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M6 12h12M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div style="padding: 0 16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin: 8px 0 14px;">
+        <h3 style="font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -0.02em;">Categorias</h3>
+        <span style="font-size: 11px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em;">24 ativas</span>
+      </div>
+      <div class="cat-grid">
+        <div v-for="(c, i) in categories" :key="c.name" class="cat" :style="{ '--cc1': c.c1, '--cc2': c.c2 }">
+          <div class="ico">{{ c.emoji }}</div>
+          <div>
+            <div class="name">{{ c.name }}</div>
+            <div class="cnt">{{ c.count }} disponíveis</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -0.02em; margin: 22px 0 12px;">Mais buscado essa semana</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <span v-for="t in trending" :key="t" style="font-size: 12px; padding: 8px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--cream); cursor:pointer; transition: all 0.2s;"
+              :class="{ hot: t.hot }">
+          <span v-if="t.hot" style="color: var(--orange);">🔥 </span>{{ t.label }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- POSTAR -->
+<script type="text/x-template" id="screen-postar">
+<div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+  <div class="app-header" style="padding-top:18px;">
+    <div>
+      <div style="font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);">criar</div>
+      <div style="font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.025em;">Mostra o que tu faz</div>
+    </div>
+    <button class="icon-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="scroll" style="padding: 4px 20px 100px;">
+    <div style="background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%); padding: 18px; border-radius: 22px; margin-bottom: 18px; color: var(--black); position: relative; overflow:hidden;">
+      <div style="position:absolute; inset:0; background-image: repeating-linear-gradient(45deg, transparent 0 14px, rgba(0,0,0,0.05) 14px 15px);"></div>
+      <div style="position:relative; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">VOCÊ É CRIA</div>
+      <div style="position:relative; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.025em; line-height: 1.05; margin-top: 4px; text-wrap: balance;">Compartilha sua arte, seu corre, sua história.</div>
+    </div>
+
+    <div class="post-options">
+      <div v-for="o in postOpts" :key="o.name" class="post-opt">
+        <div class="post-opt-icon" :class="o.class" v-html="o.icon"></div>
+        <div class="post-opt-body">
+          <div class="post-opt-name">{{ o.name }}</div>
+          <div class="post-opt-desc">{{ o.desc }}</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="color: var(--muted)">
+          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; padding: 16px; border: 1px dashed var(--line-strong); border-radius: 16px; text-align: center;">
+      <div style="font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em;">protótipo</div>
+      <div style="font-size: 12px; color: var(--cream); margin-top: 4px;">As ações são apenas visuais nessa versão</div>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- MENSAGENS -->
+<script type="text/x-template" id="screen-msg">
+<div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+  <div class="app-header" style="padding-top:18px;">
+    <div>
+      <div style="font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);">conversas</div>
+      <div style="font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.025em;">Mensagens</div>
+    </div>
+    <button class="icon-btn" title="Nova">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="scroll" style="padding: 4px 20px 100px;">
+    <div class="search-wrap" style="margin: 0 0 12px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:var(--muted)">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+        <path d="M21 21l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Buscar conversas..." />
+    </div>
+
+    <div style="display:flex; gap: 12px; padding: 12px 0; overflow-x: auto; scrollbar-width: none;">
+      <div v-for="s in stories" :key="s.name" style="display:flex; flex-direction:column; align-items:center; gap: 5px; flex-shrink: 0;">
+        <div style="width: 58px; height: 58px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, var(--orange), var(--yellow));">
+          <div style="width: 100%; height: 100%; border-radius: 50%; background: var(--card); padding: 2px;">
+            <div :style="{ width: '100%', height: '100%', borderRadius: '50%', background: s.color, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontWeight: 800, fontSize: '18px', color: 'var(--black)' }">{{ s.initial }}</div>
+          </div>
+        </div>
+        <span style="font-size: 10px; color: var(--cream); max-width: 60px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ s.name }}</span>
+      </div>
+    </div>
+
+    <div class="msg-list">
+      <div v-for="(m, i) in messages" :key="m.name" class="msg-item">
+        <div class="msg-av" :class="{ online: m.online }" :style="{ background: m.color }">{{ m.initial }}</div>
+        <div class="msg-body">
+          <div class="msg-row1">
+            <span class="msg-name">{{ m.name }}</span>
+            <span class="msg-time">{{ m.time }}</span>
+          </div>
+          <div class="msg-row2">
+            <span class="msg-preview" :class="{ unread: m.unread > 0 }">{{ m.preview }}</span>
+            <span class="msg-unread" v-if="m.unread > 0">{{ m.unread }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- PERFIL -->
+<script type="text/x-template" id="screen-perfil">
+<div style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+  <div class="app-header" style="padding-top:18px;">
+    <div>
+      <div style="font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);">seu perfil</div>
+      <div style="font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.025em;">Cria orgulhoso</div>
+    </div>
+    <button class="icon-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="scroll" style="padding: 0 20px 100px;">
+    <div class="profile-head">
+      <div class="profile-av">MS</div>
+      <div class="profile-name">Maria Silva</div>
+      <div class="profile-handle">@mari.cria · Complexo do Alemão</div>
+      <div class="profile-bio">Manicure desde 2019 · Atende em casa · 7 anos servindo a quebrada com carinho ✨</div>
+      <div style="display:flex; gap: 8px; justify-content: center; position: relative; z-index: 1;">
+        <button class="btn-wpp" style="padding: 10px 18px; font-size: 12px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-1.6-.8-2.7-1.4-3.8-3.3-.3-.5.3-.5.8-1.5.1-.2 0-.3 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3.1 4.9 4.3 1.8.8 2.5.9 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4 0-.1-.2-.2-.4-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
+          </svg>
+          Chamar
+        </button>
+        <button class="btn-profile" style="padding: 10px 18px; font-size: 12px;">Editar</button>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="pstat"><div class="n">4.9</div><div class="l">estrelas</div></div>
+      <div class="pstat"><div class="n">312</div><div class="l">atendimentos</div></div>
+      <div class="pstat"><div class="n">7 ano</div><div class="l">na quebrada</div></div>
+    </div>
+
+    <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-top: 6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <div style="font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);">esta semana</div>
+        <div style="font-size: 11px; color: var(--green); font-weight: 600;">▲ 24%</div>
+      </div>
+      <div style="font-family: var(--display); font-weight: 800; font-size: 28px; letter-spacing: -0.025em;">R$ 1.840</div>
+      <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">renda gerada · 12 atendimentos</div>
+      <div style="display:flex; align-items:flex-end; gap: 4px; margin-top: 14px; height: 40px;">
+        <div v-for="(h, i) in [40, 60, 25, 80, 55, 90, 70]" :key="i" :style="{ flex: 1, height: h + '%', background: i === 5 ? 'var(--orange)' : 'rgba(255,94,26,0.25)', borderRadius: '3px 3px 0 0' }"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top: 6px; font-family: var(--mono); font-size: 9px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.08em;">
+        <span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span>
+      </div>
+    </div>
+
+    <div class="profile-list">
+      <div v-for="li in profileLinks" :key="li.name" class="pli">
+        <div class="pli-ico" :style="{ background: li.bg, color: li.color }" v-html="li.icon"></div>
+        <div class="pli-name">{{ li.name }}</div>
+        <svg class="pli-arr" width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script>
+const { createApp, defineComponent } = Vue;
+
+const sharedData = {
+  // Quick actions
+  quickActions: [
+    { name: 'Eletricista', icon: '⚡', new: true },
+    { name: 'Diarista', icon: '🧹', new: false },
+    { name: 'Barbeiro', icon: '✂️', new: false },
+    { name: 'Mototáxi', icon: '🏍️', new: true },
+    { name: 'Personal', icon: '💪', new: false },
+    { name: 'Manicure', icon: '💅', new: false },
+    { name: 'Pedreiro', icon: '🧱', new: false },
+    { name: 'Designer', icon: '🎨', new: true },
+  ],
+  // Profissionais
+  pros: [
+    { name: 'Maria Silva', role: 'Manicure · Em casa', initials: 'MS', stars: '4.9', reviews: 312, dist: '0.4km', price: '45', c1: '#FF5E1A', c2: '#FFD23F', verified: true },
+    { name: 'João Oliveira', role: 'Eletricista 24h', initials: 'JO', stars: '5.0', reviews: 187, dist: '0.8km', price: '80', c1: '#FFD23F', c2: '#F0B81B', verified: true },
+    { name: 'Rafa Cortes', role: 'Barbeiro · Estilo', initials: 'RC', stars: '4.8', reviews: 245, dist: '0.3km', price: '35', c1: '#2BD96B', c2: '#1AAB52', verified: false },
+    { name: 'Cris Dias', role: 'Diarista · Faxina', initials: 'CD', stars: '4.9', reviews: 156, dist: '1.1km', price: '120', c1: '#FF5E1A', c2: '#E84A06', verified: true },
+    { name: 'Léo Mota', role: 'Mototáxi · 24h', initials: 'LM', stars: '4.7', reviews: 423, dist: '0.2km', price: '8', c1: '#FFD23F', c2: '#FF5E1A', verified: true },
+  ],
+  // Eventos
+  events: [
+    { title: 'Baile da Saudade no Mineiro', day: '15', month: 'NOV', cat: 'baile', time: '22:00', place: 'Praça 3', going: 248, c1: '#FF5E1A', c2: '#E84A06' },
+    { title: 'Roda de Samba do Tio Beto', day: '17', month: 'NOV', cat: 'pagode', time: '19:00', place: 'Quadra', going: 92, c1: '#FFD23F', c2: '#F0B81B' },
+    { title: 'Campeonato Várzea Sub-17', day: '19', month: 'NOV', cat: 'esporte', time: '15:00', place: 'Campo do Zé', going: 156, c1: '#2BD96B', c2: '#1AAB52' },
+    { title: 'Festival Cultural da Favela', day: '22', month: 'NOV', cat: 'cultura', time: '14:00', place: 'CEU', going: 412, c1: '#FF5E1A', c2: '#FFD23F' },
+  ],
+  // Projetos
+  projects: [
+    { name: 'Jiu-Jitsu pra todos', desc: 'Aulas gratuitas pra criança e jovem da comunidade.', icon: '🥋', iconClass: '', tag: 'esporte', color: '#2BD96B', impact: '180', impactLabel: 'alunos' },
+    { name: 'Reforço Escolar do Beco', desc: 'Voluntários ensinando mat, port e redação no contraturno.', icon: '📚', iconClass: 'org', tag: 'educação', color: '#FFD23F', impact: '64', impactLabel: 'crianças' },
+    { name: 'Mães da Quebrada', desc: 'ONG de apoio a mães solo com creche e geração de renda.', icon: '🤝', iconClass: 'spt', tag: 'ong', color: '#FF5E1A', impact: '230', impactLabel: 'famílias' },
+    { name: 'Música é Salvação', desc: 'Aulas de instrumento, percussão e produção musical.', icon: '🎸', iconClass: '', tag: 'música', color: '#2BD96B', impact: '95', impactLabel: 'alunos' },
+  ],
+  // Vagas
+  vagas: [
+    { title: 'Atendente · Padaria do Seu Zé', company: 'Pão Quente', place: '0.5km', pay: 'R$ 1.6k', logo: 'PZ', tags: [{ label: 'Período integral', kind: '' }, { label: 'Urgente', kind: 'hot' }] },
+    { title: 'Freela: garçom evento sexta', company: 'Buffet Top', place: '1.2km', pay: 'R$ 180', logo: 'BT', tags: [{ label: 'Freela', kind: 'new' }, { label: '8h', kind: '' }] },
+    { title: 'Ajudante de Pedreiro', company: 'Construtora Local', place: '0.7km', pay: 'R$ 130/d', logo: 'CL', tags: [{ label: 'Diária', kind: '' }, { label: 'Começa já', kind: 'hot' }] },
+    { title: 'Entregador moto próprio', company: 'iFavela Express', place: '0.3km', pay: 'R$ 2.4k', logo: 'IF', tags: [{ label: 'CLT', kind: 'new' }, { label: 'VR', kind: '' }] },
+  ],
+  // Feed
+  feed: [
+    { author: 'Cris da Laje', initial: 'C', caption: 'Domingo de churras na laje 🔥', likes: '847', comments: '32', type: 'photo', c1: '#FF5E1A', c2: '#E84A06', tall: true },
+    { author: 'DJ Pepê', initial: 'D', caption: 'Set novo no baile', likes: '1.2k', comments: '89', type: 'video', c1: '#FFD23F', c2: '#FF5E1A' },
+    { author: 'Mari Silva', initial: 'M', caption: 'Unhas da semana ✨', likes: '432', comments: '21', type: 'multi', c1: '#2BD96B', c2: '#1AAB52' },
+    { author: 'Liga Várzea', initial: 'L', caption: 'Final do campeonato!', likes: '2.1k', comments: '156', type: 'video', c1: '#FF5E1A', c2: '#FFD23F', tall: true },
+    { author: 'Zé Ramos', initial: 'Z', caption: 'Pôr do sol da quebrada', likes: '589', comments: '24', type: 'photo', c1: '#E84A06', c2: '#2a160a' },
+    { author: 'Bia', initial: 'B', caption: 'Aula de jiu-jitsu lotada', likes: '321', comments: '12', type: 'photo', c1: '#1AAB52', c2: '#2BD96B' },
+  ],
+  // Categorias (buscar)
+  categories: [
+    { name: 'Construção', emoji: '🧱', count: 42, c1: '#FF5E1A', c2: '#E84A06' },
+    { name: 'Beleza', emoji: '💅', count: 67, c1: '#FFD23F', c2: '#F0B81B' },
+    { name: 'Transporte', emoji: '🏍️', count: 28, c1: '#2BD96B', c2: '#1AAB52' },
+    { name: 'Casa', emoji: '🧹', count: 53, c1: '#FF5E1A', c2: '#FFD23F' },
+    { name: 'Eventos', emoji: '🎵', count: 19, c1: '#FFD23F', c2: '#FF5E1A' },
+    { name: 'Saúde', emoji: '💪', count: 24, c1: '#2BD96B', c2: '#FFD23F' },
+  ],
+  trending: [
+    { label: 'manicure em casa', hot: true },
+    { label: 'eletricista 24h', hot: true },
+    { label: 'corte degradê' },
+    { label: 'baile de domingo' },
+    { label: 'aula reforço', hot: false },
+    { label: 'mototáxi madrugada' },
+    { label: 'pedreiro confiança' },
+    { label: 'churrasqueiro' },
+  ],
+  postOpts: [
+    { name: 'Anunciar serviço', desc: 'Coloca teu corre aqui e a comunidade te acha', class: 'o1', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 11a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8v2a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8v-2z" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>' },
+    { name: 'Criar evento', desc: 'Baile, pagode, festa, campeonato, evento cultural', class: 'o2', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' },
+    { name: 'Postar no feed', desc: 'Foto, vídeo, história, novidade da quebrada', class: 'o4', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="9" r="1.5" fill="currentColor"/><path d="M21 16l-4-4-7 7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' },
+    { name: 'Divulgar vaga', desc: 'Tem oportunidade de trampo? Compartilha aqui', class: 'o3', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/></svg>' },
+    { name: 'Cadastrar projeto social', desc: 'ONG, esporte, aulas, reforço, música', class: 'o2', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' },
+  ],
+  // Mensagens
+  stories: [
+    { name: 'Sua', initial: '+', color: 'var(--cream)' },
+    { name: 'João E.', initial: 'J', color: '#FFD23F' },
+    { name: 'Mari', initial: 'M', color: '#FF5E1A' },
+    { name: 'Rafa', initial: 'R', color: '#2BD96B' },
+    { name: 'Cris', initial: 'C', color: '#FFD23F' },
+    { name: 'Léo', initial: 'L', color: '#FF5E1A' },
+  ],
+  messages: [
+    { name: 'João Eletricista', initial: 'J', color: '#FFD23F', online: true, time: '14:23', preview: 'Chego em 10min, pode deixar', unread: 2 },
+    { name: 'Rafa Cortes', initial: 'R', color: '#2BD96B', online: true, time: '13:50', preview: 'Bora marcar pra sábado então', unread: 1 },
+    { name: 'Liga Várzea Sub-17', initial: 'L', color: '#FF5E1A', online: false, time: '12:11', preview: 'Treino hoje 16h galera!', unread: 5 },
+    { name: 'Cris Diarista', initial: 'C', color: '#FFD23F', online: false, time: 'ontem', preview: 'Obrigada pela confiança 🧡', unread: 0 },
+    { name: 'Baile da Saudade', initial: 'B', color: '#FF5E1A', online: false, time: 'ontem', preview: 'Lista até as 23h!', unread: 0 },
+    { name: 'Mães da Quebrada', initial: 'M', color: '#2BD96B', online: false, time: '2d', preview: 'Reunião na sexta às 19h', unread: 0 },
+  ],
+  // Perfil
+  profileLinks: [
+    { name: 'Meu portfólio', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="9" r="1.5" fill="currentColor"/><path d="M21 16l-4-4-7 7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>', bg: 'rgba(255,94,26,0.15)', color: '#FF5E1A' },
+    { name: 'Avaliações (312)', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>', bg: 'rgba(255,210,63,0.15)', color: '#FFD23F' },
+    { name: 'Carteira · R$ 1.840', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M17 15h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>', bg: 'rgba(43,217,107,0.15)', color: '#2BD96B' },
+    { name: 'Verificação · ✓', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M12 2l8 4v6a10 10 0 0 1-8 10 10 10 0 0 1-8-10V6l8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>', bg: 'rgba(43,217,107,0.15)', color: '#2BD96B' },
+    { name: 'Ajuda e suporte', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9 9a3 3 0 1 1 4.5 2.5c-.8.5-1.5 1-1.5 2M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>', bg: 'rgba(245,240,232,0.08)', color: '#F5F0E8' },
+  ],
+};
+
+const HomeScreen = defineComponent({
+  template: '#screen-home',
+  props: Object.keys(sharedData),
+});
+const BuscarScreen = defineComponent({
+  template: '#screen-buscar',
+  props: Object.keys(sharedData),
+});
+const PostarScreen = defineComponent({
+  template: '#screen-postar',
+  props: Object.keys(sharedData),
+});
+const MsgScreen = defineComponent({
+  template: '#screen-msg',
+  props: Object.keys(sharedData),
+});
+const PerfilScreen = defineComponent({
+  template: '#screen-perfil',
+  props: Object.keys(sharedData),
+});
+
+createApp({
+  data() {
+    return {
+      currentScreen: 'home',
+      ...sharedData,
+      navItems: [
+        {
+          id: 'home',
+          label: 'Início',
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9M5 10v10h4v-6h6v6h4V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        },
+        {
+          id: 'buscar',
+          label: 'Buscar',
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+        },
+        {
+          id: 'postar',
+          label: 'Postar',
+          center: true,
+        },
+        {
+          id: 'msg',
+          label: 'Inbox',
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+        },
+        {
+          id: 'perfil',
+          label: 'Perfil',
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+        },
+      ],
+    };
+  },
+  computed: {
+    currentScreenComponent() {
+      return {
+        home: 'home-screen',
+        buscar: 'buscar-screen',
+        postar: 'postar-screen',
+        msg: 'msg-screen',
+        perfil: 'perfil-screen',
+      }[this.currentScreen];
+    },
+  },
+  components: {
+    HomeScreen,
+    BuscarScreen,
+    PostarScreen,
+    MsgScreen,
+    PerfilScreen,
+  },
+}).mount('#app');
+</script>
+
+</body>
+</html>
