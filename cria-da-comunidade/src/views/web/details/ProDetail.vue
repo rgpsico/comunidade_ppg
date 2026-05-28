@@ -134,9 +134,15 @@
         <div class="aside-card">
           <h4 class="aside-title">Falar com {{ pro.name.split(' ')[0] }}</h4>
           <div class="aside-btns">
-            <button class="btn-wa">
+            <a
+              v-if="pro.whatsapp"
+              :href="`https://wa.me/${pro.whatsapp.replace(/\D/g, '')}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-wa"
+            >
               📱 WhatsApp
-            </button>
+            </a>
             <button class="btn-schedule">📅 Agendar serviço</button>
             <button class="ghost-btn">🕒 Próximos horários</button>
           </div>
@@ -283,7 +289,7 @@ const badges = ['✓ verificada', '⭐ Top rated', '🏘️ Cria desde 2019', '�
 .aside-title { font-family: var(--display); font-size: 15px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.02em; }
 
 .aside-btns { display: flex; flex-direction: column; gap: 8px; }
-.btn-wa { padding: 11px; border-radius: 10px; background: var(--green); color: var(--black); font-weight: 700; font-size: 13px; box-shadow: var(--shadow-cta-green); transition: all 0.15s; }
+.btn-wa { display: block; text-align: center; text-decoration: none; padding: 11px; border-radius: 10px; background: var(--green); color: var(--black); font-weight: 700; font-size: 13px; box-shadow: var(--shadow-cta-green); transition: all 0.15s; }
 .btn-wa:hover { background: var(--green-deep); transform: translateY(-1px); }
 .btn-schedule { padding: 11px; border-radius: 10px; background: var(--orange); color: white; font-weight: 700; font-size: 13px; box-shadow: var(--shadow-cta-orange); transition: all 0.15s; }
 .btn-schedule:hover { background: var(--orange-deep); transform: translateY(-1px); }
