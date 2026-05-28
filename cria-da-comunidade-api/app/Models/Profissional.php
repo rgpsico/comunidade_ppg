@@ -36,7 +36,14 @@ class Profissional extends Model
 
     public function getFotoUrlAttribute(): ?string
     {
-        return $this->foto ? Storage::disk('public')->url($this->foto) : null;
+        if ($this->foto) {
+            return Storage::disk('public')->url($this->foto);
+        }
+
+        // Avatar gerado automaticamente pela inicial do nome
+        $cor = ltrim($this->cor1 ?? '#FF5E1A', '#');
+        $nome = urlencode($this->nome);
+        return "https://ui-avatars.com/api/?name={$nome}&background={$cor}&color=fff&size=200&bold=true&format=png";
     }
 
     public function getGaleriaUrlsAttribute(): array

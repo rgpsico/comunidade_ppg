@@ -39,14 +39,17 @@ class ProfissionalResource extends Resource
                     Forms\Components\Select::make('categoria')
                         ->label('Categoria')
                         ->options([
+                            'Alimentação' => 'Alimentação',
                             'Beleza'      => 'Beleza',
-                            'Construção'  => 'Construção',
                             'Casa'        => 'Casa',
-                            'Transporte'  => 'Transporte',
-                            'Eventos'     => 'Eventos',
-                            'Saúde'       => 'Saúde',
-                            'Tecnologia'  => 'Tecnologia',
+                            'Construção'  => 'Construção',
                             'Educação'    => 'Educação',
+                            'Eventos'     => 'Eventos',
+                            'Pet'         => 'Pet',
+                            'Saúde'       => 'Saúde',
+                            'Serviços'    => 'Serviços',
+                            'Tecnologia'  => 'Tecnologia',
+                            'Transporte'  => 'Transporte',
                         ])
                         ->required()
                         ->searchable(),
@@ -194,12 +197,17 @@ class ProfissionalResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('categoria')
                     ->options([
-                        'Beleza'     => 'Beleza',
-                        'Construção' => 'Construção',
-                        'Casa'       => 'Casa',
-                        'Transporte' => 'Transporte',
-                        'Eventos'    => 'Eventos',
-                        'Saúde'      => 'Saúde',
+                        'Alimentação' => 'Alimentação',
+                        'Beleza'      => 'Beleza',
+                        'Casa'        => 'Casa',
+                        'Construção'  => 'Construção',
+                        'Educação'    => 'Educação',
+                        'Eventos'     => 'Eventos',
+                        'Pet'         => 'Pet',
+                        'Saúde'       => 'Saúde',
+                        'Serviços'    => 'Serviços',
+                        'Tecnologia'  => 'Tecnologia',
+                        'Transporte'  => 'Transporte',
                     ]),
                 Tables\Filters\TernaryFilter::make('verificado')->label('Verificados'),
                 Tables\Filters\TernaryFilter::make('ativo')->label('Ativos'),
