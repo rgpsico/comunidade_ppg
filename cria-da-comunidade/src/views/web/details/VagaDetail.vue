@@ -168,4 +168,18 @@ const tabs = ['Descrição', 'Empresa', 'Similares (8)']
 .drow { display: flex; justify-content: space-between; font-size: 13px; }
 .drow-k { color: var(--muted); }
 .green-text { color: var(--green); font-weight: 600; }
+
+@media (max-width: 768px) {
+  .vaga-detail { padding: 16px; }
+
+  .vaga-hero { flex-wrap: wrap; gap: 12px; padding: 16px; }
+  .vh-logo { width: 56px; height: 56px; font-size: 20px; border-radius: 14px; }
+  .vh-title { font-size: 20px; }
+  .vh-right { width: 100%; display: flex; align-items: center; gap: 8px; }
+  .vh-pay { font-size: 20px; }
+  .vh-meta { font-size: 11px; gap: 8px; }
+
+  .detail-grid { grid-template-columns: 1fr; }
+  .detail-aside { position: static; }
+}
 </style>

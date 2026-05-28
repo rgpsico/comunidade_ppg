@@ -240,4 +240,20 @@ const attendeeAvatars = [
 .green-text { color: var(--green); font-weight: 600; }
 
 .share-btns { display: flex; flex-direction: column; gap: 8px; }
+
+@media (max-width: 768px) {
+  .event-detail { padding: 16px; }
+
+  .event-hero { height: 200px; border-radius: var(--radius-xl); }
+  .eh-title { font-size: 22px; }
+  .eh-content { bottom: 14px; left: 14px; right: 14px; }
+  .eh-meta { font-size: 11px; gap: 8px; }
+  .ehd-day { font-size: 26px; }
+
+  .detail-grid { grid-template-columns: 1fr; }
+  .detail-aside { position: static; }
+
+  .rsvp-options { grid-template-columns: 1fr 1fr; }
+  .map-placeholder { aspect-ratio: 16/9; }
+}
 </style>

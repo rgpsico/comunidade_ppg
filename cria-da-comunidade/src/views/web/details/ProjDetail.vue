@@ -346,14 +346,19 @@ const gallery = computed(() => proj?.gallery ?? [
 
 @media (max-width: 768px) {
   .proj-detail { padding: 16px; }
-  .ph-title { font-size: 24px; }
-  .ph-emoji { font-size: 80px; }
-  .stats-strip { padding: 14px 16px; }
+  .proj-hero { min-height: 180px; padding: 20px; border-radius: var(--radius-xl); }
+  .ph-title { font-size: 22px; }
+  .ph-emoji { font-size: 70px; right: 20px; }
+  .ph-meta { font-size: 11px; gap: 8px; }
+  .stats-strip { padding: 14px 16px; gap: 0; flex-wrap: nowrap; overflow-x: auto; }
   .stat-n { font-size: 20px; }
+  .tabs { overflow-x: auto; flex-wrap: nowrap; }
+  .tab { white-space: nowrap; font-size: 12px; padding: 10px 12px; }
   .detail-grid { grid-template-columns: 1fr; }
   .detail-aside { position: static; }
   .tutors-grid { grid-template-columns: repeat(2, 1fr); }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 100px; }
   .gallery-item.wide { grid-column: span 1; }
+  .gallery-item.tall { grid-row: span 1; }
 }
 </style>

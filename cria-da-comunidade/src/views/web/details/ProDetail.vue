@@ -301,4 +301,32 @@ const badges = ['✓ verificada', '⭐ Top rated', '🏘️ Cria desde 2019', '�
 
 .badges-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 .badge-pill { padding: 5px 10px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); font-size: 11px; color: var(--cream); }
+
+@media (max-width: 768px) {
+  .pro-detail { padding: 16px; }
+
+  .cover { height: 120px; }
+  .hero-body { padding: 0 16px 20px; margin-top: -40px; gap: 12px; }
+  .avatar { width: 72px; height: 72px; font-size: 26px; border-radius: 18px; }
+  .hero-name { font-size: 20px; }
+  .hero-role { font-size: 13px; }
+  .hero-meta { gap: 8px; font-size: 11px; }
+  .hero-quick { display: none; }
+
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-cell { border-bottom: 1px solid var(--line); }
+  .stat-cell:nth-child(odd) { border-right: 1px solid var(--line); }
+  .stat-cell:nth-child(3),
+  .stat-cell:nth-child(4) { border-bottom: none; }
+  .sn { font-size: 20px; }
+
+  .detail-grid { grid-template-columns: 1fr; }
+  .detail-aside { position: static; }
+
+  .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; }
+  .tab { white-space: nowrap; padding: 10px 12px; font-size: 12px; }
+
+  .services-grid { grid-template-columns: 1fr; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
