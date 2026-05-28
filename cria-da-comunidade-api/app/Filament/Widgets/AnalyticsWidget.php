@@ -7,13 +7,11 @@ use Filament\Widgets\Widget;
 
 class AnalyticsWidget extends Widget
 {
-    protected static string $view = 'filament.widgets.analytics-widget';
+    protected string $view = 'filament.widgets.analytics-widget';
 
     protected static ?int $sort = 2;
 
     protected int | string | array $columnSpan = 'full';
-
-    protected static ?string $heading = 'Analytics — últimos 30 dias';
 
     private static array $screenLabels = [
         'inicio'      => 'Início',
