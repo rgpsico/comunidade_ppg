@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use App\Filament\Widgets\AnalyticsWidget;
 use App\Filament\Widgets\StatsOverview;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
@@ -42,6 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 StatsOverview::class,
+                AnalyticsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

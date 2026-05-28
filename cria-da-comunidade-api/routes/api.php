@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComunidadeController;
 use App\Http\Controllers\Api\EventoController;
@@ -7,6 +8,9 @@ use App\Http\Controllers\Api\ProfissionalController;
 use App\Http\Controllers\Api\ProjetoController;
 use App\Http\Controllers\Api\VagaController;
 use Illuminate\Support\Facades\Route;
+
+// Analytics — pública (user_id preenchido quando há token válido)
+Route::post('analytics/track', [AnalyticsController::class, 'track']);
 
 // Auth — públicas
 Route::prefix('auth')->group(function () {
