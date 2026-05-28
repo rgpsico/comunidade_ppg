@@ -1,10 +1,17 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { api } from '../services/api'
 import type { Paginated } from '../services/api'
 import type { Pro, Event, Project, Vaga } from '../types'
 
 // ── API response shapes ──────────────────────────────────────────────────────
+
+export interface ApiComunidade {
+  id: number
+  nome: string
+  cidade: string | null
+  estado: string | null
+}
 
 interface ApiProfissional {
   id: number; nome: string; cargo: string; categoria: string
@@ -168,15 +175,38 @@ export const useDataStore = defineStore('data', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  // ── Comunidades ────────────────────────────────────────────────────────────
+  const communities = ref<ApiComunidade[]>([])
+  const activeComunidadeId = ref<number | null>(null)
+  const activeComunidade = computed(() =>
+    communities.value.find(c => c.id === activeComunidadeId.value) ?? null
+  )
+
+  async function fetchComunidades() {
+    try {
+      communities.value = await api.get<ApiComunidade[]>('/comunidades')
+    } catch (e) {
+      console.error('Erro ao carregar comunidades:', e)
+    }
+  }
+
+  async function setComunidade(id: number | null) {
+    activeComunidadeId.value = id
+    await fetchAll()
+  }
+
+  // ── Dados ──────────────────────────────────────────────────────────────────
   async function fetchAll() {
     loading.value = true
     error.value = null
     try {
+      const cid = activeComunidadeId.value
+      const cParam = cid ? `&comunidade_id=${cid}` : ''
       const [pRes, eRes, prRes, vRes] = await Promise.all([
-        api.get<Paginated<ApiProfissional>>('/profissionais?per_page=50'),
-        api.get<Paginated<ApiEvento>>('/eventos?per_page=50'),
-        api.get<Paginated<ApiProjeto>>('/projetos?per_page=50'),
-        api.get<Paginated<ApiVaga>>('/vagas?per_page=50'),
+        api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
+        api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
+        api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
+        api.get<Paginated<ApiVaga>>(`/vagas?per_page=50${cParam}`),
       ])
       pros.value = pRes.data.map(mapPro)
       events.value = eRes.data.map(mapEvent)
@@ -207,5 +237,10 @@ export const useDataStore = defineStore('data', () => {
     if (v) v.applicants++
   }
 
-  return { pros, events, projects, vagas, loading, error, fetchAll, rsvp, apoiar, candidatar }
+  return {
+    pros, events, projects, vagas, loading, error,
+    communities, activeComunidadeId, activeComunidade,
+    fetchComunidades, setComunidade, fetchAll,
+    rsvp, apoiar, candidatar,
+  }
 })

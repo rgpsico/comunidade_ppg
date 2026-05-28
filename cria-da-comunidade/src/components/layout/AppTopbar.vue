@@ -1,19 +1,70 @@
 <template>
   <header class="topbar">
-    <button class="location-pill">
-      <svg width="16" height="16" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>
-      <div>
-        <div class="loc-eyebrow">Sua quebrada</div>
-        <div class="loc-name">Complexo do Alemão</div>
-      </div>
-      <svg width="12" height="12" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </button>
 
+    <!-- Community picker -->
+    <div class="location-wrap" ref="pillRef">
+      <button class="location-pill" @click="toggleDropdown" :class="{ open: dropdownOpen }">
+        <svg width="16" height="16" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <div class="loc-text">
+          <div class="loc-eyebrow">Sua quebrada</div>
+          <div class="loc-name">{{ data.activeComunidade?.nome ?? 'Todas as quebradas' }}</div>
+        </div>
+        <svg class="loc-chevron" :class="{ rotated: dropdownOpen }" width="12" height="12" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      <!-- Dropdown -->
+      <Transition name="dropdown">
+        <div v-if="dropdownOpen" class="community-dropdown">
+          <div class="dropdown-header">Escolha a quebrada</div>
+
+          <!-- All communities option -->
+          <button
+            class="community-option"
+            :class="{ active: data.activeComunidadeId === null }"
+            @click="select(null)"
+          >
+            <div class="option-av all-av">🗺</div>
+            <div class="option-info">
+              <div class="option-name">Todas as quebradas</div>
+              <div class="option-sub">Ver tudo, sem filtro</div>
+            </div>
+            <div v-if="data.activeComunidadeId === null" class="option-check">✓</div>
+          </button>
+
+          <div class="dropdown-divider"></div>
+
+          <!-- Loading state -->
+          <div v-if="data.communities.length === 0" class="dropdown-empty">
+            Carregando comunidades…
+          </div>
+
+          <!-- Community list -->
+          <button
+            v-for="c in data.communities"
+            :key="c.id"
+            class="community-option"
+            :class="{ active: data.activeComunidadeId === c.id }"
+            @click="select(c.id)"
+          >
+            <div class="option-av">{{ c.nome.slice(0, 2).toUpperCase() }}</div>
+            <div class="option-info">
+              <div class="option-name">{{ c.nome }}</div>
+              <div class="option-sub" v-if="c.cidade || c.estado">
+                {{ [c.cidade, c.estado].filter(Boolean).join(' · ') }}
+              </div>
+            </div>
+            <div v-if="data.activeComunidadeId === c.id" class="option-check">✓</div>
+          </button>
+        </div>
+      </Transition>
+    </div>
+
+    <!-- Search -->
     <div class="search-wrap">
       <svg width="15" height="15" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -49,14 +100,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useUiStore } from '../../stores/ui'
+import { useDataStore } from '../../stores/data'
 import AnunciarModal from '../ui/AnunciarModal.vue'
 
 const auth = useAuthStore()
 const ui = useUiStore()
+const data = useDataStore()
 const showAnunciar = ref(false)
+const dropdownOpen = ref(false)
+const pillRef = ref<HTMLElement | null>(null)
+
+function toggleDropdown() {
+  dropdownOpen.value = !dropdownOpen.value
+}
+
+function select(id: number | null) {
+  dropdownOpen.value = false
+  data.setComunidade(id)
+}
+
+function onClickOutside(e: MouseEvent) {
+  if (pillRef.value && !pillRef.value.contains(e.target as Node)) {
+    dropdownOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('mousedown', onClickOutside))
+onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
 function openAnunciar() {
   if (!auth.isAuthenticated) {
@@ -82,6 +155,12 @@ function openAnunciar() {
   z-index: 40;
 }
 
+/* ── Location pill ── */
+.location-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .location-pill {
   display: flex;
   align-items: center;
@@ -91,10 +170,16 @@ function openAnunciar() {
   border: 1px solid var(--line);
   background: var(--card);
   cursor: pointer;
-  transition: border-color 0.2s;
-  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+  white-space: nowrap;
 }
-.location-pill:hover { border-color: var(--line-strong); }
+.location-pill:hover,
+.location-pill.open {
+  border-color: var(--orange);
+  background: rgba(255,94,26,0.06);
+}
+
+.loc-text { text-align: left; }
 .loc-eyebrow {
   font-family: var(--mono);
   font-size: 9px;
@@ -103,8 +188,101 @@ function openAnunciar() {
   color: var(--muted);
   line-height: 1;
 }
-.loc-name { font-size: 12px; font-weight: 600; margin-top: 2px; }
+.loc-name { font-size: 12px; font-weight: 600; margin-top: 2px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
 
+.loc-chevron { transition: transform 0.2s; flex-shrink: 0; }
+.loc-chevron.rotated { transform: rotate(180deg); }
+
+/* ── Dropdown ── */
+.community-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 280px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,0.6);
+  overflow: hidden;
+  z-index: 200;
+}
+
+.dropdown-header {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted-2);
+  padding: 12px 16px 8px;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 0;
+}
+
+.dropdown-empty {
+  padding: 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.community-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 0;
+}
+.community-option:hover { background: rgba(245,240,232,0.04); }
+.community-option.active { background: rgba(255,94,26,0.08); }
+
+.option-av {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--black);
+  flex-shrink: 0;
+}
+.all-av {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  font-size: 16px;
+}
+
+.option-info { flex: 1; min-width: 0; }
+.option-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.option-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.option-check {
+  font-size: 12px;
+  color: var(--orange);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Dropdown transition */
+.dropdown-enter-active { transition: opacity 0.15s ease, transform 0.15s ease; }
+.dropdown-leave-active { transition: opacity 0.1s ease, transform 0.1s ease; }
+.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: translateY(-6px); }
+
+/* ── Search ── */
 .search-wrap {
   flex: 1;
   max-width: 540px;
@@ -151,6 +329,7 @@ function openAnunciar() {
 }
 .search-btn:hover { background: var(--orange-deep); }
 
+/* ── Actions ── */
 .tb-actions {
   display: flex;
   align-items: center;
@@ -196,9 +375,10 @@ function openAnunciar() {
 }
 .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -4px rgba(255,94,26,0.6); }
 
+/* ── Mobile ── */
 @media (max-width: 768px) {
   .topbar { padding: 0 16px; gap: 10px; height: 60px; }
-  .location-pill { display: none; }
+  .location-wrap { display: none; }
   .search-kbd { display: none; }
   .tb-icon-btn { display: none; }
   .cta-btn { display: none; }

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '../services/api'
+import { useDataStore } from './data'
 
 interface AuthUser {
   id: number
@@ -27,6 +28,13 @@ export const useAuthStore = defineStore('auth', () => {
     return user.value.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
   })
 
+  function syncComunidade(u: AuthUser | null) {
+    const data = useDataStore()
+    if (u?.comunidade_id) {
+      data.setComunidade(u.comunidade_id)
+    }
+  }
+
   async function login(email: string, password: string) {
     loading.value = true
     error.value = null
@@ -35,6 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = res.token
       user.value = res.user
       localStorage.setItem('auth_token', res.token)
+      syncComunidade(res.user)
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Erro ao entrar'
       throw e
@@ -53,6 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = res.token
       user.value = res.user
       localStorage.setItem('auth_token', res.token)
+      syncComunidade(res.user)
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Erro ao cadastrar'
       throw e
@@ -68,6 +78,8 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = null
       user.value = null
       localStorage.removeItem('auth_token')
+      // Volta para "todas as comunidades" ao deslogar
+      useDataStore().setComunidade(null)
     }
   }
 

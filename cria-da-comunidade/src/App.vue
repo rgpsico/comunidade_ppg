@@ -53,9 +53,14 @@ const views = {
 
 const currentView = computed(() => views[ui.activeView])
 
-onMounted(() => {
+onMounted(async () => {
+  // Carrega comunidades e usuário em paralelo
+  await Promise.all([data.fetchComunidades(), auth.fetchMe()])
+  // Usa a comunidade do usuário logado como filtro padrão
+  if (auth.user?.comunidade_id) {
+    data.activeComunidadeId = auth.user.comunidade_id
+  }
   data.fetchAll()
-  auth.fetchMe()
 })
 </script>
 
