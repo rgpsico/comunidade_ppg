@@ -93,17 +93,48 @@ import ProCard from '../../components/ui/ProCard.vue'
 const ui = useUiStore()
 const data = useDataStore()
 
-const categories = [
-  { label: 'Todos', icon: '🔍', count: '2.413', color: '#FF5E1A' },
-  { label: 'Beleza', icon: '💅', count: '487', color: '#FF5E1A' },
-  { label: 'Construção', icon: '🔨', count: '312', color: '#FFD23F' },
-  { label: 'Casa', icon: '🏠', count: '248', color: '#2BD96B' },
-  { label: 'Transporte', icon: '🏍️', count: '156', color: '#FFD23F' },
-  { label: 'Eventos', icon: '🎉', count: '89', color: '#FF5E1A' },
-  { label: 'Saúde', icon: '💊', count: '134', color: '#2BD96B' },
-]
+const CATEGORY_META: Record<string, { icon: string; color: string }> = {
+  'Todos':       { icon: '🔍', color: '#FF5E1A' },
+  'Beleza':      { icon: '💅', color: '#FF5E1A' },
+  'Construção':  { icon: '🔨', color: '#FFD23F' },
+  'Casa':        { icon: '🏠', color: '#2BD96B' },
+  'Transporte':  { icon: '🏍️', color: '#FFD23F' },
+  'Eventos':     { icon: '🎉', color: '#FF5E1A' },
+  'Saúde':       { icon: '💊', color: '#2BD96B' },
+  'Alimentação': { icon: '🍔', color: '#F59E0B' },
+  'Pet':         { icon: '🐾', color: '#8B5CF6' },
+  'Serviços':    { icon: '🛠️', color: '#3B82F6' },
+}
 
-const filteredPros = computed(() => {
+const categories = computed(() => {
+  const counts: Record<string, number> = {}
+  for (const pro of data.pros) {
+    counts[pro.category] = (counts[pro.category] ?? 0) + 1
+  }
+
+  const cats = [
+    { label: 'Todos', icon: '🔍', count: String(data.pros.length), color: '#FF5E1A' },
+  ]
+
+  // categorias que têm profissionais no banco
+  const existentes = Object.keys(counts).sort()
+  for (const label of existentes) {
+    const meta = CATEGORY_META[label] ?? { icon: '⚡', color: '#FF5E1A' }
+    cats.push({ label, icon: meta.icon, count: String(counts[label]), color: meta.color })
+  }
+
+  // adiciona categorias sem profissionais ainda (count 0)
+  for (const label of Object.keys(CATEGORY_META)) {
+    if (label !== 'Todos' && !counts[label]) {
+      const meta = CATEGORY_META[label]
+      cats.push({ label, icon: meta.icon, count: '0', color: meta.color })
+    }
+  }
+
+  return cats
+})
+
+const filteredPros = computed<typeof data.pros[0][]>(() => {
   let result = [...data.pros]
   if (ui.prosFilters.catActive !== 'Todos') {
     result = result.filter(p => p.category === ui.prosFilters.catActive)
