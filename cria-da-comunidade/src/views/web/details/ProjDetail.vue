@@ -189,7 +189,7 @@ const tutors = computed(() => proj.value?.tutors ?? [
   { name: 'Fabiana Luz', role: 'Teatro & Expressão', initials: 'FL', color: '#2BD96B', bio: 'Atriz e educadora social, formada pela UniRio com ênfase em teatro popular.' },
 ])
 
-const gallery = computed(() => proj?.gallery ?? [
+const gallery = computed(() => proj.value?.gallery ?? [
   { color1: '#FF5E1A', color2: '#FFD23F', caption: 'Roda de capoeira — Mar 2025' },
   { color1: '#2BD96B', color2: '#FFD23F', caption: 'Reforço escolar' },
   { color1: '#FFD23F', color2: '#FF5E1A', caption: 'Peça teatral 2024' },
