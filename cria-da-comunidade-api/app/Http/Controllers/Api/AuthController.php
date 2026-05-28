@@ -74,4 +74,20 @@ class AuthController extends Controller
     {
         return response()->json($request->user()->load('comunidade', 'roles'));
     }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'name'     => 'sometimes|required|string|max:100',
+            'handle'   => 'sometimes|nullable|string|max:50|unique:users,handle,' . $user->id,
+            'whatsapp' => 'sometimes|nullable|string|max:20',
+            'bio'      => 'sometimes|nullable|string|max:500',
+        ]);
+
+        $user->update($data);
+
+        return response()->json($user->fresh()->load('comunidade', 'roles'));
+    }
 }

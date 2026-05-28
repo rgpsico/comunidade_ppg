@@ -81,5 +81,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, token, loading, error, isAuthenticated, initials, login, register, logout, fetchMe }
+  async function updateProfile(payload: { name?: string; handle?: string; whatsapp?: string; bio?: string }) {
+    loading.value = true
+    error.value = null
+    try {
+      user.value = await api.put<AuthUser>('/auth/profile', payload)
+    } catch (e: unknown) {
+      error.value = e instanceof Error ? e.message : 'Erro ao salvar perfil'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { user, token, loading, error, isAuthenticated, initials, login, register, logout, fetchMe, updateProfile }
 })

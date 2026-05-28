@@ -106,6 +106,6 @@ export interface Conversation {
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail'
-  | 'login'
+  | 'login' | 'perfil'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'

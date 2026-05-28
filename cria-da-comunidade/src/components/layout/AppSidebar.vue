@@ -80,7 +80,8 @@ function openAnunciar() {
 }
 
 function onUserCardClick() {
-  if (!auth.isAuthenticated) ui.goTo('login')
+  if (auth.isAuthenticated) ui.goTo('perfil')
+  else ui.goTo('login')
 }
 
 async function doLogout() {
@@ -100,7 +101,7 @@ const userItems: { view?: WebView; label: string; icon: string; count?: string }
   { label: 'Mensagens', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>', count: '8' },
   { label: 'Salvos', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>' },
   { label: 'Carteira', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' },
-  { label: 'Perfil', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>' },
+  { view: 'perfil', label: 'Perfil', icon: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>' },
 ]
 </script>
 
