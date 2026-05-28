@@ -16,7 +16,7 @@ class Projeto extends Model
         'responsavel_id', 'comunidade_id', 'nome', 'descricao', 'icone',
         'imagem_capa', 'galeria',
         'causa', 'cor', 'impacto_valor', 'impacto_label', 'progresso',
-        'arrecadado', 'meta', 'cta_label', 'anos_atuando', 'ativo',
+        'arrecadado', 'meta', 'cta_label', 'anos_atuando', 'ativo', 'aceita_doacoes',
     ];
 
     protected $appends = ['imagem_capa_url', 'galeria_urls'];
@@ -24,7 +24,8 @@ class Projeto extends Model
     protected function casts(): array
     {
         return [
-            'ativo'      => 'boolean',
+            'ativo'          => 'boolean',
+            'aceita_doacoes' => 'boolean',
             'arrecadado' => 'float',
             'meta'       => 'float',
             'progresso'  => 'integer',

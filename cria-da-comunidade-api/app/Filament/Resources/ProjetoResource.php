@@ -64,8 +64,40 @@ class ProjetoResource extends Resource
                         ->columnSpanFull(),
                 ]),
 
-            Section::make('Meta e arrecadação')
+            Section::make('Impacto e alcance')
                 ->columns(3)
+                ->schema([
+                    Forms\Components\TextInput::make('impacto_valor')
+                        ->label('Número de impacto')
+                        ->placeholder('Ex: 180'),
+                    Forms\Components\TextInput::make('impacto_label')
+                        ->label('Label de impacto')
+                        ->placeholder('Ex: alunos ativos'),
+                    Forms\Components\TextInput::make('anos_atuando')
+                        ->label('Anos atuando')
+                        ->numeric()
+                        ->default(1),
+                ]),
+
+            Section::make('Aparência e status')
+                ->columns(3)
+                ->schema([
+                    Forms\Components\ColorPicker::make('cor')
+                        ->label('Cor do projeto')
+                        ->default('#2BD96B'),
+                    Forms\Components\Toggle::make('ativo')
+                        ->label('Projeto ativo')
+                        ->default(true),
+                    Forms\Components\Toggle::make('aceita_doacoes')
+                        ->label('Aceita doações')
+                        ->helperText('Exibe seção de arrecadação no perfil público')
+                        ->default(false),
+                ]),
+
+            Section::make('Doações (opcional)')
+                ->description('Preencha somente se "Aceita doações" estiver ativado.')
+                ->columns(3)
+                ->collapsed()
                 ->schema([
                     Forms\Components\TextInput::make('meta')
                         ->label('Meta (R$)')
@@ -83,30 +115,9 @@ class ProjetoResource extends Resource
                         ->minValue(0)
                         ->maxValue(100)
                         ->default(0),
-                    Forms\Components\TextInput::make('impacto_valor')
-                        ->label('Número de impacto')
-                        ->placeholder('Ex: 180'),
-                    Forms\Components\TextInput::make('impacto_label')
-                        ->label('Label de impacto')
-                        ->placeholder('Ex: alunos ativos'),
-                    Forms\Components\TextInput::make('anos_atuando')
-                        ->label('Anos atuando')
-                        ->numeric()
-                        ->default(1),
-                ]),
-
-            Section::make('Aparência')
-                ->columns(3)
-                ->schema([
-                    Forms\Components\ColorPicker::make('cor')
-                        ->label('Cor do projeto')
-                        ->default('#2BD96B'),
                     Forms\Components\TextInput::make('cta_label')
-                        ->label('Texto do botão CTA')
-                        ->default('Apoiar'),
-                    Forms\Components\Toggle::make('ativo')
-                        ->label('Projeto ativo')
-                        ->default(true),
+                        ->label('Texto do botão de doação')
+                        ->default('Apoiar agora'),
                 ]),
 
             Section::make('Imagens')

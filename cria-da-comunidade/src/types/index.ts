@@ -68,6 +68,7 @@ export interface Project {
   gallery?: { color1: string; color2: string; caption?: string }[]
   imagemCapaUrl?: string | null
   galeriaUrls?: string[]
+  aceitaDoacoes?: boolean
 }
 
 export interface Vaga {

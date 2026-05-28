@@ -8,25 +8,14 @@
     </div>
     <div class="proj-name">{{ proj.name }}</div>
     <div class="proj-desc">{{ proj.desc }}</div>
-    <div class="proj-progress">
-      <div class="prog-bar">
-        <div class="prog-fill" :style="{ width: proj.progress + '%' }"></div>
-      </div>
-      <div class="prog-meta">
-        <span class="prog-raised">{{ proj.raised }}</span>
-        <span class="prog-pct">{{ proj.progress }}%</span>
-      </div>
-    </div>
     <div class="proj-foot">
       <div class="proj-impact">
         <span class="impact-num" :style="{ color: proj.color }">{{ proj.impact }}</span>
         <span class="impact-label">{{ proj.impactLabel }}</span>
       </div>
-      <div class="proj-actions">
-        <button class="btn-support" :style="{ background: proj.color }" @click.stop="emit('click')">
-          {{ proj.cta || 'Apoiar' }}
-        </button>
-      </div>
+      <button class="btn-ver" :style="{ color: proj.color, borderColor: proj.color + '55' }" @click.stop="emit('click')">
+        Ver →
+      </button>
     </div>
   </div>
 </template>
@@ -88,29 +77,6 @@ const emit = defineEmits<{ click: [] }>()
   overflow: hidden;
 }
 
-.proj-progress { margin-top: 4px; }
-.prog-bar {
-  height: 6px;
-  background: var(--card-2);
-  border-radius: 999px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-.prog-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--green), var(--yellow));
-  border-radius: 999px;
-  transition: width 0.6s ease;
-}
-.prog-meta {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--mono);
-  font-size: 10px;
-}
-.prog-raised { color: var(--cream); }
-.prog-pct { color: var(--green); font-weight: 500; }
-
 .proj-foot {
   display: flex;
   align-items: center;
@@ -137,13 +103,16 @@ const emit = defineEmits<{ click: [] }>()
   margin-top: 2px;
 }
 
-.btn-support {
-  padding: 8px 16px;
+.btn-ver {
+  padding: 7px 14px;
   border-radius: 999px;
-  color: var(--black);
-  font-weight: 700;
+  border: 1px solid;
+  background: transparent;
+  font-weight: 600;
   font-size: 12px;
+  cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
+  flex-shrink: 0;
 }
-.btn-support:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-ver:hover { opacity: 0.75; transform: translateY(-1px); }
 </style>

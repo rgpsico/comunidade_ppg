@@ -163,6 +163,24 @@
             <button class="ghost-btn">🤝 Parceria</button>
           </div>
         </div>
+
+        <!-- Doações — só aparece se o projeto aceita -->
+        <div v-if="proj.aceitaDoacoes" class="aside-card donation-card" :style="{ borderColor: proj.color + '44' }">
+          <h4 class="aside-title">Apoiar o projeto</h4>
+          <div class="dona-progress">
+            <div class="dona-amounts">
+              <span class="dona-raised" :style="{ color: proj.color }">{{ proj.raised }}</span>
+              <span class="dona-goal">de {{ proj.goal }}</span>
+            </div>
+            <div class="prog-bar">
+              <div class="prog-fill" :style="{ width: proj.progress + '%', background: proj.color }"></div>
+            </div>
+            <div class="dona-meta">{{ proj.progress }}% da meta</div>
+          </div>
+          <button class="btn-donate" :style="{ background: proj.color }" @click.stop>
+            {{ proj.cta ?? 'Apoiar agora' }}
+          </button>
+        </div>
       </aside>
     </div>
   </div>
@@ -343,6 +361,24 @@ const gallery = computed(() => proj.value?.gallery ?? [
 .other-btns { display: flex; flex-direction: column; gap: 8px; }
 .ghost-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--cream); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: left; }
 .ghost-btn:hover { border-color: var(--line-strong); background: var(--card-2); }
+
+/* Donation aside (conditional) */
+.donation-card { display: flex; flex-direction: column; gap: 12px; }
+.dona-progress { display: flex; flex-direction: column; gap: 6px; }
+.dona-amounts { display: flex; align-items: baseline; gap: 6px; }
+.dona-raised { font-family: var(--display); font-size: 22px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.dona-goal { font-size: 12px; color: var(--muted); }
+.prog-bar { height: 7px; background: var(--card-2); border-radius: 999px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+.dona-meta { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.btn-donate {
+  padding: 11px 0; border-radius: 999px;
+  color: var(--black); font-weight: 700; font-size: 13px;
+  cursor: pointer; text-align: center;
+  transition: opacity 0.15s, transform 0.15s;
+  width: 100%;
+}
+.btn-donate:hover { opacity: 0.85; transform: translateY(-1px); }
 
 @media (max-width: 768px) {
   .proj-detail { padding: 16px; }

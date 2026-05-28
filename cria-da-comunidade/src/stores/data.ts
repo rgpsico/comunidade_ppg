@@ -37,6 +37,7 @@ interface ApiProjeto {
   causa: string; cor: string; impacto_valor: string | null
   impacto_label: string | null; progresso: number; arrecadado: number
   meta: number | null; cta_label: string | null; anos_atuando: number | null
+  aceita_doacoes: boolean
   imagem_capa_url: string | null; galeria_urls: string[] | null
 }
 
@@ -132,6 +133,7 @@ function mapProject(p: ApiProjeto): Project {
     updates: [],
     imagemCapaUrl: p.imagem_capa_url ?? null,
     galeriaUrls: p.galeria_urls ?? [],
+    aceitaDoacoes: p.aceita_doacoes ?? false,
   }
 }
 
