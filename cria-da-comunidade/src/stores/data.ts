@@ -75,7 +75,7 @@ function mapPro(p: ApiProfissional): Pro {
     c1: p.cor1,
     c2: p.cor2,
     verified: p.verificado,
-    tags: p.tags ?? [],
+    tags: Array.isArray(p.tags) ? p.tags : [],
     bio: p.bio ?? '',
     whatsapp: p.whatsapp ?? '',
     attendances: p.total_atendimentos,
