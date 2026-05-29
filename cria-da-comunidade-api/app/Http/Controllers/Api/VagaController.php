@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CandidaturaEmail;
 use App\Models\Vaga;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class VagaController extends Controller
 {
@@ -113,8 +115,31 @@ class VagaController extends Controller
 
     public function candidatar(Request $request, Vaga $vaga): JsonResponse
     {
+        // Exige autenticação
+        if (! auth()->check()) {
+            return response()->json(['message' => 'Faça login para se candidatar.'], 401);
+        }
+
+        // Exige e-mail de contato na vaga
+        if (! $vaga->email_contato) {
+            return response()->json(['message' => 'Esta vaga não possui e-mail de contato.'], 422);
+        }
+
+        $candidato = auth()->user();
+
+        // Envia e-mail para a empresa
+        try {
+            Mail::to($vaga->email_contato)->send(new CandidaturaEmail($vaga, $candidato));
+        } catch (\Throwable $e) {
+            \Log::error('Candidatura e-mail falhou', ['vaga' => $vaga->id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Não foi possível enviar a candidatura. Tente novamente.'], 500);
+        }
+
         $vaga->increment('candidatos');
 
-        return response()->json(['message' => 'Candidatura registrada.', 'candidatos' => $vaga->fresh()->candidatos]);
+        return response()->json([
+            'message'    => 'Candidatura enviada com sucesso!',
+            'candidatos' => $vaga->fresh()->candidatos,
+        ]);
     }
 }

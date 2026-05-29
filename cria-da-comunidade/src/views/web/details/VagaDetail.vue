@@ -126,9 +126,28 @@
               Contato não informado pelo anunciante.
             </p>
           </div>
-          <button class="btn-apply" :class="{ applied }" @click.stop="doCandidatar">
-            {{ applied ? '✓ Candidatura registrada' : 'Me candidatar →' }}
-          </button>
+          <!-- Candidatura -->
+          <div v-if="!auth.isAuthenticated" class="candidatura-login">
+            <button class="btn-apply btn-login" @click.stop="ui.goTo('login')">
+              Entrar para se candidatar
+            </button>
+            <p class="cand-hint">Faça login e candidate-se com 1 clique</p>
+          </div>
+          <template v-else>
+            <button
+              class="btn-apply"
+              :class="{ applied, loading: sending, disabled: !vaga.emailContato }"
+              :disabled="!vaga.emailContato || applied || sending"
+              @click.stop="doCandidatar"
+              :title="!vaga.emailContato ? 'Empresa não informou e-mail de contato' : ''"
+            >
+              <svg v-if="sending" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              <svg v-else-if="applied" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ applied ? 'Candidatura enviada!' : sending ? 'Enviando...' : !vaga.emailContato ? 'Sem e-mail de contato' : 'Me candidatar →' }}
+            </button>
+            <p v-if="applyError" class="cand-error">{{ applyError }}</p>
+            <p v-if="!vaga.emailContato" class="cand-hint">A empresa não cadastrou e-mail de contato</p>
+          </template>
         </div>
 
         <div class="aside-card">
@@ -151,21 +170,38 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 import { useDataStore } from '../../../stores/data'
+import { useAuthStore } from '../../../stores/auth'
+import { api } from '../../../services/api'
 
 const ui = useUiStore()
 const data = useDataStore()
+const auth = useAuthStore()
 const vaga = computed(() => ui.selectedVaga)
 const activeTab = ref('Descrição')
 const tabs = ['Descrição', 'Empresa', 'Similares (8)']
 const applied = ref(false)
+const sending = ref(false)
+const applyError = ref('')
 const showShare = ref(false)
 const copied = ref(false)
 const shareWrap = ref<HTMLElement | null>(null)
 
 async function doCandidatar() {
-  if (!vaga.value || applied.value) return
-  await data.candidatar(vaga.value.id)
-  applied.value = true
+  if (!vaga.value || applied.value || sending.value || !vaga.value.emailContato) return
+  sending.value = true
+  applyError.value = ''
+  try {
+    await api.post(`/vagas/${vaga.value.id}/candidatar`, {})
+    applied.value = true
+    // atualiza contador local
+    const v = data.vagas.find(v => v.id === vaga.value!.id)
+    if (v) v.applicants++
+  } catch (e: unknown) {
+    const msg = (e as { message?: string })?.message
+    applyError.value = msg ?? 'Erro ao enviar. Tente novamente.'
+  } finally {
+    sending.value = false
+  }
 }
 
 const API_BASE = (import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000/api')
@@ -364,6 +400,18 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 .btn-apply:hover { background: var(--orange-deep); transform: translateY(-1px); }
 .btn-apply.applied { background: var(--green); box-shadow: 0 4px 16px -4px rgba(43,217,107,0.4); cursor: default; }
 .btn-apply.applied:hover { transform: none; }
+.btn-apply.disabled { background: var(--card-2); color: var(--muted); box-shadow: none; cursor: not-allowed; }
+.btn-apply.disabled:hover { transform: none; background: var(--card-2); }
+.btn-apply.loading { opacity: 0.75; cursor: wait; }
+.btn-apply.loading:hover { transform: none; }
+.btn-apply { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.btn-login { background: var(--card-2); border: 1px solid var(--line); color: var(--cream); box-shadow: none; }
+.btn-login:hover { background: var(--card); border-color: var(--line-strong); transform: none; }
+.cand-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
+.cand-error { font-size: 12px; color: #ff6b6b; text-align: center; margin-top: 6px; }
+.candidatura-login { display: flex; flex-direction: column; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; }
 .detail-rows { display: flex; flex-direction: column; gap: 10px; }
 .drow { display: flex; justify-content: space-between; font-size: 13px; }
 .drow-k { color: var(--muted); }
