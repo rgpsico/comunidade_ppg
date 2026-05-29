@@ -29,24 +29,35 @@ class AnalyticsWidget extends Widget
 
     public function getViewData(): array
     {
-        $since = now()->subDays(30);
+        $since30 = now()->subDays(30);
+        $since14 = now()->subDays(14);
 
-        // Top profissionais clicados
+        // ── KPIs ──────────────────────────────────────────────────────────────
+        $totalViews = AnalyticsEvent::where('type', 'page_view')
+            ->where('created_at', '>=', $since30)->count();
+
+        $totalSessions = AnalyticsEvent::where('created_at', '>=', $since30)
+            ->distinct('session_id')->count('session_id');
+
+        $totalClicks = AnalyticsEvent::where('type', 'click')
+            ->where('created_at', '>=', $since30)->count();
+
+        // ── Top profissionais clicados ─────────────────────────────────────────
         $topPros = AnalyticsEvent::query()
             ->where('type', 'click')
             ->where('entity_type', 'profissional')
-            ->where('created_at', '>=', $since)
+            ->where('created_at', '>=', $since30)
             ->selectRaw('entity_id, entity_name, count(*) as clicks')
             ->groupBy('entity_id', 'entity_name')
             ->orderByDesc('clicks')
             ->limit(8)
             ->get();
 
-        // Top telas visitadas
+        // ── Top telas visitadas ────────────────────────────────────────────────
         $topScreens = AnalyticsEvent::query()
             ->where('type', 'page_view')
             ->whereNotNull('screen')
-            ->where('created_at', '>=', $since)
+            ->where('created_at', '>=', $since30)
             ->selectRaw('screen, count(*) as views')
             ->groupBy('screen')
             ->orderByDesc('views')
@@ -57,23 +68,26 @@ class AnalyticsWidget extends Widget
                 return $row;
             });
 
-        // Total cliques por tipo de entidade
+        // ── Cliques por tipo de entidade ───────────────────────────────────────
         $clicksByType = AnalyticsEvent::query()
             ->where('type', 'click')
-            ->where('created_at', '>=', $since)
+            ->where('created_at', '>=', $since30)
             ->selectRaw('entity_type, count(*) as total')
             ->groupBy('entity_type')
             ->pluck('total', 'entity_type');
 
-        // Acessos por dia (últimos 14 dias)
+        // ── Acessos por dia (últimos 14 dias) ─────────────────────────────────
         $dailyViews = AnalyticsEvent::query()
             ->where('type', 'page_view')
-            ->where('created_at', '>=', now()->subDays(14))
+            ->where('created_at', '>=', $since14)
             ->selectRaw('DATE(created_at) as day, count(*) as views')
             ->groupBy('day')
             ->orderBy('day')
             ->get();
 
-        return compact('topPros', 'topScreens', 'clicksByType', 'dailyViews');
+        return compact(
+            'totalViews', 'totalSessions', 'totalClicks',
+            'topPros', 'topScreens', 'clicksByType', 'dailyViews'
+        );
     }
 }
