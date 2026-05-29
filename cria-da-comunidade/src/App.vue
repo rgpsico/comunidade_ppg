@@ -29,6 +29,8 @@ import ProDetail from './views/web/details/ProDetail.vue'
 import EventDetail from './views/web/details/EventDetail.vue'
 import ProjDetail from './views/web/details/ProjDetail.vue'
 import VagaDetail from './views/web/details/VagaDetail.vue'
+import LojasView from './views/web/LojasView.vue'
+import LojaDetail from './views/web/details/LojaDetail.vue'
 import LoginView from './views/web/LoginView.vue'
 import ProfileView from './views/web/ProfileView.vue'
 import BottomNav from './components/layout/BottomNav.vue'
@@ -47,6 +49,8 @@ const views = {
   eventDetail: EventDetail,
   projDetail: ProjDetail,
   vagaDetail: VagaDetail,
+  lojas: LojasView,
+  lojaDetail: LojaDetail,
   login: LoginView,
   perfil: ProfileView,
 }

@@ -104,9 +104,42 @@ export interface Conversation {
   online: boolean
 }
 
+export interface Produto {
+  id: string
+  lojaId: string
+  nome: string
+  descricao: string
+  preco: number
+  precoPromocional: number | null
+  imagens: string[]
+  imagemPrincipalUrl: string | null
+  categoria: string
+  disponivel: boolean
+  destaque: boolean
+  ordem: number
+}
+
+export interface Loja {
+  id: string
+  nome: string
+  descricao: string
+  categoria: string
+  logoUrl: string
+  capaUrl: string | null
+  whatsapp: string
+  endereco: string
+  cor1: string
+  cor2: string
+  verificado: boolean
+  ativo: boolean
+  comunidade?: { id: number; nome: string } | null
+  produtosCount: number
+  produtos?: Produto[]
+}
+
 export type WebView =
-  | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas'
-  | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail'
+  | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas'
+  | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail'
   | 'login' | 'perfil'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'

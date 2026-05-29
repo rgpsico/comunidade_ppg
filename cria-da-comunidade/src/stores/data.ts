@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '../services/api'
 import type { Paginated } from '../services/api'
-import type { Pro, Event, Project, Vaga } from '../types'
+import type { Pro, Event, Project, Vaga, Loja, Produto } from '../types'
 
 // ── API response shapes ──────────────────────────────────────────────────────
 
@@ -49,6 +49,22 @@ interface ApiVaga {
   created_at: string
   requisitos?: { descricao: string; nivel: string }[]
   beneficios?: { descricao: string }[]
+}
+
+export interface ApiProduto {
+  id: number; loja_id: number; nome: string; descricao: string | null
+  preco: number; preco_promocional: number | null
+  imagens: string[] | null; imagens_urls: string[]; imagem_principal_url: string | null
+  categoria: string | null; disponivel: boolean; destaque: boolean; ordem: number
+}
+
+export interface ApiLoja {
+  id: number; nome: string; descricao: string | null; categoria: string
+  logo_url: string; capa_url: string | null; whatsapp: string | null
+  endereco: string | null; cor1: string; cor2: string
+  verificado: boolean; ativo: boolean; produtos_count?: number
+  comunidade?: { id: number; nome: string } | null
+  produtos?: ApiProduto[]
 }
 
 // ── Mappers ──────────────────────────────────────────────────────────────────
@@ -167,6 +183,43 @@ function mapVaga(v: ApiVaga): Vaga {
   }
 }
 
+function mapProduto(p: ApiProduto): Produto {
+  return {
+    id: String(p.id),
+    lojaId: String(p.loja_id),
+    nome: p.nome,
+    descricao: p.descricao ?? '',
+    preco: p.preco,
+    precoPromocional: p.preco_promocional ?? null,
+    imagens: p.imagens_urls ?? [],
+    imagemPrincipalUrl: p.imagem_principal_url ?? null,
+    categoria: p.categoria ?? '',
+    disponivel: p.disponivel,
+    destaque: p.destaque,
+    ordem: p.ordem,
+  }
+}
+
+function mapLoja(l: ApiLoja): Loja {
+  return {
+    id: String(l.id),
+    nome: l.nome,
+    descricao: l.descricao ?? '',
+    categoria: l.categoria,
+    logoUrl: l.logo_url,
+    capaUrl: l.capa_url ?? null,
+    whatsapp: l.whatsapp ?? '',
+    endereco: l.endereco ?? '',
+    cor1: l.cor1 ?? '#FF5E1A',
+    cor2: l.cor2 ?? '#FFD23F',
+    verificado: l.verificado,
+    ativo: l.ativo,
+    comunidade: l.comunidade ?? null,
+    produtosCount: l.produtos_count ?? (l.produtos?.length ?? 0),
+    produtos: l.produtos ? l.produtos.map(mapProduto) : undefined,
+  }
+}
+
 // ── Store ─────────────────────────────────────────────────────────────────────
 
 export const useDataStore = defineStore('data', () => {
@@ -174,6 +227,7 @@ export const useDataStore = defineStore('data', () => {
   const events = ref<Event[]>([])
   const projects = ref<Project[]>([])
   const vagas = ref<Vaga[]>([])
+  const lojas = ref<Loja[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -204,16 +258,18 @@ export const useDataStore = defineStore('data', () => {
     try {
       const cid = activeComunidadeId.value
       const cParam = cid ? `&comunidade_id=${cid}` : ''
-      const [pRes, eRes, prRes, vRes] = await Promise.all([
+      const [pRes, eRes, prRes, vRes, lRes] = await Promise.all([
         api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
         api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
         api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
         api.get<Paginated<ApiVaga>>(`/vagas?per_page=50${cParam}`),
+        api.get<Paginated<ApiLoja>>(`/lojas?per_page=60${cParam}`),
       ])
       pros.value = pRes.data.map(mapPro)
       events.value = eRes.data.map(mapEvent)
       projects.value = prRes.data.map(mapProject)
       vagas.value = vRes.data.map(mapVaga)
+      lojas.value = lRes.data.map(mapLoja)
     } catch (e: unknown) {
       error.value = 'Não foi possível carregar os dados. Verifique a conexão com a API.'
       console.error('API error:', e)
@@ -240,7 +296,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
-    pros, events, projects, vagas, loading, error,
+    pros, events, projects, vagas, lojas, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar,

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { WebView, MobileScreen, Pro, Event, Project, Vaga } from '../types'
+import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja } from '../types'
 import { trackPageView, trackClick } from '../services/analytics'
 
 export const useUiStore = defineStore('ui', () => {
@@ -11,6 +11,7 @@ export const useUiStore = defineStore('ui', () => {
   const selectedEvent = ref<Event | null>(null)
   const selectedProj = ref<Project | null>(null)
   const selectedVaga = ref<Vaga | null>(null)
+  const selectedLoja = ref<Loja | null>(null)
 
   const prosFilters = ref({
     catActive: 'Todos',
@@ -25,6 +26,7 @@ export const useUiStore = defineStore('ui', () => {
   const eventsFilters = ref({ catActive: 'Todos' })
   const projectsFilters = ref({ causaActive: 'Todos' })
   const vagasFilters = ref({ tabActive: 'Todas', semExp: false, mesmoDia: false })
+  const lojasFilters = ref({ catActive: 'Todas', search: '' })
 
   function goTo(view: WebView) {
     activeView.value = view
@@ -56,10 +58,16 @@ export const useUiStore = defineStore('ui', () => {
     goTo('vagaDetail')
   }
 
+  function openLoja(loja: Loja) {
+    selectedLoja.value = loja
+    trackClick('loja', loja.id, loja.nome, 'lojaDetail')
+    goTo('lojaDetail')
+  }
+
   return {
     activeView, mobileScreen,
-    selectedPro, selectedEvent, selectedProj, selectedVaga,
-    prosFilters, eventsFilters, projectsFilters, vagasFilters,
-    goTo, openPro, openEvent, openProj, openVaga,
+    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja,
+    prosFilters, eventsFilters, projectsFilters, vagasFilters, lojasFilters,
+    goTo, openPro, openEvent, openProj, openVaga, openLoja,
   }
 })
