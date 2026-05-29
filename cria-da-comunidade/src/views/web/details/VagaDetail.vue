@@ -66,7 +66,7 @@
 
         <div v-if="activeTab === 'Descrição'" class="tab-content">
           <h3 class="content-title">Sobre a vaga</h3>
-          <p class="body-text">{{ vaga.desc }}</p>
+          <div class="body-text rich-content" v-html="vaga.desc"></div>
 
           <h3 class="content-title" style="margin-top: 24px">Requisitos</h3>
           <div class="req-list">
@@ -378,5 +378,50 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 
   .detail-grid { grid-template-columns: 1fr; }
   .detail-aside { position: static; }
+}
+
+/* ── Rich text content ─────────────────────────── */
+.rich-content :deep(p) {
+  margin-bottom: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+  font-size: 14px;
+}
+.rich-content :deep(h2) {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  margin: 24px 0 10px;
+}
+.rich-content :deep(h3) {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cream);
+  margin: 18px 0 8px;
+}
+.rich-content :deep(ul),
+.rich-content :deep(ol) {
+  padding-left: 20px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.rich-content :deep(li) { margin-bottom: 5px; line-height: 1.65; }
+.rich-content :deep(strong) { font-weight: 700; color: var(--cream); }
+.rich-content :deep(em) { font-style: italic; }
+.rich-content :deep(u) { text-decoration: underline; text-underline-offset: 3px; }
+.rich-content :deep(s) { text-decoration: line-through; opacity: 0.6; }
+.rich-content :deep(blockquote) {
+  border-left: 3px solid var(--orange);
+  padding: 8px 16px;
+  margin: 12px 0;
+  background: rgba(255,94,26,0.05);
+  border-radius: 0 8px 8px 0;
+  color: var(--cream);
+  font-size: 14px;
+  line-height: 1.6;
 }
 </style>

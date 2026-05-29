@@ -66,9 +66,15 @@ class VagaResource extends Resource
                             'mês'    => 'por mês',
                             'ano'    => 'por ano',
                         ]),
-                    Forms\Components\Textarea::make('descricao')
+                    Forms\Components\RichEditor::make('descricao')
                         ->label('Descrição da vaga')
-                        ->rows(4)
+                        ->toolbarButtons([
+                            'bold', 'italic', 'underline', 'strike',
+                            'bulletList', 'orderedList',
+                            'h2', 'h3',
+                            'blockquote',
+                            'undo', 'redo',
+                        ])
                         ->columnSpanFull(),
                 ]),
 
