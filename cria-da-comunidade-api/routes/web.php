@@ -1,7 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShareController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// ── Share pages (Open Graph para redes sociais) ───────────────────────────────
+Route::get('/share/vaga/{vaga}', [ShareController::class, 'vaga'])->name('share.vaga');

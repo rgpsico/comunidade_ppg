@@ -168,8 +168,11 @@ async function doCandidatar() {
   applied.value = true
 }
 
+const API_BASE = (import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000/api')
+  .replace(/\/api$/, '') // retira o sufixo /api → pega só o domínio da API
+
 const shareUrl = computed(() =>
-  `${window.location.origin}/?vaga=${vaga.value?.id ?? ''}`
+  `${API_BASE}/share/vaga/${vaga.value?.id ?? ''}`
 )
 
 const shareLinks = computed(() => {
