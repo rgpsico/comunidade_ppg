@@ -44,17 +44,22 @@ class ProfissionalController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'nome'             => 'required|string|max:100',
-            'categoria'        => 'required|string',
-            'cargo'            => 'required|string',
-            'bio'              => 'nullable|string',
-            'whatsapp'         => 'nullable|string|max:20',
-            'comunidade_id'    => 'nullable|exists:comunidades,id',
-            'preco_a_partir'   => 'nullable|numeric|min:0',
-            'tags'             => 'nullable|array',
-            'cor1'             => 'nullable|string|max:7',
-            'cor2'             => 'nullable|string|max:7',
+            'nome'           => 'required|string|max:100',
+            'categoria'      => 'required|string',
+            'cargo'          => 'required|string',
+            'bio'            => 'nullable|string',
+            'whatsapp'       => 'required|string|max:20',
+            'comunidade_id'  => 'nullable|exists:comunidades,id',
+            'preco_a_partir' => 'nullable|numeric|min:0',
+            'tags'           => 'nullable|array',
+            'cor1'           => 'nullable|string|max:7',
+            'cor2'           => 'nullable|string|max:7',
+            'foto'           => 'required|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('profissionais/fotos', 'public');
+        }
 
         $profissional = Profissional::create($data);
 

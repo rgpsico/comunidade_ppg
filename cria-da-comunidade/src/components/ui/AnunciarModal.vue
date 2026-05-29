@@ -34,6 +34,27 @@
 
           <!-- CORRE (Profissional) -->
           <div v-if="tipo === 'corre'" class="fields">
+
+            <!-- Foto de perfil -->
+            <div class="field">
+              <label>Foto de perfil *</label>
+              <div
+                class="photo-zone"
+                :class="{ 'has-photo': photoPreview, 'photo-err': !photoPreview && submitAttempted }"
+                @click="fileInput?.click()"
+              >
+                <img v-if="photoPreview" :src="photoPreview" class="photo-img" />
+                <div v-else class="photo-empty">
+                  <span class="photo-icon-big">📷</span>
+                  <span class="photo-cta">Toque para adicionar sua foto</span>
+                  <span class="photo-fmt">JPG ou PNG · máx 4 MB</span>
+                </div>
+                <div v-if="photoPreview" class="photo-change-overlay">Trocar foto</div>
+              </div>
+              <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="onFileChange" />
+              <span v-if="!photoPreview && submitAttempted" class="err-inline">Foto é obrigatória</span>
+            </div>
+
             <div class="row-2">
               <div class="field">
                 <label>Nome *</label>
@@ -57,8 +78,14 @@
             </div>
             <div class="row-2">
               <div class="field">
-                <label>WhatsApp</label>
-                <input v-model="f.whatsapp" placeholder="(11) 99999-9999" />
+                <label>WhatsApp *</label>
+                <input
+                  v-model="f.whatsapp"
+                  placeholder="(11) 99999-9999"
+                  required
+                  :class="{ 'input-err': !f.whatsapp && submitAttempted }"
+                />
+                <span v-if="!f.whatsapp && submitAttempted" class="err-inline">WhatsApp é obrigatório</span>
               </div>
               <div class="field">
                 <label>Preço a partir de (R$)</label>
@@ -224,6 +251,27 @@ const tipo = ref<Tipo | null>(null)
 const loading = ref(false)
 const erro = ref<string | null>(null)
 
+// Foto
+const fileInput = ref<HTMLInputElement | null>(null)
+const photoPreview = ref<string | null>(null)
+const submitAttempted = ref(false)
+
+function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  f.foto = file
+  if (photoPreview.value) URL.revokeObjectURL(photoPreview.value)
+  photoPreview.value = URL.createObjectURL(file)
+}
+
+function resetPhoto() {
+  if (photoPreview.value) URL.revokeObjectURL(photoPreview.value)
+  photoPreview.value = null
+  f.foto = null
+  submitAttempted.value = false
+}
+
 const labels: Record<Tipo, { title: string }> = {
   corre:  { title: 'Anunciar meu serviço' },
   evento: { title: 'Criar evento' },
@@ -250,7 +298,7 @@ const tiposVaga = ['CLT', 'PJ', 'Freelance', 'Estágio', 'Voluntário']
 const f = reactive<Record<string, any>>({
   // corre
   nome: '', cargo: '', categoria: '', bio: '', whatsapp: '', preco_a_partir: '',
-  cor1: '#FF5E1A', cor2: '#FFD23F',
+  cor1: '#FF5E1A', cor2: '#FFD23F', foto: null as File | null,
   // evento
   titulo: '', data_hora: '', local: '', descricao: '', gratuito: true, preco: '',
   // vaga
@@ -261,23 +309,33 @@ function pick(t: Tipo) {
   tipo.value = t
   step.value = 'form'
   erro.value = null
+  resetPhoto()
 }
 
 async function submit() {
   erro.value = null
+  submitAttempted.value = true
+
+  // Validação manual dos campos obrigatórios do corre
+  if (tipo.value === 'corre') {
+    if (!f.foto)      { erro.value = 'Adicione uma foto de perfil'; return }
+    if (!f.whatsapp)  { erro.value = 'WhatsApp é obrigatório'; return }
+  }
+
   loading.value = true
   try {
     if (tipo.value === 'corre') {
-      await api.post('/profissionais', {
-        nome:           f.nome,
-        cargo:          f.cargo,
-        categoria:      f.categoria,
-        bio:            f.bio || null,
-        whatsapp:       f.whatsapp || null,
-        preco_a_partir: f.preco_a_partir || null,
-        cor1:           f.cor1,
-        cor2:           f.cor2,
-      })
+      const fd = new FormData()
+      fd.append('nome',      f.nome)
+      fd.append('cargo',     f.cargo)
+      fd.append('categoria', f.categoria)
+      if (f.bio)           fd.append('bio',            f.bio)
+      fd.append('whatsapp', f.whatsapp)
+      if (f.preco_a_partir) fd.append('preco_a_partir', String(f.preco_a_partir))
+      fd.append('cor1',     f.cor1)
+      fd.append('cor2',     f.cor2)
+      fd.append('foto',     f.foto as File)
+      await api.postForm('/profissionais', fd)
     } else if (tipo.value === 'evento') {
       await api.post('/eventos', {
         titulo:      f.titulo,
@@ -491,4 +549,59 @@ form { padding: 0 24px 24px; }
 }
 .btn-submit:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
 .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Zona de foto */
+.photo-zone {
+  height: 130px;
+  border: 2px dashed var(--line);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--bg);
+}
+.photo-zone:hover { border-color: var(--orange); background: rgba(255,94,26,0.04); }
+.photo-zone.photo-err { border-color: #ff6b6b; }
+.photo-zone.has-photo { border-style: solid; border-color: var(--orange); }
+
+.photo-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+.photo-icon-big { font-size: 28px; }
+.photo-cta { font-size: 13px; font-weight: 600; color: var(--cream); }
+.photo-fmt { font-size: 11px; color: var(--muted-2); }
+
+.photo-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.photo-change-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.photo-zone.has-photo:hover .photo-change-overlay { opacity: 1; }
+
+.err-inline {
+  font-size: 11px;
+  color: #ff6b6b;
+  margin-top: 2px;
+}
+.input-err { border-color: #ff6b6b !important; }
 </style>
