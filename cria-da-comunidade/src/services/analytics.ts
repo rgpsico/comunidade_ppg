@@ -28,7 +28,7 @@ export function trackPageView(screen: string) {
 }
 
 export function trackClick(
-  entityType: 'profissional' | 'evento' | 'projeto' | 'vaga',
+  entityType: 'profissional' | 'evento' | 'projeto' | 'vaga' | 'loja',
   entityId: string | number,
   entityName: string,
   screen: string,
