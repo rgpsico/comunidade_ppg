@@ -64,7 +64,15 @@ onMounted(async () => {
   if (auth.user?.comunidade_id) {
     data.activeComunidadeId = auth.user.comunidade_id
   }
-  data.fetchAll()
+  await data.fetchAll()
+
+  // Deep links via query params  (?vaga=ID, ?loja=ID, etc.)
+  const params = new URLSearchParams(window.location.search)
+  const vagaId = params.get('vaga')
+  if (vagaId) {
+    const vaga = data.vagas.find(v => v.id === vagaId)
+    if (vaga) ui.openVaga(vaga)
+  }
 })
 </script>
 
