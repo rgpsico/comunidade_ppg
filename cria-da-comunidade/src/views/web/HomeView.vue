@@ -31,9 +31,18 @@
         </div>
       </div>
       <div class="hero-stats">
-        <div class="hstat"><span class="hstat-n">12k+</span><span class="hstat-l">moradores</span></div>
-        <div class="hstat"><span class="hstat-n">2.4k</span><span class="hstat-l">profissionais</span></div>
-        <div class="hstat"><span class="hstat-n">38</span><span class="hstat-l">projetos ativos</span></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ data.loading ? '...' : data.pros.length }}</span>
+          <span class="hstat-l">profissionais</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-n">{{ data.loading ? '...' : data.events.length }}</span>
+          <span class="hstat-l">eventos</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-n">{{ data.loading ? '...' : data.projects.length }}</span>
+          <span class="hstat-l">projetos ativos</span>
+        </div>
       </div>
     </section>
 
@@ -43,7 +52,7 @@
         <button v-for="action in quickActions" :key="action.label" class="qa-btn">
           <div class="qa-icon" :style="{ background: action.color + '22' }">{{ action.icon }}</div>
           <span class="qa-label">{{ action.label }}</span>
-          <span class="qa-count">{{ action.count }}+ ativos</span>
+          <span class="qa-count">{{ data.loading ? '...' : (action.count || '0') }} ativos</span>
         </button>
       </div>
     </section>
@@ -186,16 +195,25 @@ const filteredPros = computed(() =>
     : data.pros.filter(p => p.category === activeCat.value)
 )
 
-const quickActions = [
-  { icon: '⚡', label: 'Eletricista', count: '48', color: '#FFD23F' },
-  { icon: '🧹', label: 'Diarista', count: '120', color: '#2BD96B' },
-  { icon: '✂️', label: 'Barbeiro', count: '35', color: '#FF5E1A' },
-  { icon: '🏍️', label: 'Mototáxi', count: '89', color: '#FFD23F' },
-  { icon: '💪', label: 'Personal', count: '22', color: '#2BD96B' },
-  { icon: '💅', label: 'Manicure', count: '67', color: '#FF5E1A' },
-  { icon: '🔨', label: 'Pedreiro', count: '41', color: '#FFD23F' },
-  { icon: '🎨', label: 'Designer', count: '18', color: '#2BD96B' },
-]
+const quickActions = computed(() => {
+  const defs = [
+    { icon: '⚡', label: 'Eletricista', color: '#FFD23F' },
+    { icon: '🧹', label: 'Diarista',    color: '#2BD96B' },
+    { icon: '✂️', label: 'Barbeiro',    color: '#FF5E1A' },
+    { icon: '🏍️', label: 'Mototáxi',   color: '#FFD23F' },
+    { icon: '💪', label: 'Personal',    color: '#2BD96B' },
+    { icon: '💅', label: 'Manicure',    color: '#FF5E1A' },
+    { icon: '🔨', label: 'Pedreiro',    color: '#FFD23F' },
+    { icon: '🎨', label: 'Designer',    color: '#2BD96B' },
+  ]
+  return defs.map(a => ({
+    ...a,
+    count: data.pros.filter(p =>
+      p.role.toLowerCase().includes(a.label.toLowerCase()) ||
+      (p.tags ?? []).some(t => t.toLowerCase().includes(a.label.toLowerCase()))
+    ).length,
+  }))
+})
 
 const feedItems = [
   { author: 'MC Bravão', time: '2h', c1: '#FF5E1A', c2: '#FFD23F', size: 'tall' },
