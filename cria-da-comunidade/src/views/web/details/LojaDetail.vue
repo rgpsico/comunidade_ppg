@@ -68,6 +68,13 @@
 
         <!-- Tab: Produtos -->
         <div v-if="activeTab === 'Produtos'" class="tab-content">
+
+          <!-- Loading state -->
+          <div v-if="loadingProdutos" class="prods-loading">
+            <div class="pl-spinner"></div>
+            <span>Carregando produtos...</span>
+          </div>
+
           <!-- Categoria filter -->
           <div v-if="categoriasProd.length > 1" class="prod-cats">
             <button
@@ -199,13 +206,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUiStore } from '../../../stores/ui'
+import { useDataStore } from '../../../stores/data'
 import type { Produto } from '../../../types'
 import ProdutoCard from '../../../components/ui/ProdutoCard.vue'
 
 const ui = useUiStore()
+const data = useDataStore()
 const loja = computed(() => ui.selectedLoja)
+const loadingProdutos = ref(false)
+
+onMounted(async () => {
+  if (!loja.value) return
+  // Se ainda não tem produtos carregados, busca o detalhe completo
+  if (!loja.value.produtos || loja.value.produtos.length === 0) {
+    loadingProdutos.value = true
+    const full = await data.fetchLojaDetail(loja.value.id)
+    if (full) ui.selectedLoja = full
+    loadingProdutos.value = false
+  }
+})
 
 const tabs = ['Produtos', 'Sobre']
 const activeTab = ref('Produtos')
@@ -669,6 +690,21 @@ function fmtMoney(val: number): string {
 }
 
 .no-loja { padding: 40px; color: var(--muted); }
+
+/* Loading */
+.prods-loading {
+  display: flex; align-items: center; gap: 10px;
+  padding: 40px 0; color: var(--muted); font-size: 13px;
+}
+.pl-spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--line);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 768px) {
   .back-btn { margin: 16px 20px 0; }

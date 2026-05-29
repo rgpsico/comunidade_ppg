@@ -297,10 +297,19 @@ export const useDataStore = defineStore('data', () => {
     if (v) v.applicants++
   }
 
+  async function fetchLojaDetail(id: string): Promise<Loja | null> {
+    try {
+      const res = await api.get<ApiLoja>(`/lojas/${id}`)
+      return mapLoja(res)
+    } catch {
+      return null
+    }
+  }
+
   return {
     pros, events, projects, vagas, lojas, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
-    rsvp, apoiar, candidatar,
+    rsvp, apoiar, candidatar, fetchLojaDetail,
   }
 })
