@@ -52,6 +52,8 @@ class VagaController extends Controller
             'salario_periodo' => 'nullable|in:hora,dia,semana,mês,ano',
             'logo_cor'        => 'nullable|string|max:7',
             'logo_iniciais'   => 'nullable|string|max:5',
+            'whatsapp'        => 'nullable|string|max:20',
+            'email_contato'   => 'nullable|email|max:150',
             'urgente'         => 'boolean',
             'comunidade_id'   => 'nullable|exists:comunidades,id',
             'requisitos'      => 'nullable|array',
@@ -91,6 +93,8 @@ class VagaController extends Controller
             'salario_periodo' => 'nullable|in:hora,dia,semana,mês,ano',
             'logo_cor'        => 'nullable|string|max:7',
             'logo_iniciais'   => 'nullable|string|max:5',
+            'whatsapp'        => 'nullable|string|max:20',
+            'email_contato'   => 'nullable|email|max:150',
             'urgente'         => 'boolean',
             'ativa'           => 'boolean',
         ]);

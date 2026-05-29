@@ -15,7 +15,7 @@ class Vaga extends Model
     protected $fillable = [
         'anunciante_id', 'comunidade_id', 'titulo', 'empresa', 'descricao',
         'local', 'tipo', 'salario', 'salario_periodo', 'logo_cor', 'logo_iniciais',
-        'logo_imagem', 'urgente', 'candidatos', 'ativa',
+        'logo_imagem', 'whatsapp', 'email_contato', 'urgente', 'candidatos', 'ativa',
     ];
 
     protected $appends = ['logo_imagem_url'];

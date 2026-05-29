@@ -91,6 +91,8 @@ export interface Vaga {
   benefits: string[]
   companyInfo: { name: string; verified: boolean; rating: number; since: string }
   logoImagemUrl?: string | null
+  whatsapp?: string | null
+  emailContato?: string | null
 }
 
 export interface Conversation {

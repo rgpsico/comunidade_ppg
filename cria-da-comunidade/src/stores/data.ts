@@ -46,7 +46,7 @@ interface ApiVaga {
   salario: string | null; salario_periodo: string | null
   logo_cor: string | null; logo_iniciais: string | null; logo_imagem_url: string | null
   descricao: string | null; urgente: boolean; candidatos: number; tipo: string
-  created_at: string
+  created_at: string; whatsapp: string | null; email_contato: string | null
   requisitos?: { descricao: string; nivel: string }[]
   beneficios?: { descricao: string }[]
 }
@@ -180,6 +180,8 @@ function mapVaga(v: ApiVaga): Vaga {
     benefits: (v.beneficios ?? []).map(b => b.descricao),
     companyInfo: { name: v.empresa, verified: false, rating: 5.0, since: '2020' },
     logoImagemUrl: v.logo_imagem_url ?? null,
+    whatsapp: v.whatsapp ?? null,
+    emailContato: v.email_contato ?? null,
   }
 }
 

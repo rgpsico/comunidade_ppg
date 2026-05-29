@@ -113,6 +113,22 @@ class VagaResource extends Resource
                         ->collapsible(),
                 ]),
 
+            Section::make('Contato do anunciante')
+                ->description('Formas de contato que serão exibidas na plataforma para os candidatos.')
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('whatsapp')
+                        ->label('WhatsApp')
+                        ->placeholder('Ex: 11999990000')
+                        ->helperText('Apenas números, com DDD. Ex: 11999990000')
+                        ->maxLength(20),
+                    Forms\Components\TextInput::make('email_contato')
+                        ->label('E-mail de contato')
+                        ->email()
+                        ->placeholder('Ex: rh@empresa.com.br')
+                        ->maxLength(150),
+                ]),
+
             Section::make('Aparência e status')
                 ->columns(3)
                 ->schema([
