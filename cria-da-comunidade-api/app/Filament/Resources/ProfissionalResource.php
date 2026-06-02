@@ -214,8 +214,9 @@ class ProfissionalResource extends Resource
                 Tables\Columns\IconColumn::make('ativo')
                     ->label('Ativo')
                     ->boolean(),
-                Tables\Columns\BadgeColumn::make('plano')
+                Tables\Columns\TextColumn::make('plano')
                     ->label('Plano')
+                    ->badge()
                     ->formatStateUsing(fn ($state, $record) => match (true) {
                         $state === 'premium' && $record->is_premium => '👑 Premium',
                         $state === 'premium'                        => '⏰ Expirado',
