@@ -122,7 +122,7 @@ class ProfissionalResource extends Resource
                 ]),
 
             Section::make('Assinatura Premium')
-                ->icon('heroicon-o-crown')
+                ->icon('heroicon-o-star')
                 ->description('Profissionais premium aparecem na Home para todos os usuários.')
                 ->columns(2)
                 ->schema([
@@ -256,7 +256,7 @@ class ProfissionalResource extends Resource
                 Actions\Action::make('ativar_premium')
                     ->label('👑 Ativar Premium')
                     ->color('warning')
-                    ->icon('heroicon-o-crown')
+                    ->icon('heroicon-o-star')
                     ->requiresConfirmation()
                     ->modalHeading('Ativar assinatura Premium')
                     ->modalDescription('O profissional passará a aparecer na Home para todos os usuários.')
