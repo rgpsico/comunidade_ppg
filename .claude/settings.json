@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s https://api.comunidadeppg.com.br/*)",
+      "Bash(curl -s --max-time * https://api.comunidadeppg.com.br/*)",
+      "Bash(reg query *)",
+      "Bash(npm run build*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(docker compose ps*)",
+      "Bash(docker compose logs*)"
+    ]
+  }
+}
