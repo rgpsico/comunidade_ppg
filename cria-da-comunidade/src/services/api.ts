@@ -45,4 +45,9 @@ export const api = {
   put: <T>(path: string, body: unknown) => request<T>('PUT', path, body),
   delete: <T>(path: string) => request<T>('DELETE', path),
   postForm: <T>(path: string, body: FormData) => requestForm<T>(path, body),
+  // PUT via POST (para atualizar com FormData — método spoofing)
+  patchForm: <T>(path: string, body: FormData) => {
+    body.append('_method', 'PUT')
+    return requestForm<T>(path, body)
+  },
 }

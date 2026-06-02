@@ -123,6 +123,7 @@ export interface Produto {
 
 export interface Loja {
   id: string
+  userId: number | null
   nome: string
   descricao: string
   categoria: string

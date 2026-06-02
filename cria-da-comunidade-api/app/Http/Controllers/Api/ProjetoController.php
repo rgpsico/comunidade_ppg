@@ -62,24 +62,50 @@ class ProjetoController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'nome'          => 'required|string|max:150',
-            'descricao'     => 'nullable|string',
-            'icone'         => 'nullable|string|max:10',
-            'causa'         => 'required|string',
-            'cor'           => 'nullable|string|max:7',
-            'meta'          => 'nullable|numeric|min:0',
-            'impacto_valor' => 'nullable|string',
-            'impacto_label' => 'nullable|string',
-            'anos_atuando'  => 'nullable|integer|min:0',
-            'comunidade_id' => 'nullable|exists:comunidades,id',
+            'nome'           => 'required|string|max:150',
+            'descricao'      => 'nullable|string',
+            'icone'          => 'nullable|string|max:10',
+            'causa'          => 'required|string',
+            'cor'            => 'nullable|string|max:7',
+            'meta'           => 'nullable|numeric|min:0',
+            'impacto_valor'  => 'nullable|string',
+            'impacto_label'  => 'nullable|string',
+            'anos_atuando'   => 'nullable|integer|min:0',
+            'cta_label'      => 'nullable|string|max:60',
+            'aceita_doacoes' => 'nullable|boolean',
+            'comunidade_id'  => 'nullable|exists:comunidades,id',
         ]);
 
         $projeto = Projeto::create([
             ...$data,
             'responsavel_id' => auth()->id(),
+            'ativo'          => true,
         ]);
 
         return response()->json($projeto, 201);
+    }
+
+    public function update(Request $request, Projeto $projeto): JsonResponse
+    {
+        $data = $request->validate([
+            'nome'           => 'sometimes|required|string|max:150',
+            'descricao'      => 'nullable|string',
+            'icone'          => 'nullable|string|max:10',
+            'causa'          => 'sometimes|required|string',
+            'cor'            => 'nullable|string|max:7',
+            'meta'           => 'nullable|numeric|min:0',
+            'impacto_valor'  => 'nullable|string',
+            'impacto_label'  => 'nullable|string',
+            'anos_atuando'   => 'nullable|integer|min:0',
+            'cta_label'      => 'nullable|string|max:60',
+            'aceita_doacoes' => 'nullable|boolean',
+            'ativo'          => 'nullable|boolean',
+            'comunidade_id'  => 'nullable|exists:comunidades,id',
+        ]);
+
+        $projeto->update($data);
+
+        return response()->json($projeto->fresh());
     }
 
     public function destroy(Projeto $projeto): JsonResponse

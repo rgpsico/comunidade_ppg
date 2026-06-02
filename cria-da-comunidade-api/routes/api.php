@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComunidadeController;
 use App\Http\Controllers\Api\EventoController;
@@ -56,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Projetos
     Route::post('projetos',                       [ProjetoController::class, 'store']);
+    Route::put('projetos/{projeto}',              [ProjetoController::class, 'update']);
     Route::post('projetos/{projeto}/apoiar',       [ProjetoController::class, 'apoiar']);
     Route::delete('projetos/{projeto}',            [ProjetoController::class, 'destroy']);
 
@@ -69,4 +71,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('lojas',                          [LojaController::class, 'store']);
     Route::put('lojas/{loja}',                    [LojaController::class, 'update']);
     Route::delete('lojas/{loja}',                 [LojaController::class, 'destroy']);
+
+    // Produtos
+    Route::post('lojas/{loja}/produtos',          [ProdutoController::class, 'store']);
+    Route::post('produtos/{produto}',             [ProdutoController::class, 'update']);
+    Route::delete('produtos/{produto}',           [ProdutoController::class, 'destroy']);
 });

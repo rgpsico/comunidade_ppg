@@ -59,7 +59,7 @@ export interface ApiProduto {
 }
 
 export interface ApiLoja {
-  id: number; nome: string; descricao: string | null; categoria: string
+  id: number; user_id: number | null; nome: string; descricao: string | null; categoria: string
   logo_url: string; capa_url: string | null; whatsapp: string | null
   endereco: string | null; cor1: string; cor2: string
   verificado: boolean; ativo: boolean; produtos_count?: number
@@ -205,6 +205,7 @@ function mapProduto(p: ApiProduto): Produto {
 function mapLoja(l: ApiLoja): Loja {
   return {
     id: String(l.id),
+    userId: l.user_id ?? null,
     nome: l.nome,
     descricao: l.descricao ?? '',
     categoria: l.categoria,

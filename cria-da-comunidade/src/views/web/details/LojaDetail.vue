@@ -69,6 +69,14 @@
         <!-- Tab: Produtos -->
         <div v-if="activeTab === 'Produtos'" class="tab-content">
 
+          <!-- Owner: add button -->
+          <div v-if="isOwner" class="owner-bar">
+            <button class="btn-add-prod" @click="openAddModal">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Adicionar produto
+            </button>
+          </div>
+
           <!-- Loading state -->
           <div v-if="loadingProdutos" class="prods-loading">
             <div class="pl-spinner"></div>
@@ -94,10 +102,19 @@
               <div
                 v-for="p in destaques"
                 :key="p.id"
-                class="prod-card"
-                @click="openedProduto = p"
+                class="prod-card-wrap"
               >
-                <ProdutoCard :produto="p" :cor="loja.cor1" />
+                <div class="prod-card" @click="openedProduto = p">
+                  <ProdutoCard :produto="p" :cor="loja.cor1" />
+                </div>
+                <div v-if="isOwner" class="prod-owner-btns">
+                  <button class="pob pob-edit" @click.stop="openEditModal(p)" title="Editar">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button class="pob pob-del" @click.stop="deleteProduto(p)" :disabled="deletingId === p.id" title="Remover">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </template>
@@ -108,16 +125,28 @@
             <div
               v-for="p in prodsFiltrados"
               :key="p.id"
-              class="prod-card"
-              @click="openedProduto = p"
+              class="prod-card-wrap"
             >
-              <ProdutoCard :produto="p" :cor="loja.cor1" />
+              <div class="prod-card" @click="openedProduto = p">
+                <ProdutoCard :produto="p" :cor="loja.cor1" />
+              </div>
+              <div v-if="isOwner" class="prod-owner-btns">
+                <button class="pob pob-edit" @click.stop="openEditModal(p)" title="Editar">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="pob pob-del" @click.stop="deleteProduto(p)" :disabled="deletingId === p.id" title="Remover">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div v-else-if="!loja.produtos?.length" class="empty-prod">
+          <div v-else-if="!loja.produtos?.length && !loadingProdutos" class="empty-prod">
             <div class="ep-icon">📦</div>
             <div class="ep-text">Esta loja ainda não adicionou produtos</div>
+            <button v-if="isOwner" class="btn-add-prod" style="margin-top:16px" @click="openAddModal">
+              + Adicionar primeiro produto
+            </button>
           </div>
         </div>
 
@@ -147,6 +176,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Product form modal (owner only) -->
+    <ProdutoFormModal
+      v-if="showFormModal"
+      :lojaId="loja.id"
+      :produto="editingProduto"
+      @close="showFormModal = false"
+      @saved="onSaved"
+    />
 
     <!-- Produto modal -->
     <Transition name="modal">
@@ -209,13 +247,69 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 import { useDataStore } from '../../../stores/data'
+import { useAuthStore } from '../../../stores/auth'
+import { api } from '../../../services/api'
 import type { Produto } from '../../../types'
 import ProdutoCard from '../../../components/ui/ProdutoCard.vue'
+import ProdutoFormModal from '../../../components/ui/ProdutoFormModal.vue'
 
 const ui = useUiStore()
 const data = useDataStore()
+const auth = useAuthStore()
 const loja = computed(() => ui.selectedLoja)
 const loadingProdutos = ref(false)
+
+// Owner check
+const isOwner = computed(() => {
+  if (!auth.isAuthenticated || !loja.value) return false
+  const isAdmin = auth.user?.roles?.some(r => r.name === 'admin' || r.name === 'super_admin')
+  return isAdmin || auth.user?.id === loja.value.userId
+})
+
+// Product form modal state
+const showFormModal = ref(false)
+const editingProduto = ref<Produto | null>(null)
+const deletingId = ref<string | null>(null)
+
+function openAddModal() {
+  editingProduto.value = null
+  showFormModal.value = true
+}
+
+function openEditModal(p: Produto) {
+  editingProduto.value = p
+  showFormModal.value = true
+}
+
+function onSaved(saved: Produto) {
+  showFormModal.value = false
+  if (!loja.value) return
+  const produtos = loja.value.produtos ?? []
+  const idx = produtos.findIndex(p => p.id === saved.id)
+  if (idx >= 0) {
+    produtos[idx] = saved
+  } else {
+    produtos.push(saved)
+    loja.value.produtosCount = (loja.value.produtosCount ?? 0) + 1
+  }
+  loja.value.produtos = [...produtos]
+}
+
+async function deleteProduto(p: Produto) {
+  if (!confirm(`Remover "${p.nome}"?`)) return
+  deletingId.value = p.id
+  try {
+    await api.delete(`/produtos/${p.id}`)
+    if (loja.value) {
+      loja.value.produtos = (loja.value.produtos ?? []).filter(x => x.id !== p.id)
+      loja.value.produtosCount = Math.max(0, (loja.value.produtosCount ?? 1) - 1)
+    }
+  } catch (e: unknown) {
+    alert((e as Error).message ?? 'Erro ao remover produto.')
+  } finally {
+    deletingId.value = null
+  }
+}
 
 onMounted(async () => {
   if (!loja.value) return
@@ -481,6 +575,23 @@ function fmtMoney(val: number): string {
   margin-top: 4px;
 }
 
+/* Owner bar */
+.owner-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+.btn-add-prod {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 10px;
+  background: var(--orange); color: #fff;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s, transform 0.1s;
+  border: none;
+  box-shadow: var(--shadow-cta-orange, 0 4px 16px rgba(255,94,26,0.35));
+}
+.btn-add-prod:hover { background: var(--orange-deep, #e54a00); transform: translateY(-1px); }
+
 /* Prods grid */
 .prods-grid {
   display: grid;
@@ -488,7 +599,34 @@ function fmtMoney(val: number): string {
   gap: 12px;
   margin-bottom: 20px;
 }
+.prod-card-wrap { position: relative; }
 .prod-card { cursor: pointer; }
+
+/* Owner edit/delete buttons on cards */
+.prod-owner-btns {
+  position: absolute;
+  top: 6px; right: 6px;
+  display: flex; gap: 4px;
+  z-index: 2;
+}
+.pob {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none;
+  transition: background 0.15s;
+}
+.pob-edit {
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+}
+.pob-edit:hover { background: var(--orange); }
+.pob-del {
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+}
+.pob-del:hover { background: #e53e3e; }
+.pob:disabled { opacity: 0.5; cursor: wait; }
 
 /* Empty */
 .empty-prod {
