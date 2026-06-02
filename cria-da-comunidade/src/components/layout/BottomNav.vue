@@ -50,7 +50,7 @@ const navItems: { view?: WebView; label: string; icon: string; isCta?: boolean }
     icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>',
   },
   {
-    view: 'profissionais', label: 'Profissionais',
+    view: 'profissionais', label: 'Profis',
     icon: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>',
   },
 ]
@@ -109,5 +109,12 @@ const navItems: { view?: WebView; label: string; icon: string; isCta?: boolean }
 .bn-item.cta .bn-label { display: none; }
 
 .bn-icon { display: flex; align-items: center; }
-.bn-label { font-size: 10px; font-weight: 500; }
+.bn-label {
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
 </style>
