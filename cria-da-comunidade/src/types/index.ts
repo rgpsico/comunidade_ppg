@@ -21,6 +21,8 @@ export interface Pro {
   since?: string
   photoUrl?: string | null
   galleryUrls?: string[]
+  isPremium?: boolean
+  plano?: 'free' | 'premium'
 }
 
 export interface Event {

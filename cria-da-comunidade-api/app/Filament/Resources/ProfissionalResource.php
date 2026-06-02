@@ -121,6 +121,27 @@ class ProfissionalResource extends Resource
                         ->default(true),
                 ]),
 
+            Section::make('Assinatura Premium')
+                ->icon('heroicon-o-crown')
+                ->description('Profissionais premium aparecem na Home para todos os usuários.')
+                ->columns(2)
+                ->schema([
+                    Forms\Components\Select::make('plano')
+                        ->label('Plano')
+                        ->options([
+                            'free'    => '🆓 Free — listagem normal',
+                            'premium' => '👑 Premium — aparece na Home',
+                        ])
+                        ->default('free')
+                        ->required()
+                        ->live(),
+                    Forms\Components\DateTimePicker::make('premium_expira_em')
+                        ->label('Assinatura válida até')
+                        ->helperText('Deixe em branco para não expirar.')
+                        ->nullable()
+                        ->visible(fn ($get) => $get('plano') === 'premium'),
+                ]),
+
             Section::make('Imagens')
                 ->schema([
                     Forms\Components\FileUpload::make('foto')
@@ -193,6 +214,18 @@ class ProfissionalResource extends Resource
                 Tables\Columns\IconColumn::make('ativo')
                     ->label('Ativo')
                     ->boolean(),
+                Tables\Columns\BadgeColumn::make('plano')
+                    ->label('Plano')
+                    ->formatStateUsing(fn ($state, $record) => match (true) {
+                        $state === 'premium' && $record->is_premium => '👑 Premium',
+                        $state === 'premium'                        => '⏰ Expirado',
+                        default                                     => 'Free',
+                    })
+                    ->color(fn ($state, $record) => match (true) {
+                        $state === 'premium' && $record->is_premium => 'warning',
+                        $state === 'premium'                        => 'gray',
+                        default                                     => 'gray',
+                    }),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('categoria')
@@ -211,11 +244,36 @@ class ProfissionalResource extends Resource
                     ]),
                 Tables\Filters\TernaryFilter::make('verificado')->label('Verificados'),
                 Tables\Filters\TernaryFilter::make('ativo')->label('Ativos'),
+                Tables\Filters\SelectFilter::make('plano')
+                    ->label('Plano')
+                    ->options(['free' => 'Free', 'premium' => '👑 Premium']),
                 Tables\Filters\SelectFilter::make('comunidade_id')
                     ->label('Comunidade')
                     ->relationship('comunidade', 'nome'),
             ])
             ->actions([
+                Actions\Action::make('ativar_premium')
+                    ->label('👑 Ativar Premium')
+                    ->color('warning')
+                    ->icon('heroicon-o-crown')
+                    ->requiresConfirmation()
+                    ->modalHeading('Ativar assinatura Premium')
+                    ->modalDescription('O profissional passará a aparecer na Home para todos os usuários.')
+                    ->action(fn (Profissional $record) => $record->update([
+                        'plano'              => 'premium',
+                        'premium_expira_em'  => now()->addDays(30),
+                    ]))
+                    ->visible(fn (Profissional $record) => !$record->is_premium),
+                Actions\Action::make('desativar_premium')
+                    ->label('Remover Premium')
+                    ->color('gray')
+                    ->icon('heroicon-o-x-circle')
+                    ->requiresConfirmation()
+                    ->action(fn (Profissional $record) => $record->update([
+                        'plano'             => 'free',
+                        'premium_expira_em' => null,
+                    ]))
+                    ->visible(fn (Profissional $record) => $record->is_premium),
                 Actions\Action::make('verificar')
                     ->label('Verificar')
                     ->icon('heroicon-o-check-badge')

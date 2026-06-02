@@ -57,12 +57,12 @@
       </div>
     </section>
 
-    <!-- Profissionais -->
+    <!-- Profissionais Premium -->
     <section class="section">
       <div class="section-head">
         <div>
-          <div class="eyebrow">⭐ profissionais</div>
-          <h2 class="section-title display">Profissionais perto de você</h2>
+          <div class="eyebrow">👑 destaque premium</div>
+          <h2 class="section-title display">Profissionais <span class="text-gradient-orange">em destaque</span></h2>
         </div>
         <div class="section-actions">
           <div class="tabs-row">
@@ -77,13 +77,18 @@
           <button class="link-btn" @click="ui.goTo('profissionais')">Ver todos →</button>
         </div>
       </div>
-      <div v-if="!data.loading" class="pros-grid">
+      <div v-if="!data.loading && filteredPros.length > 0" class="pros-grid">
         <ProCard
           v-for="pro in filteredPros.slice(0, 4)"
           :key="pro.id"
           :pro="pro"
           @click="ui.openPro(pro)"
         />
+      </div>
+      <div v-else-if="!data.loading" class="premium-empty">
+        <div class="pe-icon">👑</div>
+        <p>Nenhum profissional premium nesta categoria.</p>
+        <button class="link-btn" @click="ui.goTo('profissionais')">Ver todos os profissionais →</button>
       </div>
     </section>
 
@@ -189,10 +194,13 @@ const data = useDataStore()
 const activeCat = ref('Todos')
 const proCategories = ['Todos', 'Beleza', 'Construção', 'Casa', 'Transporte']
 
+// Home: apenas premium
+const premiumPros = computed(() => data.pros.filter(p => p.isPremium))
+
 const filteredPros = computed(() =>
   activeCat.value === 'Todos'
-    ? data.pros
-    : data.pros.filter(p => p.category === activeCat.value)
+    ? premiumPros.value
+    : premiumPros.value.filter(p => p.category === activeCat.value)
 )
 
 const quickActions = computed(() => {
@@ -427,6 +435,9 @@ const skylineHouses = Array.from({ length: 18 }, (_, i) => ({
 .qa-count { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 
 .pros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.premium-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 0; }
+.premium-empty .pe-icon { font-size: 36px; opacity: 0.4; }
+.premium-empty p { font-size: 13px; color: var(--muted); }
 
 .events-grid {
   display: grid;

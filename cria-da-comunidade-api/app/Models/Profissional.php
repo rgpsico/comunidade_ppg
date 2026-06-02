@@ -17,21 +17,30 @@ class Profissional extends Model
         'user_id', 'comunidade_id', 'nome', 'categoria', 'cargo', 'bio',
         'foto', 'galeria',
         'estrelas', 'total_avaliacoes', 'total_atendimentos', 'preco_a_partir',
-        'whatsapp', 'cor1', 'cor2', 'tags', 'tempo_resposta', 'verificado', 'ativo',
+        'whatsapp', 'cor1', 'cor2', 'tags', 'tempo_resposta',
+        'verificado', 'ativo', 'plano', 'premium_expira_em',
     ];
 
-    protected $appends = ['foto_url', 'galeria_urls'];
+    protected $appends = ['foto_url', 'galeria_urls', 'is_premium'];
 
     protected function casts(): array
     {
         return [
-            'tags'           => 'array',
-            'galeria'        => 'array',
-            'verificado'     => 'boolean',
-            'ativo'          => 'boolean',
-            'estrelas'       => 'float',
-            'preco_a_partir' => 'float',
+            'tags'                => 'array',
+            'galeria'             => 'array',
+            'verificado'          => 'boolean',
+            'ativo'               => 'boolean',
+            'estrelas'            => 'float',
+            'preco_a_partir'      => 'float',
+            'premium_expira_em'   => 'datetime',
         ];
+    }
+
+    /** Premium = plano premium E (sem validade OU validade futura) */
+    public function getIsPremiumAttribute(): bool
+    {
+        return $this->plano === 'premium'
+            && ($this->premium_expira_em === null || $this->premium_expira_em->isFuture());
     }
 
     public function getFotoUrlAttribute(): ?string

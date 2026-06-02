@@ -30,6 +30,15 @@ class ProfissionalController extends Controller
             });
         }
 
+        // Filtro premium (home page usa &premium=1)
+        if ($request->boolean('premium')) {
+            $query->where('plano', 'premium')
+                  ->where(function ($q) {
+                      $q->whereNull('premium_expira_em')
+                        ->orWhere('premium_expira_em', '>', now());
+                  });
+        }
+
         $sort = $request->get('sort', 'estrelas');
         $query->orderBy($sort === 'preco' ? 'preco_a_partir' : 'estrelas', 'desc');
 

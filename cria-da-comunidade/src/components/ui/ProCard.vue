@@ -1,8 +1,15 @@
 <template>
-  <div class="pro-card" @click="emit('click')">
+  <div class="pro-card" :class="{ 'pro-card--premium': pro.isPremium }" @click="emit('click')">
     <div class="pro-photo" :style="{ background: `linear-gradient(135deg, ${pro.c1}, ${pro.c2})` }">
       <img v-if="pro.photoUrl" :src="pro.photoUrl" class="pro-img" :alt="pro.name" />
       <div v-else class="pro-initials">{{ pro.initials }}</div>
+
+      <!-- Badge premium -->
+      <div v-if="pro.isPremium" class="badge-premium">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19l2-7 5 3 3-6 3 6 5-3 2 7H2zm0 0h20"/></svg>
+        premium
+      </div>
+
       <div v-if="pro.verified" class="badge-verified">
         <svg width="10" height="10" fill="var(--green)" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="var(--green)" stroke-width="3" fill="none"/></svg>
         verificado
@@ -77,6 +84,30 @@ const emit = defineEmits<{ click: [] }>()
   letter-spacing: -0.03em;
   pointer-events: none;
 }
+/* Premium card */
+.pro-card--premium {
+  border-color: rgba(201,168,76,0.6);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.25), 0 4px 20px rgba(201,168,76,0.12);
+}
+.pro-card--premium:hover {
+  border-color: rgba(201,168,76,0.9);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.4), 0 8px 32px rgba(201,168,76,0.18);
+}
+.badge-premium {
+  position: absolute;
+  top: 10px; right: 10px;
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 9px;
+  background: linear-gradient(135deg, #C9A84C, #FFD700);
+  border-radius: 999px;
+  font-size: 10px;
+  color: #1a1a2e;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(201,168,76,0.4);
+}
+
 .badge-verified {
   position: absolute;
   top: 10px; left: 10px;

@@ -21,6 +21,7 @@ interface ApiProfissional {
   whatsapp: string | null; tempo_resposta: string | null
   foto_url: string | null; galeria_urls: string[] | null
   comunidade?: { id: number; nome: string }
+  plano?: string; is_premium?: boolean
 }
 
 interface ApiEvento {
@@ -111,6 +112,8 @@ function mapPro(p: ApiProfissional): Pro {
     services: [],
     photoUrl: p.foto_url ?? null,
     galleryUrls: p.galeria_urls ?? [],
+    isPremium: p.is_premium ?? false,
+    plano: (p.plano ?? 'free') as 'free' | 'premium',
   }
 }
 
