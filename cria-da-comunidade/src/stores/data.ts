@@ -32,6 +32,16 @@ interface ApiEvento {
   imagem_capa_url: string | null; galeria_urls: string[] | null
 }
 
+interface ApiProjetoAtividade {
+  id: number; titulo: string; dias: string; horario: string
+  descricao: string | null; vagas: number | null; ordem: number
+}
+
+interface ApiProjetoMembro {
+  id: number; nome: string; cargo: string; bio: string | null
+  foto_url: string | null; cor: string; ordem: number
+}
+
 interface ApiProjeto {
   id: number; nome: string; descricao: string | null; icone: string | null
   causa: string; cor: string; impacto_valor: string | null
@@ -39,6 +49,8 @@ interface ApiProjeto {
   meta: number | null; cta_label: string | null; anos_atuando: number | null
   aceita_doacoes: boolean
   imagem_capa_url: string | null; galeria_urls: string[] | null
+  atividades?: ApiProjetoAtividade[]
+  membros?: ApiProjetoMembro[]
 }
 
 interface ApiVaga {
@@ -150,6 +162,24 @@ function mapProject(p: ApiProjeto): Project {
     imagemCapaUrl: p.imagem_capa_url ?? null,
     galeriaUrls: p.galeria_urls ?? [],
     aceitaDoacoes: p.aceita_doacoes ?? false,
+    // Mapeados apenas quando vêm do endpoint de detalhe (/projetos/{id})
+    activities: p.atividades?.map(a => ({
+      title: a.titulo,
+      days: a.dias,
+      time: a.horario,
+      desc: a.descricao ?? undefined,
+      spots: a.vagas ?? undefined,
+    })),
+    tutors: p.membros?.map(m => ({
+      name: m.nome,
+      role: m.cargo,
+      initials: m.nome.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase(),
+      color: m.cor,
+      bio: m.bio ?? undefined,
+    })),
+    gallery: p.galeria_urls?.length
+      ? p.galeria_urls.map(url => ({ color1: p.cor, color2: '#1a1a2e', caption: '', imgUrl: url }))
+      : undefined,
   }
 }
 
@@ -307,10 +337,19 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
+  async function fetchProjetoDetail(id: string): Promise<import('../types').Project | null> {
+    try {
+      const res = await api.get<ApiProjeto>(`/projetos/${id}`)
+      return mapProject(res)
+    } catch {
+      return null
+    }
+  }
+
   return {
     pros, events, projects, vagas, lojas, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
-    rsvp, apoiar, candidatar, fetchLojaDetail,
+    rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,
   }
 })

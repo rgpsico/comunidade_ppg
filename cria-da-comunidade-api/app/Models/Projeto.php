@@ -62,6 +62,16 @@ class Projeto extends Model
         return $this->hasMany(Apoio::class);
     }
 
+    public function atividades(): HasMany
+    {
+        return $this->hasMany(ProjetoAtividade::class)->orderBy('ordem')->orderBy('id');
+    }
+
+    public function membros(): HasMany
+    {
+        return $this->hasMany(ProjetoMembro::class)->orderBy('ordem')->orderBy('id');
+    }
+
     public function getProgressoPercentualAttribute(): int
     {
         if (!$this->meta || $this->meta <= 0) return 0;

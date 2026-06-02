@@ -68,7 +68,10 @@
 
         <!-- Atividades -->
         <div v-if="activeTab === 'Atividades'" class="tab-content">
-          <div v-if="activities.length > 0" class="activities-list">
+          <div v-if="loadingDetail" class="detail-loading">
+            <div class="dl-spinner"></div><span>Carregando atividades...</span>
+          </div>
+          <div v-else-if="activities.length > 0" class="activities-list">
             <div v-for="act in activities" :key="act.title" class="activity-card">
               <div class="act-color-bar" :style="{ background: proj.color }"></div>
               <div class="act-body">
@@ -93,7 +96,10 @@
 
         <!-- Equipe -->
         <div v-if="activeTab === 'Equipe'" class="tab-content">
-          <div v-if="tutors.length > 0" class="tutors-grid">
+          <div v-if="loadingDetail" class="detail-loading">
+            <div class="dl-spinner"></div><span>Carregando equipe...</span>
+          </div>
+          <div v-else-if="tutors.length > 0" class="tutors-grid">
             <div v-for="tutor in tutors" :key="tutor.name" class="tutor-card">
               <div class="tutor-av" :style="{ background: `linear-gradient(135deg, ${tutor.color}, ${proj.color})` }">
                 {{ tutor.initials }}
@@ -109,6 +115,7 @@
           </div>
         </div>
 
+
         <!-- Galeria -->
         <div v-if="activeTab === 'Galeria'" class="tab-content">
           <div v-if="gallery.length > 0" class="gallery-grid">
@@ -117,7 +124,9 @@
               :key="i"
               class="gallery-item"
               :class="{ wide: i === 0, tall: i === 3 }"
-              :style="{ background: `linear-gradient(135deg, ${img.color1}, ${img.color2})` }"
+              :style="img.imgUrl
+                ? { backgroundImage: `url(${img.imgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : { background: `linear-gradient(135deg, ${img.color1}, ${img.color2})` }"
             >
               <div class="gallery-overlay"></div>
               <div v-if="img.caption" class="gallery-caption">{{ img.caption }}</div>
@@ -187,34 +196,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUiStore } from '../../../stores/ui'
+import { useDataStore } from '../../../stores/data'
 
 const ui = useUiStore()
+const data = useDataStore()
 const proj = computed(() => ui.selectedProj)
+const loadingDetail = ref(false)
 const activeTab = ref('Sobre')
 const tabs = ['Sobre', 'Atividades', 'Equipe', 'Galeria']
 
-const activities = computed(() => proj.value?.activities ?? [
-  { title: 'Reforço escolar', days: 'Seg, Qua e Sex', time: '14h – 16h', desc: 'Apoio em matemática, português e ciências para crianças de 7 a 14 anos.', spots: 20 },
-  { title: 'Capoeira', days: 'Terça e Quinta', time: '17h – 18h30', desc: 'Aulas de capoeira angola para todas as idades.', spots: 15 },
-  { title: 'Teatro comunitário', days: 'Sábado', time: '10h – 12h', desc: 'Oficina de expressão corporal e teatro para jovens de 12 a 18 anos.', spots: 12 },
-])
+onMounted(async () => {
+  if (!proj.value) return
+  // Busca detalhe completo somente se atividades/membros ainda não vieram
+  if (!proj.value.activities && !proj.value.tutors) {
+    loadingDetail.value = true
+    const full = await data.fetchProjetoDetail(proj.value.id)
+    if (full) ui.selectedProj = full
+    loadingDetail.value = false
+  }
+})
 
-const tutors = computed(() => proj.value?.tutors ?? [
-  { name: 'Prof. Marcus Vinícius', role: 'Educação & Reforço', initials: 'MV', color: '#FF5E1A', bio: 'Professor formado em pedagogia com 8 anos de experiência em educação comunitária.' },
-  { name: 'Mestre Jair', role: 'Capoeira Angola', initials: 'MJ', color: '#FFD23F', bio: 'Mestre de capoeira angola há 22 anos, fundador do grupo Raízes do Alemão.' },
-  { name: 'Fabiana Luz', role: 'Teatro & Expressão', initials: 'FL', color: '#2BD96B', bio: 'Atriz e educadora social, formada pela UniRio com ênfase em teatro popular.' },
-])
-
-const gallery = computed(() => proj.value?.gallery ?? [
-  { color1: '#FF5E1A', color2: '#FFD23F', caption: 'Roda de capoeira — Mar 2025' },
-  { color1: '#2BD96B', color2: '#FFD23F', caption: 'Reforço escolar' },
-  { color1: '#FFD23F', color2: '#FF5E1A', caption: 'Peça teatral 2024' },
-  { color1: '#FF5E1A', color2: '#2BD96B', caption: 'Formatura da turma' },
-  { color1: '#2BD96B', color2: '#FF5E1A', caption: 'Atividade externa' },
-  { color1: '#FFD23F', color2: '#2BD96B', caption: 'Oficina de pintura' },
-])
+const activities = computed(() => proj.value?.activities ?? [])
+const tutors     = computed(() => proj.value?.tutors     ?? [])
+const gallery    = computed(() => proj.value?.gallery    ?? [])
 </script>
 
 <style scoped>
@@ -335,6 +341,11 @@ const gallery = computed(() => proj.value?.gallery ?? [
 .update-time { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
 .update-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
 .update-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* Loading */
+.detail-loading { display: flex; align-items: center; gap: 10px; padding: 48px 0; color: var(--muted); font-size: 13px; }
+.dl-spinner { width: 20px; height: 20px; border: 2px solid var(--line); border-top-color: var(--orange); border-radius: 50%; animation: dl-spin 0.7s linear infinite; flex-shrink: 0; }
+@keyframes dl-spin { to { transform: rotate(360deg); } }
 
 /* Empty states */
 .empty-block { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 0; }

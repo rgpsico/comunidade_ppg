@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjetoResource\Pages;
+use App\Filament\Resources\ProjetoResource\RelationManagers\AtividadesRelationManager;
+use App\Filament\Resources\ProjetoResource\RelationManagers\MembrosRelationManager;
 use App\Models\Projeto;
 use Filament\Actions;
 use Filament\Forms;
@@ -213,6 +215,14 @@ class ProjetoResource extends Resource
                 ]),
             ])
             ->defaultSort('nome');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            AtividadesRelationManager::class,
+            MembrosRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

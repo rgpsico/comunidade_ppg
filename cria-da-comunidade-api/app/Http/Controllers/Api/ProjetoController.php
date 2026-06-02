@@ -28,7 +28,7 @@ class ProjetoController extends Controller
     public function show(Projeto $projeto): JsonResponse
     {
         return response()->json(
-            $projeto->load(['comunidade', 'responsavel:id,name', 'apoios'])
+            $projeto->load(['comunidade', 'responsavel:id,name', 'apoios', 'atividades', 'membros'])
         );
     }
 

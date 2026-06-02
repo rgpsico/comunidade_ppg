@@ -65,7 +65,7 @@ export interface Project {
   updates: { time: string; title: string; text: string }[]
   activities?: { title: string; days: string; time: string; desc?: string; spots?: number }[]
   tutors?: { name: string; role: string; initials: string; color: string; bio?: string }[]
-  gallery?: { color1: string; color2: string; caption?: string }[]
+  gallery?: { color1: string; color2: string; caption?: string; imgUrl?: string }[]
   imagemCapaUrl?: string | null
   galeriaUrls?: string[]
   aceitaDoacoes?: boolean
