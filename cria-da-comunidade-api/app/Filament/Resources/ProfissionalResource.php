@@ -286,7 +286,7 @@ class ProfissionalResource extends Resource
                 Actions\DeleteAction::make(),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('desativar_todos')
+                Actions\Action::make('desativar_todos')
                     ->label('Desativar todos')
                     ->icon('heroicon-o-eye-slash')
                     ->color('danger')
@@ -296,7 +296,7 @@ class ProfissionalResource extends Resource
                     ->modalSubmitActionLabel('Sim, desativar todos')
                     ->action(fn () => Profissional::query()->update(['ativo' => false])),
 
-                Tables\Actions\Action::make('ativar_todos')
+                Actions\Action::make('ativar_todos')
                     ->label('Ativar todos')
                     ->icon('heroicon-o-eye')
                     ->color('success')
@@ -308,7 +308,7 @@ class ProfissionalResource extends Resource
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('desativar')
+                    Actions\BulkAction::make('desativar')
                         ->label('Desativar selecionados')
                         ->icon('heroicon-o-eye-slash')
                         ->color('danger')
@@ -318,7 +318,7 @@ class ProfissionalResource extends Resource
                         ->modalSubmitActionLabel('Sim, desativar')
                         ->action(fn ($records) => $records->each->update(['ativo' => false])),
 
-                    Tables\Actions\BulkAction::make('ativar')
+                    Actions\BulkAction::make('ativar')
                         ->label('Ativar selecionados')
                         ->icon('heroicon-o-eye')
                         ->color('success')
@@ -328,7 +328,7 @@ class ProfissionalResource extends Resource
                         ->modalSubmitActionLabel('Sim, ativar')
                         ->action(fn ($records) => $records->each->update(['ativo' => true])),
 
-                    Tables\Actions\BulkAction::make('ativar_premium_bulk')
+                    Actions\BulkAction::make('ativar_premium_bulk')
                         ->label('👑 Ativar Premium (30 dias)')
                         ->icon('heroicon-o-star')
                         ->color('warning')
