@@ -287,6 +287,39 @@ class ProfissionalResource extends Resource
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('desativar')
+                        ->label('Desativar selecionados')
+                        ->icon('heroicon-o-eye-slash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Desativar profissionais')
+                        ->modalDescription('Os profissionais selecionados ficarão ocultos no app. Você pode reativar depois.')
+                        ->modalSubmitActionLabel('Sim, desativar')
+                        ->action(fn ($records) => $records->each->update(['ativo' => false])),
+
+                    Tables\Actions\BulkAction::make('ativar')
+                        ->label('Ativar selecionados')
+                        ->icon('heroicon-o-eye')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Ativar profissionais')
+                        ->modalDescription('Os profissionais selecionados voltarão a aparecer no app.')
+                        ->modalSubmitActionLabel('Sim, ativar')
+                        ->action(fn ($records) => $records->each->update(['ativo' => true])),
+
+                    Tables\Actions\BulkAction::make('ativar_premium_bulk')
+                        ->label('👑 Ativar Premium (30 dias)')
+                        ->icon('heroicon-o-star')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Ativar Premium em lote')
+                        ->modalDescription('Os selecionados receberão plano Premium por 30 dias e aparecerão na Home.')
+                        ->modalSubmitActionLabel('Ativar Premium')
+                        ->action(fn ($records) => $records->each->update([
+                            'plano'             => 'premium',
+                            'premium_expira_em' => now()->addDays(30),
+                        ])),
+
                     Actions\DeleteBulkAction::make(),
                 ]),
             ])
