@@ -285,6 +285,27 @@ class ProfissionalResource extends Resource
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('desativar_todos')
+                    ->label('Desativar todos')
+                    ->icon('heroicon-o-eye-slash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Desativar TODOS os profissionais')
+                    ->modalDescription('Todos os profissionais ficarão ocultos no app. Pode reverter depois.')
+                    ->modalSubmitActionLabel('Sim, desativar todos')
+                    ->action(fn () => Profissional::query()->update(['ativo' => false])),
+
+                Tables\Actions\Action::make('ativar_todos')
+                    ->label('Ativar todos')
+                    ->icon('heroicon-o-eye')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Ativar TODOS os profissionais')
+                    ->modalDescription('Todos os profissionais voltarão a aparecer no app.')
+                    ->modalSubmitActionLabel('Sim, ativar todos')
+                    ->action(fn () => Profissional::query()->update(['ativo' => true])),
+            ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('desativar')
