@@ -42,6 +42,8 @@ comunidadeppg/
 ### Regras importantes do Filament v3
 - ❌ `BadgeColumn` não existe → usar `TextColumn->badge()`
 - ❌ `heroicon-o-crown` não existe → usar `heroicon-o-star`
+- ❌ `Tables\Actions\Action` não existe → usar `Actions\Action`
+- ❌ `Tables\Actions\BulkAction` não existe → usar `Actions\BulkAction`
 - ✅ RelationManagers ficam em `app/Filament/Resources/{Model}Resource/RelationManagers/`
 - ✅ Sections usam `Filament\Schemas\Components\Section`
 
