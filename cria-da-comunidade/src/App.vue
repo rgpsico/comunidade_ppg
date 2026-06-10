@@ -73,6 +73,12 @@ onMounted(async () => {
     const vaga = data.vagas.find(v => v.id === vagaId)
     if (vaga) ui.openVaga(vaga)
   }
+
+  const lojaId = params.get('loja')
+  if (lojaId) {
+    const loja = data.lojas.find(l => l.id === lojaId)
+    if (loja) ui.openLoja(loja)
+  }
 })
 </script>
 

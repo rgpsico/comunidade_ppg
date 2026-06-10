@@ -9,3 +9,4 @@ Route::get('/', function () {
 
 // ── Share pages (Open Graph para redes sociais) ───────────────────────────────
 Route::get('/share/vaga/{vaga}', [ShareController::class, 'vaga'])->name('share.vaga');
+Route::get('/share/loja/{loja}', [ShareController::class, 'loja'])->name('share.loja');
