@@ -57,34 +57,65 @@ const views = {
 
 const currentView = computed(() => views[ui.activeView])
 
+function resolveDeepLink() {
+  const path   = window.location.pathname
+  const params = new URLSearchParams(window.location.search)
+
+  // Path-based: /eventos/3, /vagas/3, /lojas/3
+  const eventoPath = path.match(/^\/eventos\/(\d+)$/)
+  if (eventoPath) {
+    const ev = data.events.find(e => e.id === eventoPath[1])
+    if (ev) { ui.openEvent(ev); return }
+  }
+  const vagaPath = path.match(/^\/vagas\/(\d+)$/)
+  if (vagaPath) {
+    const v = data.vagas.find(v => v.id === vagaPath[1])
+    if (v) { ui.openVaga(v); return }
+  }
+  const lojaPath = path.match(/^\/lojas\/(\d+)$/)
+  if (lojaPath) {
+    const l = data.lojas.find(l => l.id === lojaPath[1])
+    if (l) { ui.openLoja(l); return }
+  }
+
+  // Query params legados: ?vaga=ID, ?loja=ID, ?evento=ID
+  const vagaId = params.get('vaga')
+  if (vagaId) {
+    const v = data.vagas.find(v => v.id === vagaId)
+    if (v) { ui.openVaga(v); return }
+  }
+  const lojaId = params.get('loja')
+  if (lojaId) {
+    const l = data.lojas.find(l => l.id === lojaId)
+    if (l) { ui.openLoja(l); return }
+  }
+  const eventoId = params.get('evento')
+  if (eventoId) {
+    const ev = data.events.find(e => e.id === eventoId)
+    if (ev) { ui.openEvent(ev); return }
+  }
+}
+
 onMounted(async () => {
   // Carrega comunidades e usuário em paralelo
   await Promise.all([data.fetchComunidades(), auth.fetchMe()])
-  // Usa a comunidade do usuário logado como filtro padrão
   if (auth.user?.comunidade_id) {
     data.activeComunidadeId = auth.user.comunidade_id
   }
   await data.fetchAll()
 
-  // Deep links via query params  (?vaga=ID, ?loja=ID, etc.)
-  const params = new URLSearchParams(window.location.search)
-  const vagaId = params.get('vaga')
-  if (vagaId) {
-    const vaga = data.vagas.find(v => v.id === vagaId)
-    if (vaga) ui.openVaga(vaga)
-  }
+  resolveDeepLink()
 
-  const lojaId = params.get('loja')
-  if (lojaId) {
-    const loja = data.lojas.find(l => l.id === lojaId)
-    if (loja) ui.openLoja(loja)
-  }
-
-  const eventoId = params.get('evento')
-  if (eventoId) {
-    const evento = data.events.find(e => e.id === eventoId)
-    if (evento) ui.openEvent(evento)
-  }
+  // Botão Voltar do browser restaura a view correta
+  window.addEventListener('popstate', () => {
+    const p = window.location.pathname
+    if (p === '/' || p === '/inicio') ui.activeView = 'inicio'
+    else if (p.startsWith('/eventos') && !p.match(/\/\d+$/)) ui.activeView = 'eventos'
+    else if (p.startsWith('/vagas') && !p.match(/\/\d+$/)) ui.activeView = 'vagas'
+    else if (p.startsWith('/lojas') && !p.match(/\/\d+$/)) ui.activeView = 'lojas'
+    else if (p.startsWith('/profissionais') && !p.match(/\/\d+$/)) ui.activeView = 'profissionais'
+    else if (p.startsWith('/projetos') && !p.match(/\/\d+$/)) ui.activeView = 'projetos'
+  })
 })
 </script>
 

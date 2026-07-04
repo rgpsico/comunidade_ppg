@@ -28,40 +28,60 @@ export const useUiStore = defineStore('ui', () => {
   const vagasFilters = ref({ tabActive: 'Todas', semExp: false, mesmoDia: false })
   const lojasFilters = ref({ catActive: 'Todas', search: '' })
 
+  const VIEW_PATHS: Partial<Record<WebView, string>> = {
+    inicio: '/',
+    eventos: '/eventos',
+    vagas: '/vagas',
+    lojas: '/lojas',
+    profissionais: '/profissionais',
+    projetos: '/projetos',
+  }
+
   function goTo(view: WebView) {
     activeView.value = view
     trackPageView(view)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (VIEW_PATHS[view]) history.pushState({}, '', VIEW_PATHS[view]!)
   }
 
   function openPro(pro: Pro) {
     selectedPro.value = pro
     trackClick('profissional', pro.id, pro.name, 'proDetail')
-    goTo('proDetail')
+    activeView.value = 'proDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', `/profissionais/${pro.id}`)
   }
 
   function openEvent(event: Event) {
     selectedEvent.value = event
     trackClick('evento', event.id, event.title, 'eventDetail')
-    goTo('eventDetail')
+    activeView.value = 'eventDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', `/eventos/${event.id}`)
   }
 
   function openProj(proj: Project) {
     selectedProj.value = proj
     trackClick('projeto', proj.id, proj.name, 'projDetail')
-    goTo('projDetail')
+    activeView.value = 'projDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', `/projetos/${proj.id}`)
   }
 
   function openVaga(vaga: Vaga) {
     selectedVaga.value = vaga
     trackClick('vaga', vaga.id, vaga.title, 'vagaDetail')
-    goTo('vagaDetail')
+    activeView.value = 'vagaDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', `/vagas/${vaga.id}`)
   }
 
   function openLoja(loja: Loja) {
     selectedLoja.value = loja
     trackClick('loja', loja.id, loja.nome, 'lojaDetail')
-    goTo('lojaDetail')
+    activeView.value = 'lojaDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', `/lojas/${loja.id}`)
   }
 
   return {

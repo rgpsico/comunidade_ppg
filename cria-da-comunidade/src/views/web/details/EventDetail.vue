@@ -185,11 +185,8 @@ const shareWrap = ref<HTMLElement | null>(null)
 const showShare = ref(false)
 const copied = ref(false)
 
-const API_BASE = (import.meta.env.VITE_API_BASE ?? 'http://127.0.0.1:8000/api')
-  .replace(/\/api$/, '')
-
 const shareUrl = computed(() =>
-  `${API_BASE}/share/evento/${event.value?.id ?? ''}`
+  `${window.location.origin}/eventos/${event.value?.id ?? ''}`
 )
 
 const shareLinks = computed(() => {
