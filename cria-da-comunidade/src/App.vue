@@ -79,6 +79,12 @@ onMounted(async () => {
     const loja = data.lojas.find(l => l.id === lojaId)
     if (loja) ui.openLoja(loja)
   }
+
+  const eventoId = params.get('evento')
+  if (eventoId) {
+    const evento = data.events.find(e => e.id === eventoId)
+    if (evento) ui.openEvent(evento)
+  }
 })
 </script>
 
