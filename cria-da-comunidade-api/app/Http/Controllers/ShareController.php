@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Evento;
 use App\Models\Loja;
+use App\Models\Profissional;
 use App\Models\Vaga;
 
 class ShareController extends Controller
@@ -47,6 +48,27 @@ class ShareController extends Controller
             'ogDesc'      => $desc ?: "{$loja->categoria} · {$loja->endereco}",
             'ogImage'     => $image,
             'redirectUrl' => config('app.frontend_url') . "/?loja={$loja->id}",
+        ]);
+    }
+
+    public function profissional(Profissional $profissional): \Illuminate\Contracts\View\View
+    {
+        $desc = strip_tags($profissional->bio ?? '');
+        $desc = mb_strlen($desc) > 160
+            ? mb_substr($desc, 0, 157) . '...'
+            : $desc;
+
+        $image = ($profissional->foto
+            ? $profissional->foto_url
+            : null)
+            ?? asset('images/og-default.png');
+
+        return view('share.profissional', [
+            'profissional' => $profissional,
+            'ogTitle'      => "{$profissional->nome} — {$profissional->cargo}",
+            'ogDesc'       => $desc ?: "{$profissional->categoria} · {$profissional->cargo}",
+            'ogImage'      => $image,
+            'redirectUrl'  => config('app.frontend_url') . "/profissionais/{$profissional->id}",
         ]);
     }
 
