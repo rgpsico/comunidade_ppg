@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Avaliacao extends Model
 {
+    protected $table = 'avaliacoes';
+
     protected $fillable = ['avaliavel_type', 'avaliavel_id', 'user_id', 'nota', 'texto'];
 
     protected function casts(): array

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Comentario extends Model
 {
+    protected $table = 'comentarios';
+
     protected $fillable = ['comentavel_type', 'comentavel_id', 'user_id', 'parent_id', 'corpo'];
 
     public function comentavel(): MorphTo
