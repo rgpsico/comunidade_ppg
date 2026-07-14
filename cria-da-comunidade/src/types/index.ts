@@ -142,6 +142,42 @@ export interface Loja {
   produtos?: Produto[]
 }
 
+export interface AvaliacaoUser {
+  id: number
+  name: string
+  avatar: string | null
+}
+
+export interface Avaliacao {
+  id: string
+  nota: number
+  texto: string | null
+  user: AvaliacaoUser
+  createdAt: string
+  isMine: boolean
+}
+
+export interface AvaliacoesState {
+  data: Avaliacao[]
+  media: number
+  total: number
+  minhaAvaliacao: Avaliacao | null
+}
+
+export interface Comentario {
+  id: string
+  corpo: string
+  user: AvaliacaoUser
+  respostas: Comentario[]
+  createdAt: string
+  isMine: boolean
+}
+
+export interface ComentariosState {
+  data: Comentario[]
+  total: number
+}
+
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail'

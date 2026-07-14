@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAvaliacoes;
+use App\Models\Concerns\HasComentarios;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Profissional extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasAvaliacoes, HasComentarios;
 
     protected $table = 'profissionais';
 

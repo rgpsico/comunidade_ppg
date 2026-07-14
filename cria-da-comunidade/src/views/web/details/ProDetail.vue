@@ -112,20 +112,7 @@
 
         <!-- Avaliações -->
         <div v-if="activeTab === 'Avaliações'" class="tab-content">
-          <div class="reviews-list">
-            <div v-for="r in reviews" :key="r.author" class="review-card">
-              <div class="rc-av" :style="{ background: r.color }">{{ r.initials }}</div>
-              <div class="rc-body">
-                <div class="rc-head">
-                  <span class="rc-name">{{ r.author }}</span>
-                  <span class="rc-stars">⭐ {{ r.stars }}</span>
-                  <span class="rc-time">{{ r.time }}</span>
-                </div>
-                <p class="rc-text">{{ r.text }}</p>
-                <div class="rc-svc">serviço: {{ r.service }}</div>
-              </div>
-            </div>
-          </div>
+          <AvaliacaoSection v-if="pro" tipo="profissionais" :id="pro.id" />
         </div>
       </div>
 
@@ -176,6 +163,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useUiStore } from '../../../stores/ui'
+import AvaliacaoSection from '../../../components/ui/AvaliacaoSection.vue'
 
 const ui = useUiStore()
 const pro = computed(() => ui.selectedPro)
@@ -190,13 +178,6 @@ const galleryItems = [
   { c1: '#FF5E1A', c2: '#2BD96B', label: 'alongamento · 1 mês' },
   { c1: '#2BD96B', c2: '#FF5E1A', label: 'esmaltação · hoje' },
 ]
-
-const reviews = [
-  { author: 'Claudia M.', initials: 'CM', color: '#FF5E1A', stars: 5, time: 'há 3 dias', text: 'Maria é incrível! Trabalho perfeito, pontual e super caprichosa. Já virei cliente fiel!', service: 'mão + pé combo' },
-  { author: 'Tânia F.', initials: 'TF', color: '#2BD96B', stars: 5, time: 'há 1 sem', text: 'Melhor manicure da comunidade, sem dúvida. Muito caprichosa e os materiais são de qualidade.', service: 'gel completo' },
-  { author: 'Renata S.', initials: 'RS', color: '#FFD23F', stars: 4, time: 'há 2 sem', text: 'Ótimo atendimento, preço justo. Só achei o tempo um pouco longo mas o resultado compensou.', service: 'unhas decoradas' },
-]
-
 </script>
 
 <style scoped>
@@ -265,16 +246,6 @@ const reviews = [
 .gallery-item.tall { grid-row: span 2; }
 .gallery-label { position: absolute; bottom: 8px; left: 8px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 999px; }
 
-.reviews-list { display: flex; flex-direction: column; gap: 16px; }
-.review-card { display: flex; gap: 12px; padding: 16px; background: var(--card-2); border-radius: var(--radius-lg); border: 1px solid var(--line); }
-.rc-av { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 700; font-size: 14px; color: var(--black); flex-shrink: 0; }
-.rc-body { flex: 1; }
-.rc-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-.rc-name { font-size: 13px; font-weight: 600; }
-.rc-stars { font-size: 12px; }
-.rc-time { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; margin-left: auto; }
-.rc-text { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
-.rc-svc { font-family: var(--mono); font-size: 10px; color: var(--orange); text-transform: uppercase; letter-spacing: 0.06em; }
 
 .detail-aside { display: flex; flex-direction: column; gap: 12px; position: sticky; top: calc(var(--tb-h) + 20px); }
 .aside-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl); padding: 18px; }

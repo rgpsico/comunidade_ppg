@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\AvaliacaoController;
+use App\Http\Controllers\Api\ComentarioController;
 use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComunidadeController;
@@ -19,6 +21,11 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login',    [AuthController::class, 'login']);
 });
+
+// Avaliações e comentários — leitura pública, escrita requer auth
+// Escalável: {tipo} = profissionais | eventos | projetos | lojas | vagas
+Route::get('{tipo}/{id}/avaliacoes',  [AvaliacaoController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
+Route::get('{tipo}/{id}/comentarios', [ComentarioController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
 
 // Rotas públicas de leitura
 Route::get('comunidades',          [ComunidadeController::class, 'index']);
@@ -76,4 +83,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('lojas/{loja}/produtos',          [ProdutoController::class, 'store']);
     Route::post('produtos/{produto}',             [ProdutoController::class, 'update']);
     Route::delete('produtos/{produto}',           [ProdutoController::class, 'destroy']);
+
+    // Avaliações (escrita)
+    Route::post('{tipo}/{id}/avaliacoes',         [AvaliacaoController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
+    Route::delete('avaliacoes/{avaliacao}',       [AvaliacaoController::class, 'destroy']);
+
+    // Comentários (escrita)
+    Route::post('{tipo}/{id}/comentarios',        [ComentarioController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
+    Route::delete('comentarios/{comentario}',     [ComentarioController::class, 'destroy']);
 });
