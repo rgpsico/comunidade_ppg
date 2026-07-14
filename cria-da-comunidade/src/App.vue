@@ -61,7 +61,13 @@ function resolveDeepLink() {
   const path   = window.location.pathname
   const params = new URLSearchParams(window.location.search)
 
-  // Path-based: /eventos/3, /vagas/3, /lojas/3
+  // Path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3
+  const profissionalPath = path.match(/^\/profissionais\/(\d+)$/)
+  if (profissionalPath) {
+    const p = data.pros.find(p => p.id === profissionalPath[1])
+    if (p) { ui.openPro(p); return }
+  }
+
   const eventoPath = path.match(/^\/eventos\/(\d+)$/)
   if (eventoPath) {
     const ev = data.events.find(e => e.id === eventoPath[1])
