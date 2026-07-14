@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ComunidadeResource extends Resource
 {
@@ -27,10 +28,20 @@ class ComunidadeResource extends Resource
         return $schema->components([
             Section::make('Dados da Comunidade')
                 ->schema([
-                    Forms\Components\TextInput::make('nome')
-                        ->label('Nome da comunidade')
-                        ->required()
-                        ->maxLength(100),
+                    Grid::make(2)->schema([
+                        Forms\Components\TextInput::make('nome')
+                            ->label('Nome da comunidade')
+                            ->required()
+                            ->maxLength(100)
+                            ->live(debounce: 500)
+                            ->afterStateUpdated(fn ($set, $state) => $set('slug', Str::slug($state, ''))),
+                        Forms\Components\TextInput::make('slug')
+                            ->label('Slug da URL')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(100)
+                            ->helperText('URL: /slug/profissionais — sem espaços ou acentos'),
+                    ]),
                     Grid::make(3)->schema([
                         Forms\Components\TextInput::make('cidade')
                             ->label('Cidade')
@@ -76,6 +87,11 @@ class ComunidadeResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->badge()
+                    ->copyable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('cidade')
                     ->label('Cidade')
                     ->sortable(),
