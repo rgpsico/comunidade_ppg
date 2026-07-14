@@ -14,7 +14,7 @@
   <meta property="og:image:width"  content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale"      content="pt_BR">
-  <meta property="og:site_name"   content="Cria da Comunidade">
+  <meta property="og:site_name"   content="{{ $siteName }}">
 
   {{-- Twitter / X Card --}}
   <meta name="twitter:card"        content="summary_large_image">

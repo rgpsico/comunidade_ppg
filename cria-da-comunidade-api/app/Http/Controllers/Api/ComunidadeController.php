@@ -20,7 +20,7 @@ class ComunidadeController extends Controller
             $query->where('nome', 'like', "%{$request->search}%");
         }
 
-        return response()->json($query->orderBy('nome')->get(['id', 'nome', 'cidade', 'estado', 'imagem']));
+        return response()->json($query->orderBy('nome')->get(['id', 'nome', 'slug', 'cidade', 'estado', 'imagem']));
     }
 
     public function show(Comunidade $comunidade): JsonResponse

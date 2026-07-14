@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja } from '../types'
 import { trackPageView, trackClick } from '../services/analytics'
+import { useDataStore } from './data'
 
 export const useUiStore = defineStore('ui', () => {
   const activeView = ref<WebView>('inicio')
@@ -37,11 +38,22 @@ export const useUiStore = defineStore('ui', () => {
     projetos: '/projetos',
   }
 
+  function slug(): string {
+    const data = useDataStore()
+    return data.activeComunidade?.slug ?? ''
+  }
+
+  function prefixedPath(path: string): string {
+    const s = slug()
+    return s ? `/${s}${path}` : path
+  }
+
   function goTo(view: WebView) {
     activeView.value = view
     trackPageView(view)
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    if (VIEW_PATHS[view]) history.pushState({}, '', VIEW_PATHS[view]!)
+    const viewPath = VIEW_PATHS[view]
+    if (viewPath) history.pushState({}, '', prefixedPath(viewPath))
   }
 
   function openPro(pro: Pro) {
@@ -49,7 +61,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('profissional', pro.id, pro.name, 'proDetail')
     activeView.value = 'proDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', `/profissionais/${pro.id}`)
+    history.pushState({}, '', prefixedPath(`/profissionais/${pro.id}`))
   }
 
   function openEvent(event: Event) {
@@ -57,7 +69,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('evento', event.id, event.title, 'eventDetail')
     activeView.value = 'eventDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', `/eventos/${event.id}`)
+    history.pushState({}, '', prefixedPath(`/eventos/${event.id}`))
   }
 
   function openProj(proj: Project) {
@@ -65,7 +77,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('projeto', proj.id, proj.name, 'projDetail')
     activeView.value = 'projDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', `/projetos/${proj.id}`)
+    history.pushState({}, '', prefixedPath(`/projetos/${proj.id}`))
   }
 
   function openVaga(vaga: Vaga) {
@@ -73,7 +85,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('vaga', vaga.id, vaga.title, 'vagaDetail')
     activeView.value = 'vagaDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', `/vagas/${vaga.id}`)
+    history.pushState({}, '', prefixedPath(`/vagas/${vaga.id}`))
   }
 
   function openLoja(loja: Loja) {
@@ -81,7 +93,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('loja', loja.id, loja.nome, 'lojaDetail')
     activeView.value = 'lojaDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', `/lojas/${loja.id}`)
+    history.pushState({}, '', prefixedPath(`/lojas/${loja.id}`))
   }
 
   return {

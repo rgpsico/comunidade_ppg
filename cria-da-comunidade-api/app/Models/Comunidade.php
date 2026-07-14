@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Comunidade extends Model
 {
     protected $fillable = [
-        'nome', 'cidade', 'estado', 'cep', 'lat', 'lng',
+        'nome', 'slug', 'cidade', 'estado', 'cep', 'lat', 'lng',
         'descricao', 'imagem', 'ativa',
     ];
 

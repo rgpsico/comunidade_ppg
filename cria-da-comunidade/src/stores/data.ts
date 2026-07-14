@@ -9,6 +9,7 @@ import type { Pro, Event, Project, Vaga, Loja, Produto } from '../types'
 export interface ApiComunidade {
   id: number
   nome: string
+  slug: string | null
   cidade: string | null
   estado: string | null
 }

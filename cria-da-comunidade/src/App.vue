@@ -61,7 +61,26 @@ function resolveDeepLink() {
   const path   = window.location.pathname
   const params = new URLSearchParams(window.location.search)
 
-  // Path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3
+  // Slug-prefixed paths: /{slug}/module/{id}
+  const sluggedDetail = path.match(/^\/[a-z0-9_-]+\/(profissionais|eventos|vagas|lojas)\/(\d+)$/)
+  if (sluggedDetail) {
+    const [, module, id] = sluggedDetail
+    if (module === 'profissionais') {
+      const p = data.pros.find(p => p.id === id)
+      if (p) { ui.openPro(p); return }
+    } else if (module === 'eventos') {
+      const ev = data.events.find(e => e.id === id)
+      if (ev) { ui.openEvent(ev); return }
+    } else if (module === 'vagas') {
+      const v = data.vagas.find(v => v.id === id)
+      if (v) { ui.openVaga(v); return }
+    } else if (module === 'lojas') {
+      const l = data.lojas.find(l => l.id === id)
+      if (l) { ui.openLoja(l); return }
+    }
+  }
+
+  // Bare path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3
   const profissionalPath = path.match(/^\/profissionais\/(\d+)$/)
   if (profissionalPath) {
     const p = data.pros.find(p => p.id === profissionalPath[1])
@@ -105,16 +124,33 @@ function resolveDeepLink() {
 onMounted(async () => {
   // Carrega comunidades e usuário em paralelo
   await Promise.all([data.fetchComunidades(), auth.fetchMe()])
-  if (auth.user?.comunidade_id) {
+
+  // Resolve comunidade a partir do slug na URL (antes do fetchAll para filtrar corretamente)
+  const urlPath = window.location.pathname
+  const urlSlugMatch = urlPath.match(/^\/([a-z0-9_-]+)\//)
+  if (urlSlugMatch) {
+    const urlCommunity = data.communities.find(c => c.slug === urlSlugMatch[1])
+    if (urlCommunity) {
+      data.activeComunidadeId = urlCommunity.id
+    } else if (auth.user?.comunidade_id) {
+      data.activeComunidadeId = auth.user.comunidade_id
+    }
+  } else if (auth.user?.comunidade_id) {
     data.activeComunidadeId = auth.user.comunidade_id
   }
+
   await data.fetchAll()
 
   resolveDeepLink()
 
   // Botão Voltar do browser restaura a view correta
   window.addEventListener('popstate', () => {
-    const p = window.location.pathname
+    let p = window.location.pathname
+    // Strip community slug prefix if recognized
+    const slugMatch = p.match(/^\/([a-z0-9_-]+)(\/.+)$/)
+    if (slugMatch && data.communities.some(c => c.slug === slugMatch[1])) {
+      p = slugMatch[2]
+    }
     if (p === '/' || p === '/inicio') ui.activeView = 'inicio'
     else if (p.startsWith('/eventos') && !p.match(/\/\d+$/)) ui.activeView = 'eventos'
     else if (p.startsWith('/vagas') && !p.match(/\/\d+$/)) ui.activeView = 'vagas'
