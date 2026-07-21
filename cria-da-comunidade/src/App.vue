@@ -77,8 +77,8 @@ function resolveDeepLink() {
     if (a) { ui.openArtigo(a); return }
   }
 
-  // Slug-prefixed paths: /{slug}/module/{id}
-  const sluggedDetail = path.match(/^\/[a-z0-9_-]+\/(profissionais|eventos|vagas|lojas)\/(\d+)$/)
+  // Slug-prefixed paths: /{slug}/module/{id} or /{slug}/module/{id}-{name-slug}
+  const sluggedDetail = path.match(/^\/[a-z0-9_-]+\/(profissionais|eventos|vagas|lojas)\/(\d+)/)
   if (sluggedDetail) {
     const [, module, id] = sluggedDetail
     if (module === 'profissionais') {
@@ -96,24 +96,24 @@ function resolveDeepLink() {
     }
   }
 
-  // Bare path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3
-  const profissionalPath = path.match(/^\/profissionais\/(\d+)$/)
+  // Bare path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3 (with optional slug suffix)
+  const profissionalPath = path.match(/^\/profissionais\/(\d+)/)
   if (profissionalPath) {
     const p = data.pros.find(p => p.id === profissionalPath[1])
     if (p) { ui.openPro(p); return }
   }
 
-  const eventoPath = path.match(/^\/eventos\/(\d+)$/)
+  const eventoPath = path.match(/^\/eventos\/(\d+)/)
   if (eventoPath) {
     const ev = data.events.find(e => e.id === eventoPath[1])
     if (ev) { ui.openEvent(ev); return }
   }
-  const vagaPath = path.match(/^\/vagas\/(\d+)$/)
+  const vagaPath = path.match(/^\/vagas\/(\d+)/)
   if (vagaPath) {
     const v = data.vagas.find(v => v.id === vagaPath[1])
     if (v) { ui.openVaga(v); return }
   }
-  const lojaPath = path.match(/^\/lojas\/(\d+)$/)
+  const lojaPath = path.match(/^\/lojas\/(\d+)/)
   if (lojaPath) {
     const l = data.lojas.find(l => l.id === lojaPath[1])
     if (l) { ui.openLoja(l); return }
@@ -168,12 +168,12 @@ onMounted(async () => {
       p = slugMatch[2]
     }
     if (p === '/' || p === '/inicio') ui.activeView = 'inicio'
-    else if (p.startsWith('/eventos') && !p.match(/\/\d+$/)) ui.activeView = 'eventos'
-    else if (p.startsWith('/vagas') && !p.match(/\/\d+$/)) ui.activeView = 'vagas'
-    else if (p.startsWith('/lojas') && !p.match(/\/\d+$/)) ui.activeView = 'lojas'
-    else if (p.startsWith('/profissionais') && !p.match(/\/\d+$/)) ui.activeView = 'profissionais'
-    else if (p.startsWith('/projetos') && !p.match(/\/\d+$/)) ui.activeView = 'projetos'
-    else if (p.startsWith('/artigos') && !p.match(/\/[a-z0-9_-]+$/)) ui.activeView = 'artigos'
+    else if (p.startsWith('/eventos') && !p.match(/\/\d+/)) ui.activeView = 'eventos'
+    else if (p.startsWith('/vagas') && !p.match(/\/\d+/)) ui.activeView = 'vagas'
+    else if (p.startsWith('/lojas') && !p.match(/\/\d+/)) ui.activeView = 'lojas'
+    else if (p.startsWith('/profissionais') && !p.match(/\/\d+/)) ui.activeView = 'profissionais'
+    else if (p.startsWith('/projetos') && !p.match(/\/\d+/)) ui.activeView = 'projetos'
+    else if (p.startsWith('/artigos') && !p.match(/\/[a-z0-9_-]+/)) ui.activeView = 'artigos'
   })
 })
 </script>

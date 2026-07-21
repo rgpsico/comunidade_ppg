@@ -50,6 +50,18 @@ export const useUiStore = defineStore('ui', () => {
     return s ? `/${s}${path}` : path
   }
 
+  function toSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Mn}/gu, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 60)
+  }
+
   function goTo(view: WebView) {
     activeView.value = view
     trackPageView(view)
@@ -63,7 +75,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('profissional', pro.id, pro.name, 'proDetail')
     activeView.value = 'proDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', prefixedPath(`/profissionais/${pro.id}`))
+    history.pushState({}, '', prefixedPath(`/profissionais/${pro.id}-${toSlug(pro.name)}`))
   }
 
   function openEvent(event: Event) {
@@ -71,7 +83,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('evento', event.id, event.title, 'eventDetail')
     activeView.value = 'eventDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', prefixedPath(`/eventos/${event.id}`))
+    history.pushState({}, '', prefixedPath(`/eventos/${event.id}-${toSlug(event.title)}`))
   }
 
   function openProj(proj: Project) {
@@ -79,7 +91,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('projeto', proj.id, proj.name, 'projDetail')
     activeView.value = 'projDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', prefixedPath(`/projetos/${proj.id}`))
+    history.pushState({}, '', prefixedPath(`/projetos/${proj.id}-${toSlug(proj.name)}`))
   }
 
   function openVaga(vaga: Vaga) {
@@ -87,7 +99,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('vaga', vaga.id, vaga.title, 'vagaDetail')
     activeView.value = 'vagaDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', prefixedPath(`/vagas/${vaga.id}`))
+    history.pushState({}, '', prefixedPath(`/vagas/${vaga.id}-${toSlug(vaga.title)}`))
   }
 
   function openLoja(loja: Loja) {
@@ -95,7 +107,7 @@ export const useUiStore = defineStore('ui', () => {
     trackClick('loja', loja.id, loja.nome, 'lojaDetail')
     activeView.value = 'lojaDetail'
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    history.pushState({}, '', prefixedPath(`/lojas/${loja.id}`))
+    history.pushState({}, '', prefixedPath(`/lojas/${loja.id}-${toSlug(loja.nome)}`))
   }
 
   function openArtigo(artigo: Artigo) {
