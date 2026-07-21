@@ -31,7 +31,7 @@ class ArtigoCantagaloSeeder extends Seeder
 <p>Junto com Terere, Finfou faz parte de uma geração que provou ao mundo que a excelência esportiva não tem endereço. O Cantagalo é, até hoje, um celeiro de talentos do jiu-jítsu brasileiro — e isso não é por acaso. É fruto de muita luta, treino e amor pela arte suave.</p>
 
 <h2>Bezerra da Silva — O Rei do Partido Alto</h2>
-<img src="https://esquinamusical.com.br/wp-content/uploads/2024/11/bezerra-dasilva.jpeg" alt="Bezerra da Silva" style="width:100%;max-width:480px;border-radius:12px;margin:16px auto 24px;display:block;object-fit:cover;">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bezerra_%285455933796%29.jpg/960px-Bezerra_%285455933796%29.jpg" alt="Bezerra da Silva" style="width:100%;max-width:480px;border-radius:12px;margin:16px auto 24px;display:block;object-fit:cover;">
 <p>Antes de qualquer outro, havia <strong>Bezerra da Silva</strong>. O sambista pernambucano de nascença mas carioca de alma viveu no Cantagalo e eternizou a voz e a sabedoria da favela em suas músicas. Com letras que misturavam humor afiado, crítica social e o cotidiano das comunidades, Bezerra se tornou o maior porta-voz dos morros do Rio de Janeiro.</p>
 
 <p>Sucessos como <em>Acusado Injustamente</em>, <em>Eu Sou Favela</em> e <em>Malandro é Malandro e Mané é Mané</em> ainda ecoam pelas vielas do Cantagalo e de todas as favelas do Brasil. Bezerra faleceu em 2005, mas sua música permanece viva e presente — a voz de um povo que sempre existiu, sempre resistiu e sempre cantou sua própria história.</p>
