@@ -7,7 +7,7 @@
 
   {{-- Open Graph --}}
   <meta property="og:type"        content="website">
-  <meta property="og:url"         content="{{ request()->url() }}">
+  <meta property="og:url"         content="{{ $redirectUrl }}">
   <meta property="og:title"       content="{{ $ogTitle }}">
   <meta property="og:description" content="{{ $ogDesc }}">
   <meta property="og:image"       content="{{ $ogImage }}">
