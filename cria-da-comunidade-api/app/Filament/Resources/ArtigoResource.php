@@ -19,7 +19,7 @@ class ArtigoResource extends Resource
 {
     protected static ?string $model = Artigo::class;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-newspaper';
-    protected static \UnitEnum|string|null $navigationGroup = 'Conteúdo';
+    protected static \UnitEnum|string|null $navigationGroup = 'Plataforma';
     protected static ?int $navigationSort = 1;
     protected static ?string $modelLabel = 'Artigo';
     protected static ?string $pluralModelLabel = 'Artigos';
