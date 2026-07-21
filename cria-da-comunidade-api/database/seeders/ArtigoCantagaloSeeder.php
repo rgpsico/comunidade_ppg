@@ -40,13 +40,8 @@ class ArtigoCantagaloSeeder extends Seeder
 
 <p>Seu trabalho foi aclamado pela crítica e o colocou entre os artistas mais relevantes da nova geração. Cabelinho prova que o Cantagalo continua produzindo talentos capazes de dialogar com o mundo inteiro sem abrir mão de suas raízes. Cada música dele é um retrato da comunidade que o formou.</p>
 
-<h2>Haroldo dos Santos — A Força da Liderança Comunitária</h2>
-<p><strong>Haroldo dos Santos</strong> é uma das lideranças históricas do Cantagalo. Militante incansável, organizador comunitário e referência na luta pelos direitos dos moradores de favela, Haroldo dedicou sua vida a construir pontes entre a comunidade e o Estado, entre o morro e o asfalto.</p>
-
-<p>Sua atuação foi fundamental para garantir melhorias de infraestrutura, acesso a serviços públicos e reconhecimento político para o Cantagalo. É o tipo de liderança que não aparece nos holofotes, mas é o alicerce invisível que sustenta a comunidade. Sem figuras como Haroldo, muito do que o Cantagalo conquistou simplesmente não existiria.</p>
-
 <h2>O Cantagalo que resiste e inspira</h2>
-<p>Cada um à sua maneira, Terere, Finfou, Bezerra da Silva, MC Cabelinho e Haroldo dos Santos representam o que há de mais poderoso no Cantagalo: a capacidade de transformar a adversidade em arte, em esporte, em luta e em vida.</p>
+<p>Cada um à sua maneira, Terere, Finfou, Bezerra da Silva e MC Cabelinho representam o que há de mais poderoso no Cantagalo: a capacidade de transformar a adversidade em arte, em esporte, em luta e em vida.</p>
 
 <p>A favela não é só o lugar onde eles nasceram. É o combustível que os fez chegar onde chegaram. É a identidade que carregam com orgulho. E é por isso que, independente de onde estejam, o Cantagalo está sempre presente em cada vitória, em cada nota musical, em cada ippon, em cada verso e em cada conquista coletiva.</p>
 
