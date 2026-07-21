@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 class ArtigoResource extends Resource
 {
     protected static ?string $model = Artigo::class;
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-newspaper';
+    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-document-text';
     protected static \UnitEnum|string|null $navigationGroup = 'Plataforma';
     protected static ?int $navigationSort = 1;
     protected static ?string $modelLabel = 'Artigo';
