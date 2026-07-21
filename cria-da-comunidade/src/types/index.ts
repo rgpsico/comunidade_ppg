@@ -178,9 +178,22 @@ export interface ComentariosState {
   total: number
 }
 
+export interface Artigo {
+  id: string
+  slug: string
+  titulo: string
+  resumo: string
+  corpo: string
+  imagemCapaUrl: string | null
+  categoria: string
+  autor: string | null
+  publicadoEm: string | null
+  createdAt: string
+}
+
 export type WebView =
-  | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas'
-  | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail'
+  | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos'
+  | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail'
   | 'login' | 'perfil'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'

@@ -31,6 +31,8 @@ import ProjDetail from './views/web/details/ProjDetail.vue'
 import VagaDetail from './views/web/details/VagaDetail.vue'
 import LojasView from './views/web/LojasView.vue'
 import LojaDetail from './views/web/details/LojaDetail.vue'
+import ArtigosView from './views/web/ArtigosView.vue'
+import ArtigoDetail from './views/web/details/ArtigoDetail.vue'
 import LoginView from './views/web/LoginView.vue'
 import ProfileView from './views/web/ProfileView.vue'
 import BottomNav from './components/layout/BottomNav.vue'
@@ -51,6 +53,8 @@ const views = {
   vagaDetail: VagaDetail,
   lojas: LojasView,
   lojaDetail: LojaDetail,
+  artigos: ArtigosView,
+  artigoDetail: ArtigoDetail,
   login: LoginView,
   perfil: ProfileView,
 }
@@ -60,6 +64,18 @@ const currentView = computed(() => views[ui.activeView])
 function resolveDeepLink() {
   const path   = window.location.pathname
   const params = new URLSearchParams(window.location.search)
+
+  // Artigo por slug: /{slug}/artigos/{artigo-slug}
+  const artigoSlugPath = path.match(/^\/[a-z0-9_-]+\/artigos\/([a-z0-9_-]+)$/)
+  if (artigoSlugPath) {
+    const a = data.artigos.find(a => a.slug === artigoSlugPath[1])
+    if (a) { ui.openArtigo(a); return }
+  }
+  const artigoBarePath = path.match(/^\/artigos\/([a-z0-9_-]+)$/)
+  if (artigoBarePath) {
+    const a = data.artigos.find(a => a.slug === artigoBarePath[1])
+    if (a) { ui.openArtigo(a); return }
+  }
 
   // Slug-prefixed paths: /{slug}/module/{id}
   const sluggedDetail = path.match(/^\/[a-z0-9_-]+\/(profissionais|eventos|vagas|lojas)\/(\d+)$/)
@@ -157,6 +173,7 @@ onMounted(async () => {
     else if (p.startsWith('/lojas') && !p.match(/\/\d+$/)) ui.activeView = 'lojas'
     else if (p.startsWith('/profissionais') && !p.match(/\/\d+$/)) ui.activeView = 'profissionais'
     else if (p.startsWith('/projetos') && !p.match(/\/\d+$/)) ui.activeView = 'projetos'
+    else if (p.startsWith('/artigos') && !p.match(/\/[a-z0-9_-]+$/)) ui.activeView = 'artigos'
   })
 })
 </script>

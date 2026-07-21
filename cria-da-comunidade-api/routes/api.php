@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\ArtigoController;
 use App\Http\Controllers\Api\AvaliacaoController;
 use App\Http\Controllers\Api\ComentarioController;
 use App\Http\Controllers\Api\ProdutoController;
@@ -23,9 +24,8 @@ Route::prefix('auth')->group(function () {
 });
 
 // Avaliações e comentários — leitura pública, escrita requer auth
-// Escalável: {tipo} = profissionais | eventos | projetos | lojas | vagas
-Route::get('{tipo}/{id}/avaliacoes',  [AvaliacaoController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
-Route::get('{tipo}/{id}/comentarios', [ComentarioController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
+Route::get('{tipo}/{id}/avaliacoes',  [AvaliacaoController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
+Route::get('{tipo}/{id}/comentarios', [ComentarioController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
 
 // Rotas públicas de leitura
 Route::get('comunidades',          [ComunidadeController::class, 'index']);
@@ -45,6 +45,9 @@ Route::get('vagas/{vaga}',         [VagaController::class, 'show']);
 
 Route::get('lojas',                [LojaController::class, 'index']);
 Route::get('lojas/{loja}',         [LojaController::class, 'show']);
+
+Route::get('artigos',              [ArtigoController::class, 'index']);
+Route::get('artigos/{artigo}',     [ArtigoController::class, 'show']);
 
 // Rotas protegidas por Sanctum
 Route::middleware('auth:sanctum')->group(function () {
@@ -85,10 +88,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('produtos/{produto}',           [ProdutoController::class, 'destroy']);
 
     // Avaliações (escrita)
-    Route::post('{tipo}/{id}/avaliacoes',         [AvaliacaoController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
+    Route::post('{tipo}/{id}/avaliacoes',         [AvaliacaoController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
     Route::delete('avaliacoes/{avaliacao}',       [AvaliacaoController::class, 'destroy']);
 
     // Comentários (escrita)
-    Route::post('{tipo}/{id}/comentarios',        [ComentarioController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas');
+    Route::post('{tipo}/{id}/comentarios',        [ComentarioController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
     Route::delete('comentarios/{comentario}',     [ComentarioController::class, 'destroy']);
 });

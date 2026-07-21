@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '../services/api'
 import type { Paginated } from '../services/api'
-import type { Pro, Event, Project, Vaga, Loja, Produto } from '../types'
+import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo } from '../types'
 
 // ── API response shapes ──────────────────────────────────────────────────────
 
@@ -70,6 +70,12 @@ export interface ApiProduto {
   preco: number; preco_promocional: number | null
   imagens: string[] | null; imagens_urls: string[]; imagem_principal_url: string | null
   categoria: string | null; disponivel: boolean; destaque: boolean; ordem: number
+}
+
+export interface ApiArtigo {
+  id: number; slug: string; titulo: string; resumo: string | null
+  corpo: string; imagem_capa_url: string | null; categoria: string
+  autor: string | null; publicado_em: string | null; created_at: string
 }
 
 export interface ApiLoja {
@@ -236,6 +242,21 @@ function mapProduto(p: ApiProduto): Produto {
   }
 }
 
+function mapArtigo(a: ApiArtigo): Artigo {
+  return {
+    id: String(a.id),
+    slug: a.slug,
+    titulo: a.titulo,
+    resumo: a.resumo ?? '',
+    corpo: a.corpo,
+    imagemCapaUrl: a.imagem_capa_url ?? null,
+    categoria: a.categoria,
+    autor: a.autor ?? null,
+    publicadoEm: a.publicado_em ?? null,
+    createdAt: a.created_at,
+  }
+}
+
 function mapLoja(l: ApiLoja): Loja {
   return {
     id: String(l.id),
@@ -265,6 +286,7 @@ export const useDataStore = defineStore('data', () => {
   const projects = ref<Project[]>([])
   const vagas = ref<Vaga[]>([])
   const lojas = ref<Loja[]>([])
+  const artigos = ref<Artigo[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -295,18 +317,20 @@ export const useDataStore = defineStore('data', () => {
     try {
       const cid = activeComunidadeId.value
       const cParam = cid ? `&comunidade_id=${cid}` : ''
-      const [pRes, eRes, prRes, vRes, lRes] = await Promise.all([
+      const [pRes, eRes, prRes, vRes, lRes, aRes] = await Promise.all([
         api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
         api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
         api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
         api.get<Paginated<ApiVaga>>(`/vagas?per_page=50${cParam}`),
         api.get<Paginated<ApiLoja>>(`/lojas?per_page=60${cParam}`),
+        api.get<Paginated<ApiArtigo>>(`/artigos?per_page=50${cParam}`),
       ])
       pros.value = pRes.data.map(mapPro)
       events.value = eRes.data.map(mapEvent)
       projects.value = prRes.data.map(mapProject)
       vagas.value = vRes.data.map(mapVaga)
       lojas.value = lRes.data.map(mapLoja)
+      artigos.value = aRes.data.map(mapArtigo)
     } catch (e: unknown) {
       error.value = 'Não foi possível carregar os dados. Verifique a conexão com a API.'
       console.error('API error:', e)
@@ -351,7 +375,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
-    pros, events, projects, vagas, lojas, loading, error,
+    pros, events, projects, vagas, lojas, artigos, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,

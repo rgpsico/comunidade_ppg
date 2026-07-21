@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Artigo;
 use App\Models\Comunidade;
 use App\Models\Evento;
 use App\Models\Loja;
@@ -97,6 +98,25 @@ class ShareController extends Controller
             'ogImage'     => $image,
             'siteName'    => $com['nome'],
             'redirectUrl' => $this->frontUrl($com['slug'], "/lojas/{$loja->id}"),
+        ]);
+    }
+
+    public function artigo(Artigo $artigo): \Illuminate\Contracts\View\View
+    {
+        $desc = strip_tags($artigo->resumo ?? $artigo->corpo ?? '');
+        $desc = mb_strlen($desc) > 160
+            ? mb_substr($desc, 0, 157) . '...'
+            : $desc;
+
+        $com = $this->comunidadeInfo($artigo->comunidade_id);
+
+        return view('share.artigo', [
+            'artigo'      => $artigo,
+            'ogTitle'     => $artigo->titulo,
+            'ogDesc'      => $desc ?: "{$artigo->categoria} · {$artigo->autor}",
+            'ogImage'     => $artigo->imagem_capa_url ?? asset('images/og-default.png'),
+            'siteName'    => $com['nome'],
+            'redirectUrl' => $this->frontUrl($com['slug'], "/artigos/{$artigo->slug}"),
         ]);
     }
 

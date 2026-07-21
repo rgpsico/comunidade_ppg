@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Artigo;
 use App\Models\Comentario;
 use App\Models\Evento;
 use App\Models\Loja;
@@ -20,6 +21,7 @@ class ComentarioController extends Controller
         'projetos'      => Projeto::class,
         'lojas'         => Loja::class,
         'vagas'         => Vaga::class,
+        'artigos'       => Artigo::class,
     ];
 
     private function resolveModel(string $tipo, int $id): object
