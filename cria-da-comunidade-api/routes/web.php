@@ -12,4 +12,5 @@ Route::get('/share/evento/{evento}', [ShareController::class, 'evento'])->name('
 Route::get('/share/vaga/{vaga}', [ShareController::class, 'vaga'])->name('share.vaga');
 Route::get('/share/loja/{loja}', [ShareController::class, 'loja'])->name('share.loja');
 Route::get('/share/profissional/{profissional}', [ShareController::class, 'profissional'])->name('share.profissional');
+Route::get('/share/projeto/{projeto}', [ShareController::class, 'projeto'])->name('share.projeto');
 Route::get('/share/artigo/{artigo}', [ShareController::class, 'artigo'])->name('share.artigo');

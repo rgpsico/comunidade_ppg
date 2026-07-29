@@ -7,6 +7,7 @@ use App\Models\Comunidade;
 use App\Models\Evento;
 use App\Models\Loja;
 use App\Models\Profissional;
+use App\Models\Projeto;
 use App\Models\Vaga;
 
 class ShareController extends Controller
@@ -98,6 +99,27 @@ class ShareController extends Controller
             'ogImage'     => $image,
             'siteName'    => $com['nome'],
             'redirectUrl' => $this->frontUrl($com['slug'], "/lojas/{$loja->id}"),
+        ]);
+    }
+
+    public function projeto(Projeto $projeto): \Illuminate\Contracts\View\View
+    {
+        $desc = strip_tags($projeto->descricao ?? '');
+        $desc = mb_strlen($desc) > 160
+            ? mb_substr($desc, 0, 157) . '...'
+            : $desc;
+
+        $image = $projeto->imagem_capa_url ?? asset('images/og-default.png');
+
+        $com = $this->comunidadeInfo($projeto->comunidade_id ?? null);
+
+        return view('share.projeto', [
+            'projeto'     => $projeto,
+            'ogTitle'     => "{$projeto->nome} — Projeto Social",
+            'ogDesc'      => $desc ?: "Projeto social da comunidade {$com['nome']}",
+            'ogImage'     => $image,
+            'siteName'    => $com['nome'],
+            'redirectUrl' => $this->frontUrl($com['slug'], "/projetos/{$projeto->id}"),
         ]);
     }
 

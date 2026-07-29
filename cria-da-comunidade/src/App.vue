@@ -78,7 +78,7 @@ function resolveDeepLink() {
   }
 
   // Slug-prefixed paths: /{slug}/module/{id} or /{slug}/module/{id}-{name-slug}
-  const sluggedDetail = path.match(/^\/[a-z0-9_-]+\/(profissionais|eventos|vagas|lojas)\/(\d+)/)
+  const sluggedDetail = path.match(/^\/[a-z0-9_-]+\/(profissionais|eventos|vagas|lojas|projetos)\/(\d+)/)
   if (sluggedDetail) {
     const [, module, id] = sluggedDetail
     if (module === 'profissionais') {
@@ -93,10 +93,13 @@ function resolveDeepLink() {
     } else if (module === 'lojas') {
       const l = data.lojas.find(l => l.id === id)
       if (l) { ui.openLoja(l); return }
+    } else if (module === 'projetos') {
+      const p = data.projects.find(p => p.id === id)
+      if (p) { ui.openProj(p); return }
     }
   }
 
-  // Bare path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3 (with optional slug suffix)
+  // Bare path-based: /profissionais/3, /eventos/3, /vagas/3, /lojas/3, /projetos/3 (with optional slug suffix)
   const profissionalPath = path.match(/^\/profissionais\/(\d+)/)
   if (profissionalPath) {
     const p = data.pros.find(p => p.id === profissionalPath[1])
@@ -117,6 +120,12 @@ function resolveDeepLink() {
   if (lojaPath) {
     const l = data.lojas.find(l => l.id === lojaPath[1])
     if (l) { ui.openLoja(l); return }
+  }
+
+  const projetoPath = path.match(/^\/projetos\/(\d+)/)
+  if (projetoPath) {
+    const p = data.projects.find(p => p.id === projetoPath[1])
+    if (p) { ui.openProj(p); return }
   }
 
   // Query params legados: ?vaga=ID, ?loja=ID, ?evento=ID
