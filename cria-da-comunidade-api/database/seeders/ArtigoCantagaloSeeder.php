@@ -44,8 +44,16 @@ class ArtigoCantagaloSeeder extends Seeder
 
 <p>Seu trabalho foi aclamado pela crítica e o colocou entre os artistas mais relevantes da nova geração. Cabelinho prova que o Cantagalo continua produzindo talentos capazes de dialogar com o mundo inteiro sem abrir mão de suas raízes. Cada música dele é um retrato da comunidade que o formou.</p>
 
+<h2>Mestre Cláudio Coelho e a Academia Nobre Arte</h2>
+<img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Gr%C3%A3o-Mestre_do_Boxe_Claudio_Coelho.jpg" alt="Mestre Cláudio Coelho - Nobre Arte" style="width:100%;max-width:480px;border-radius:12px;margin:16px auto 24px;display:block;object-fit:cover;">
+<p>Se o Cantagalo é uma referência no esporte, muito disso se deve ao <strong>Mestre Cláudio Coelho</strong>. Há mais de 40 anos à frente da Academia de Boxe <strong>Nobre Arte</strong>, localizada no alto do morro, Claudinho Coelho transformou um espaço simples na favela em um dos centros de artes marciais mais respeitados do Brasil.</p>
+
+<p>A Nobre Arte foi pioneira em algo raro no esporte brasileiro dos anos 90: receber sob o mesmo teto rivais históricos do Jiu-Jítsu e da Luta-Livre, no auge da guerra entre as modalidades. Claudinho Coelho convidou nomes como Marco Ruas, Amaury Bitetti, Murilo Bustamante e Zé Mario Sperry para treinar na academia — um gesto de neutralidade e visão que fez da Nobre Arte o espaço mais democrático do Vale-Tudo nacional.</p>
+
+<p>Presidente da academia, autor de dois livros sobre boxe e criador do projeto social <em>Meninos do Boxe</em>, Cláudio Coelho usa o esporte como ferramenta de transformação para crianças e jovens da comunidade. Para o morro, a Nobre Arte não é só uma academia — é uma escola de vida.</p>
+
 <h2>O Cantagalo que resiste e inspira</h2>
-<p>Cada um à sua maneira, Terere, Finfou, Bezerra da Silva e MC Cabelinho representam o que há de mais poderoso no Cantagalo: a capacidade de transformar a adversidade em arte, em esporte, em luta e em vida.</p>
+<p>Cada um à sua maneira, Terere, Finfou, Bezerra da Silva, MC Cabelinho e Mestre Cláudio Coelho representam o que há de mais poderoso no Cantagalo: a capacidade de transformar a adversidade em arte, em esporte, em luta e em vida.</p>
 
 <p>A favela não é só o lugar onde eles nasceram. É o combustível que os fez chegar onde chegaram. É a identidade que carregam com orgulho. E é por isso que, independente de onde estejam, o Cantagalo está sempre presente em cada vitória, em cada nota musical, em cada ippon, em cada verso e em cada conquista coletiva.</p>
 
