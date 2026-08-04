@@ -164,15 +164,22 @@
             <h2 class="section-title display">Da quebrada</h2>
           </div>
         </div>
-        <div class="feed-grid">
-          <div v-for="(item, i) in feedItems" :key="i" class="feed-item" :class="item.size"
-            :style="{ background: `linear-gradient(135deg, ${item.c1}, ${item.c2})` }">
+        <div class="feed-grid" v-if="data.feedPosts.length">
+          <div
+            v-for="item in data.feedPosts" :key="item.id"
+            class="feed-item" :class="item.tamanho === 'normal' ? '' : item.tamanho"
+            :style="item.imagem_url
+              ? { backgroundImage: `url(${item.imagem_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : { background: `linear-gradient(135deg, ${item.cor1}, ${item.cor2})` }">
             <div class="feed-overlay"></div>
             <div class="feed-info">
-              <div class="feed-author">{{ item.author }}</div>
-              <div class="feed-time">{{ item.time }}</div>
+              <div class="feed-author">{{ item.autor }}</div>
+              <div class="feed-time" v-if="item.legenda">{{ item.legenda }}</div>
             </div>
           </div>
+        </div>
+        <div class="feed-empty" v-else>
+          <p>Nenhum post ainda. Cadastre no admin!</p>
         </div>
       </div>
     </section>
@@ -223,12 +230,6 @@ const quickActions = computed(() => {
   }))
 })
 
-const feedItems = [
-  { author: 'MC Bravão', time: '2h', c1: '#FF5E1A', c2: '#FFD23F', size: 'tall' },
-  { author: 'Bia Arte', time: '4h', c1: '#2BD96B', c2: '#FFD23F', size: '' },
-  { author: 'Karatê Kids', time: '6h', c1: '#FFD23F', c2: '#FF5E1A', size: '' },
-  { author: 'ONG Raízes', time: '1d', c1: '#2BD96B', c2: '#FF5E1A', size: 'wide' },
-]
 
 const skylineHouses = Array.from({ length: 18 }, (_, i) => ({
   id: i,
@@ -469,6 +470,7 @@ const skylineHouses = Array.from({ length: 18 }, (_, i) => ({
 .feed-info {
   position: absolute; bottom: 8px; left: 10px; z-index: 1;
 }
+.feed-empty { color: var(--muted); font-size: 13px; padding: 20px 0; }
 .feed-author { font-size: 11px; font-weight: 600; color: white; }
 .feed-time { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; }
 

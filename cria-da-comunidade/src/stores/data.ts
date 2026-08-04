@@ -78,6 +78,12 @@ export interface ApiArtigo {
   autor: string | null; publicado_em: string | null; created_at: string
 }
 
+export interface ApiFeedPost {
+  id: number; autor: string; legenda: string | null
+  imagem_url: string | null; cor1: string; cor2: string
+  tamanho: 'normal' | 'tall' | 'wide'; created_at: string
+}
+
 export interface ApiLoja {
   id: number; user_id: number | null; nome: string; descricao: string | null; categoria: string
   logo_url: string; capa_url: string | null; whatsapp: string | null
@@ -287,6 +293,7 @@ export const useDataStore = defineStore('data', () => {
   const vagas = ref<Vaga[]>([])
   const lojas = ref<Loja[]>([])
   const artigos = ref<Artigo[]>([])
+  const feedPosts = ref<ApiFeedPost[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -317,13 +324,14 @@ export const useDataStore = defineStore('data', () => {
     try {
       const cid = activeComunidadeId.value
       const cParam = cid ? `&comunidade_id=${cid}` : ''
-      const [pRes, eRes, prRes, vRes, lRes, aRes] = await Promise.all([
+      const [pRes, eRes, prRes, vRes, lRes, aRes, fRes] = await Promise.all([
         api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
         api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
         api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
         api.get<Paginated<ApiVaga>>(`/vagas?per_page=50${cParam}`),
         api.get<Paginated<ApiLoja>>(`/lojas?per_page=60${cParam}`),
         api.get<Paginated<ApiArtigo>>(`/artigos?per_page=50${cParam}`),
+        api.get<Paginated<ApiFeedPost>>(`/feed-posts?per_page=8${cParam}`),
       ])
       pros.value = pRes.data.map(mapPro)
       events.value = eRes.data.map(mapEvent)
@@ -331,6 +339,7 @@ export const useDataStore = defineStore('data', () => {
       vagas.value = vRes.data.map(mapVaga)
       lojas.value = lRes.data.map(mapLoja)
       artigos.value = aRes.data.map(mapArtigo)
+      feedPosts.value = fRes.data
     } catch (e: unknown) {
       error.value = 'Não foi possível carregar os dados. Verifique a conexão com a API.'
       console.error('API error:', e)
@@ -375,7 +384,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
-    pros, events, projects, vagas, lojas, artigos, loading, error,
+    pros, events, projects, vagas, lojas, artigos, feedPosts, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,
