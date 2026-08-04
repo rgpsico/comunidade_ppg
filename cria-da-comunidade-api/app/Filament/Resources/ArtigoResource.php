@@ -5,8 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ArtigoResource\Pages;
 use App\Models\Artigo;
 use App\Models\Comunidade;
+use App\Services\FacebookService;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -169,6 +171,36 @@ class ArtigoResource extends Resource
             ])
             ->actions([
                 Actions\EditAction::make(),
+                Actions\Action::make('publicar_facebook')
+                    ->label('Publicar no Facebook')
+                    ->icon('heroicon-o-share')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Publicar no Facebook')
+                    ->modalDescription(fn (Artigo $record) => "Publicar o artigo \"{$record->titulo}\" na página Divulga PPG?")
+                    ->modalSubmitActionLabel('Sim, publicar')
+                    ->visible(fn (Artigo $record) => $record->publicado)
+                    ->action(function (Artigo $record) {
+                        $resultado = app(FacebookService::class)->publicarArtigo(
+                            $record->titulo,
+                            $record->resumo ?? '',
+                            $record->slug,
+                        );
+
+                        if ($resultado['sucesso']) {
+                            Notification::make()
+                                ->title('Publicado no Facebook!')
+                                ->body('O artigo foi publicado na página Divulga PPG.')
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Erro ao publicar')
+                                ->body($resultado['erro'])
+                                ->danger()
+                                ->send();
+                        }
+                    }),
                 Actions\DeleteAction::make(),
             ])
             ->bulkActions([
