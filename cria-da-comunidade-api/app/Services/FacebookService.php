@@ -16,15 +16,34 @@ class FacebookService
         $this->pageToken = config('services.facebook.page_token');
     }
 
+    private function getPageAccessToken(): string
+    {
+        $response = Http::get("{$this->graphBase}/me/accounts", [
+            'access_token' => $this->pageToken,
+        ]);
+
+        if ($response->successful()) {
+            foreach ($response->json('data', []) as $page) {
+                if ((string) $page['id'] === (string) $this->pageId) {
+                    return $page['access_token'];
+                }
+            }
+        }
+
+        // fallback: usa o token fornecido diretamente
+        return $this->pageToken;
+    }
+
     public function publicarArtigo(string $titulo, string $resumo, string $slug): array
     {
-        $url     = "https://ppg.comunidadeppg.com.br/artigos/{$slug}";
-        $message = "📰 {$titulo}\n\n{$resumo}\n\n👉 Leia o artigo completo: {$url}";
+        $url       = "https://ppg.comunidadeppg.com.br/artigos/{$slug}";
+        $message   = "📰 {$titulo}\n\n{$resumo}\n\n👉 Leia o artigo completo: {$url}";
+        $pageToken = $this->getPageAccessToken();
 
         $response = Http::post("{$this->graphBase}/{$this->pageId}/feed", [
             'message'      => $message,
             'link'         => $url,
-            'access_token' => $this->pageToken,
+            'access_token' => $pageToken,
         ]);
 
         if ($response->failed()) {
