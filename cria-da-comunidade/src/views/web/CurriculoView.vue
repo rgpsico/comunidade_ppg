@@ -260,6 +260,9 @@ const habilidadesPorArea: Record<string, string[]> = {
   'Comércio': ['Vendedor', 'Caixa', 'Estoquista', 'Reposição', 'Promotor de vendas', 'Telemarketing'],
   'Arte e Artesanato': ['Pintura artística', 'Artesanato', 'Escultura', 'Customização', 'Marcenaria'],
   'Administração': ['Assistente adm.', 'Financeiro', 'RH', 'Secretaria', 'Recepcionista', 'Digitação'],
+  'Hotelaria': ['Camareira', 'Recepcionista de hotel', 'Copeiro', 'Mensageiro', 'Manobrista', 'Governanta', 'Lavanderia'],
+  'Atendente': ['Atendente de loja', 'Atendente de restaurante', 'Atendente de farmácia', 'Caixa', 'Recepcionista', 'Telemarketing', 'Suporte ao cliente'],
+  'Trabalho na Praia': ['Quiosque', 'Cadeirinha e guarda-sol', 'Vendedor ambulante', 'Salva-vidas', 'Instrutor de surf', 'Passeio de barco', 'Massagista'],
   'Outro': ['Serviços gerais', 'Manutenção', 'Porteiro', 'Zeladoria', 'Mensageiro', 'Auxiliar geral'],
 }
 
@@ -280,7 +283,8 @@ const areas = [
   'Beleza e Estética', 'Construção e Reforma', 'Costura e Moda',
   'Saúde e Bem-estar', 'Educação', 'Tecnologia', 'Gastronomia',
   'Transporte e Entregas', 'Eventos', 'Limpeza e Doméstica',
-  'Administração', 'Comércio', 'Arte e Artesanato', 'Outro',
+  'Administração', 'Comércio', 'Arte e Artesanato',
+  'Hotelaria', 'Atendente', 'Trabalho na Praia', 'Outro',
 ]
 
 const disponibilidades = [
