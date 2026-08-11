@@ -191,9 +191,24 @@ export interface Artigo {
   createdAt: string
 }
 
+export interface Curriculo {
+  id: string
+  nome: string
+  email: string
+  telefone: string | null
+  areaAtuacao: string
+  habilidades: string[]
+  experiencia: string | null
+  cidade: string | null
+  disponibilidade: 'imediata' | '30 dias' | '60 dias'
+  pdfUrl: string | null
+  publicado: boolean
+  createdAt: string
+}
+
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail'
-  | 'login' | 'perfil'
+  | 'login' | 'perfil' | 'curriculos'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'

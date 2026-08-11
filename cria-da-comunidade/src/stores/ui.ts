@@ -38,6 +38,7 @@ export const useUiStore = defineStore('ui', () => {
     profissionais: '/profissionais',
     projetos: '/projetos',
     artigos: '/artigos',
+    curriculos: '/curriculos',
   }
 
   function slug(): string {

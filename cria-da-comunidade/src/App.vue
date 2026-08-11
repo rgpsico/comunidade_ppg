@@ -35,6 +35,7 @@ import ArtigosView from './views/web/ArtigosView.vue'
 import ArtigoDetail from './views/web/details/ArtigoDetail.vue'
 import LoginView from './views/web/LoginView.vue'
 import ProfileView from './views/web/ProfileView.vue'
+import CurriculoView from './views/web/CurriculoView.vue'
 import BottomNav from './components/layout/BottomNav.vue'
 
 const ui = useUiStore()
@@ -57,6 +58,7 @@ const views = {
   artigoDetail: ArtigoDetail,
   login: LoginView,
   perfil: ProfileView,
+  curriculos: CurriculoView,
 }
 
 const currentView = computed(() => views[ui.activeView])
@@ -183,6 +185,7 @@ onMounted(async () => {
     else if (p.startsWith('/profissionais') && !p.match(/\/\d+/)) ui.activeView = 'profissionais'
     else if (p.startsWith('/projetos') && !p.match(/\/\d+/)) ui.activeView = 'projetos'
     else if (p.startsWith('/artigos') && !p.match(/\/[a-z0-9_-]+/)) ui.activeView = 'artigos'
+    else if (p.startsWith('/curriculos')) ui.activeView = 'curriculos'
   })
 })
 </script>

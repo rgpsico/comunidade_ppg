@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ArtigoController;
 use App\Http\Controllers\Api\FeedPostController;
 use App\Http\Controllers\Api\AvaliacaoController;
 use App\Http\Controllers\Api\ComentarioController;
+use App\Http\Controllers\Api\CurriculoController;
 use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComunidadeController;
@@ -97,4 +98,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Comentários (escrita)
     Route::post('{tipo}/{id}/comentarios',        [ComentarioController::class, 'store'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
     Route::delete('comentarios/{comentario}',     [ComentarioController::class, 'destroy']);
+
+    // Currículos
+    Route::get('curriculos/meu',                  [CurriculoController::class, 'meu']);
+    Route::post('curriculos',                     [CurriculoController::class, 'store']);
+    Route::post('curriculos/pdf',                 [CurriculoController::class, 'uploadPdf']);
+    Route::put('curriculos',                      [CurriculoController::class, 'update']);
+    Route::delete('curriculos',                   [CurriculoController::class, 'destroy']);
 });

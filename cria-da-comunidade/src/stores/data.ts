@@ -84,6 +84,13 @@ export interface ApiFeedPost {
   tamanho: 'normal' | 'tall' | 'wide'; created_at: string
 }
 
+export interface ApiCurriculo {
+  id: number; nome: string; email: string; telefone: string | null
+  area_atuacao: string; habilidades: string[] | null; experiencia: string | null
+  cidade: string | null; disponibilidade: string; pdf_url: string | null
+  publicado: boolean; created_at: string
+}
+
 export interface ApiLoja {
   id: number; user_id: number | null; nome: string; descricao: string | null; categoria: string
   logo_url: string; capa_url: string | null; whatsapp: string | null
@@ -294,6 +301,7 @@ export const useDataStore = defineStore('data', () => {
   const lojas = ref<Loja[]>([])
   const artigos = ref<Artigo[]>([])
   const feedPosts = ref<ApiFeedPost[]>([])
+  const meuCurriculo = ref<ApiCurriculo | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -365,6 +373,34 @@ export const useDataStore = defineStore('data', () => {
     if (v) v.applicants++
   }
 
+  async function fetchMeuCurriculo() {
+    try {
+      const res = await api.get<ApiCurriculo | null>('/curriculos/meu')
+      meuCurriculo.value = res
+    } catch {
+      meuCurriculo.value = null
+    }
+  }
+
+  async function salvarCurriculo(data: {
+    nome: string; email: string; telefone?: string
+    area_atuacao: string; habilidades?: string[]
+    experiencia?: string; cidade?: string
+    disponibilidade?: string; comunidade_id?: number | null
+  }): Promise<ApiCurriculo> {
+    const res = await api.post<ApiCurriculo>('/curriculos', data)
+    meuCurriculo.value = res
+    return res
+  }
+
+  async function uploadCurriculoPdf(file: File): Promise<string | null> {
+    const form = new FormData()
+    form.append('pdf', file)
+    const res = await api.postForm<{ pdf_url: string }>('/curriculos/pdf', form)
+    if (meuCurriculo.value) meuCurriculo.value.pdf_url = res.pdf_url
+    return res.pdf_url
+  }
+
   async function fetchLojaDetail(id: string): Promise<Loja | null> {
     try {
       const res = await api.get<ApiLoja>(`/lojas/${id}`)
@@ -384,9 +420,10 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
-    pros, events, projects, vagas, lojas, artigos, feedPosts, loading, error,
+    pros, events, projects, vagas, lojas, artigos, feedPosts, meuCurriculo, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,
+    fetchMeuCurriculo, salvarCurriculo, uploadCurriculoPdf,
   }
 })
