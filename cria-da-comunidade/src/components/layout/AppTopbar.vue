@@ -64,6 +64,12 @@
       </Transition>
     </div>
 
+    <!-- Logo mobile -->
+    <div class="mobile-brand">
+      <div class="mobile-mark"></div>
+      <span class="mobile-name">Cria da Comunidade</span>
+    </div>
+
     <!-- Search -->
     <div class="search-wrap">
       <svg width="15" height="15" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24">
@@ -94,6 +100,9 @@
       </button>
       <button class="cta-btn" @click="openAnunciar">+ Anunciar</button>
     </div>
+
+    <!-- Avatar mobile -->
+    <button class="mobile-avatar" @click="onAvatarClick">{{ auth.initials }}</button>
   </header>
 
   <AnunciarModal v-if="showAnunciar" @close="showAnunciar = false" />
@@ -137,6 +146,10 @@ function openAnunciar() {
     return
   }
   showAnunciar.value = true
+}
+
+function onAvatarClick() {
+  ui.goTo(auth.isAuthenticated ? 'perfil' : 'login')
 }
 </script>
 
@@ -375,13 +388,66 @@ function openAnunciar() {
 }
 .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -4px rgba(255,94,26,0.6); }
 
+/* ── Mobile brand ── */
+.mobile-brand {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mobile-mark {
+  width: 28px; height: 28px;
+  background: var(--orange);
+  border-radius: 8px;
+  transform: rotate(-4deg);
+  box-shadow: 0 4px 12px -3px rgba(255,94,26,0.45);
+  position: relative;
+  flex-shrink: 0;
+}
+.mobile-mark::before {
+  content: "";
+  width: 11px; height: 11px;
+  background: var(--yellow);
+  border-radius: 2px;
+  position: absolute;
+  transform: rotate(45deg);
+  top: 8px; left: 8px;
+}
+.mobile-name {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  white-space: nowrap;
+}
+
+/* Avatar mobile */
+.mobile-avatar {
+  display: none;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  color: var(--black);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+}
+.mobile-avatar:hover { transform: scale(1.06); }
+
 /* ── Mobile ── */
 @media (max-width: 768px) {
-  .topbar { padding: 0 16px; gap: 10px; height: 60px; }
+  .topbar { padding: 0 14px; gap: 10px; height: 60px; }
   .location-wrap { display: none; }
   .search-kbd { display: none; }
   .tb-icon-btn { display: none; }
   .cta-btn { display: none; }
   .search-wrap { max-width: 100%; }
+  .mobile-brand { display: flex; }
+  .mobile-avatar { display: flex; }
 }
 </style>
