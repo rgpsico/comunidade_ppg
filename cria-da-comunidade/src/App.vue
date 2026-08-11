@@ -67,6 +67,12 @@ function resolveDeepLink() {
   const path   = window.location.pathname
   const params = new URLSearchParams(window.location.search)
 
+  // Currículos
+  if (path.match(/^\/curriculos/) || path.match(/^\/[a-z0-9_-]+\/curriculos/)) {
+    ui.activeView = 'curriculos'
+    return
+  }
+
   // Artigo por slug: /{slug}/artigos/{artigo-slug}
   const artigoSlugPath = path.match(/^\/[a-z0-9_-]+\/artigos\/([a-z0-9_-]+)$/)
   if (artigoSlugPath) {

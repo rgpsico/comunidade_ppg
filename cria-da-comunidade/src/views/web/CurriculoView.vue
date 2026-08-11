@@ -158,7 +158,7 @@
     <!-- Perfil completo (somente visualização) -->
     <div v-if="data.meuCurriculo && !editando" class="perfil-card">
       <div class="perfil-header">
-        <div class="perfil-av">{{ iniciais(data.meuCurriculo.nome) }}</div>
+        <div class="perfil-av">{{ iniciais(data.meuCurriculo?.nome) }}</div>
         <div>
           <div class="perfil-nome">{{ data.meuCurriculo.nome }}</div>
           <div class="perfil-area">{{ data.meuCurriculo.area_atuacao }}</div>
@@ -273,7 +273,8 @@ const formValido = computed(() =>
   form.value.area_atuacao
 )
 
-function iniciais(nome: string) {
+function iniciais(nome: string | null | undefined) {
+  if (!nome) return '?'
   return nome.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
 }
 
