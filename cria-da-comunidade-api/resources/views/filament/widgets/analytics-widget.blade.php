@@ -1,56 +1,47 @@
 <x-filament-widgets::widget>
     <x-filament::section>
 
-        {{-- ── Cabeçalho principal ── --}}
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-base font-bold text-gray-900 dark:text-white">📊 Analytics da Plataforma</h2>
-            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-full">
-                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                Ao vivo · 30 dias
+        {{-- ── Cabeçalho ── --}}
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+            <div>
+                <h2 style="font-size:15px; font-weight:800; margin:0; color:inherit;">📊 Analytics da Plataforma</h2>
+                <p style="font-size:11px; color:#9ca3af; margin:3px 0 0;">Últimos 30 dias</p>
+            </div>
+            <span style="display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:#10b981; background:#f0fdf4; border:1px solid #bbf7d0; padding:4px 10px; border-radius:99px;">
+                <span style="width:6px; height:6px; background:#10b981; border-radius:50%; animation:pulse 1.5s infinite;"></span>
+                Ao vivo
             </span>
         </div>
 
         {{-- ── KPIs ── --}}
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px;">
 
-            <div class="rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-indigo-50 dark:bg-indigo-950/30 p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-lg">🌐</span>
-                    <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider">Sessões únicas</p>
-                </div>
-                <p class="text-3xl font-black font-mono text-indigo-700 dark:text-indigo-200 leading-none">{{ number_format($totalSessions) }}</p>
-                <p class="text-[11px] text-indigo-400 mt-1">visitantes distintos</p>
+            <div style="border-radius:12px; border:1px solid #c7d2fe; background:#eef2ff; padding:16px;">
+                <p style="font-size:10px; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;">🌐 Sessões únicas</p>
+                <p style="font-size:28px; font-weight:900; font-family:monospace; color:#3730a3; line-height:1; margin:0;">{{ number_format($totalSessions) }}</p>
+                <p style="font-size:11px; color:#a5b4fc; margin:4px 0 0;">visitantes distintos</p>
             </div>
 
-            <div class="rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-lg">👁</span>
-                    <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Page views</p>
-                </div>
-                <p class="text-3xl font-black font-mono text-emerald-700 dark:text-emerald-200 leading-none">{{ number_format($totalViews) }}</p>
-                <p class="text-[11px] text-emerald-500 mt-1">telas abertas</p>
+            <div style="border-radius:12px; border:1px solid #a7f3d0; background:#ecfdf5; padding:16px;">
+                <p style="font-size:10px; font-weight:700; color:#059669; text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;">👁 Page views</p>
+                <p style="font-size:28px; font-weight:900; font-family:monospace; color:#065f46; line-height:1; margin:0;">{{ number_format($totalViews) }}</p>
+                <p style="font-size:11px; color:#6ee7b7; margin:4px 0 0;">telas abertas</p>
             </div>
 
-            <div class="rounded-xl border border-orange-100 dark:border-orange-900/40 bg-orange-50 dark:bg-orange-950/30 p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-lg">🖱️</span>
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-wider">Cliques totais</p>
-                </div>
-                <p class="text-3xl font-black font-mono text-orange-700 dark:text-orange-200 leading-none">{{ number_format($totalClicks) }}</p>
-                <p class="text-[11px] text-orange-400 mt-1">interações</p>
+            <div style="border-radius:12px; border:1px solid #fed7aa; background:#fff7ed; padding:16px;">
+                <p style="font-size:10px; font-weight:700; color:#ea580c; text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;">🖱️ Cliques totais</p>
+                <p style="font-size:28px; font-weight:900; font-family:monospace; color:#9a3412; line-height:1; margin:0;">{{ number_format($totalClicks) }}</p>
+                <p style="font-size:11px; color:#fdba74; margin:4px 0 0;">interações</p>
             </div>
 
-            <div class="rounded-xl border border-purple-100 dark:border-purple-900/40 bg-purple-50 dark:bg-purple-950/30 p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-lg">🏆</span>
-                    <p class="text-[10px] font-bold text-purple-500 uppercase tracking-wider">Pro do mês</p>
-                </div>
+            <div style="border-radius:12px; border:1px solid #e9d5ff; background:#faf5ff; padding:16px;">
+                <p style="font-size:10px; font-weight:700; color:#9333ea; text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;">🏆 Pro do mês</p>
                 @if($topPros->isNotEmpty())
-                    <p class="text-sm font-black text-purple-700 dark:text-purple-200 leading-tight line-clamp-2">{{ $topPros->first()->entity_name }}</p>
-                    <p class="text-[11px] text-purple-400 mt-1">{{ $topPros->first()->clicks }} cliques</p>
+                    <p style="font-size:13px; font-weight:900; color:#581c87; line-height:1.2; margin:0;">{{ $topPros->first()->entity_name }}</p>
+                    <p style="font-size:11px; color:#c4b5fd; margin:4px 0 0;">{{ $topPros->first()->clicks }} cliques</p>
                 @else
-                    <p class="text-3xl font-black font-mono text-purple-200 dark:text-purple-700 leading-none">—</p>
-                    <p class="text-[11px] text-purple-400 mt-1">sem dados ainda</p>
+                    <p style="font-size:28px; font-weight:900; font-family:monospace; color:#d8b4fe; line-height:1; margin:0;">—</p>
+                    <p style="font-size:11px; color:#c4b5fd; margin:4px 0 0;">sem dados ainda</p>
                 @endif
             </div>
 
@@ -58,23 +49,23 @@
 
         {{-- ── Card: Gráfico de barras ── --}}
         @if($dailyViews->isNotEmpty())
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 mb-4">
-            <div class="flex items-center gap-2 px-5 py-3 border-b border-gray-100 dark:border-gray-700/50">
-                <span class="text-sm">📈</span>
-                <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Acessos diários — últimos 14 dias</p>
+        <div style="border-radius:12px; border:1px solid #e5e7eb; background:#fff; margin-bottom:16px; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid #f3f4f6; background:#f9fafb;">
+                <span style="font-size:13px;">📈</span>
+                <p style="font-size:12px; font-weight:700; margin:0; color:#374151;">Acessos diários — últimos 14 dias</p>
             </div>
-            <div class="px-5 py-4">
+            <div style="padding:16px 20px;">
                 @php
                     $maxViews = $dailyViews->max('views') ?: 1;
                     $chartH   = 80;
                 @endphp
-                <div style="display: flex; align-items: flex-end; gap: 6px; height: {{ $chartH + 32 }}px;">
+                <div style="display:flex; align-items:flex-end; gap:6px; height:{{ $chartH + 32 }}px;">
                     @foreach($dailyViews as $day)
                     @php $barH = max(4, (int) round(($day->views / $maxViews) * $chartH)); @endphp
-                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: {{ $chartH + 32 }}px;">
-                        <span style="font-size: 9px; font-weight: 800; color: #ea580c; line-height: 1; margin-bottom: 3px;">{{ $day->views }}</span>
-                        <div style="width: 100%; height: {{ $barH }}px; background: linear-gradient(to top, #c2410c, #fb923c); border-radius: 4px 4px 0 0;" title="{{ \Carbon\Carbon::parse($day->day)->format('d/m') }}: {{ $day->views }} acessos"></div>
-                        <span style="font-size: 9px; color: #9ca3af; margin-top: 5px; white-space: nowrap;">{{ \Carbon\Carbon::parse($day->day)->format('d/m') }}</span>
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:{{ $chartH + 32 }}px;">
+                        <span style="font-size:9px; font-weight:800; color:#ea580c; line-height:1; margin-bottom:3px;">{{ $day->views }}</span>
+                        <div style="width:100%; height:{{ $barH }}px; background:linear-gradient(to top,#c2410c,#fb923c); border-radius:4px 4px 0 0;" title="{{ \Carbon\Carbon::parse($day->day)->format('d/m') }}: {{ $day->views }} acessos"></div>
+                        <span style="font-size:9px; color:#9ca3af; margin-top:5px; white-space:nowrap;">{{ \Carbon\Carbon::parse($day->day)->format('d/m') }}</span>
                     </div>
                     @endforeach
                 </div>
@@ -83,88 +74,84 @@
         @endif
 
         {{-- ── Cards: Telas + Profissionais ── --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
 
             {{-- Card Telas --}}
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 overflow-hidden">
-                <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/60">
-                    <span class="text-sm">🖥️</span>
-                    <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Telas mais visitadas</p>
-                    <span class="ml-auto text-[10px] font-semibold text-gray-400 font-mono uppercase">views</span>
+            <div style="border-radius:12px; border:1px solid #e5e7eb; background:#fff; overflow:hidden;">
+                <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid #f3f4f6; background:#f9fafb;">
+                    <span style="font-size:13px;">🖥️</span>
+                    <p style="font-size:12px; font-weight:700; margin:0; color:#374151;">Telas mais visitadas</p>
+                    <span style="margin-left:auto; font-size:10px; font-weight:700; color:#9ca3af;">VIEWS</span>
                 </div>
                 @if($topScreens->isEmpty())
-                    <p class="text-xs text-gray-400 py-8 text-center">Nenhum acesso ainda</p>
+                    <p style="font-size:12px; color:#9ca3af; padding:24px; text-align:center;">Nenhum acesso ainda</p>
                 @else
                 @php $maxScreen = $topScreens->max('views') ?: 1; @endphp
-                <div class="divide-y divide-gray-50 dark:divide-gray-700/40">
-                    @foreach($topScreens as $i => $item)
-                    <div class="flex items-center gap-3 px-4 py-2.5">
-                        <span class="text-[10px] font-bold font-mono w-4 text-right shrink-0 {{ $i === 0 ? 'text-blue-500' : 'text-gray-300 dark:text-gray-600' }}">{{ $i + 1 }}</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">{{ $item->screen_label }}</span>
-                                <span class="text-[11px] font-black font-mono text-blue-600 dark:text-blue-400 shrink-0">{{ $item->views }}</span>
-                            </div>
-                            <div class="h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-400 rounded-full" style="width: {{ round(($item->views / $maxScreen) * 100) }}%"></div>
-                            </div>
+                @foreach($topScreens as $i => $item)
+                <div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-top:{{ $i > 0 ? '1px solid #f3f4f6' : 'none' }};">
+                    <span style="font-size:10px; font-weight:900; font-family:monospace; width:14px; text-align:right; flex-shrink:0; color:{{ $i === 0 ? '#3b82f6' : '#d1d5db' }};">{{ $i + 1 }}</span>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+                            <span style="font-size:12px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $item->screen_label }}</span>
+                            <span style="font-size:11px; font-weight:900; font-family:monospace; color:#2563eb; flex-shrink:0;">{{ $item->views }}</span>
+                        </div>
+                        <div style="height:4px; background:#f3f4f6; border-radius:99px; overflow:hidden;">
+                            <div style="height:100%; width:{{ round(($item->views / $maxScreen) * 100) }}%; background:#60a5fa; border-radius:99px;"></div>
                         </div>
                     </div>
-                    @endforeach
                 </div>
+                @endforeach
                 @endif
             </div>
 
             {{-- Card Profissionais --}}
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 overflow-hidden">
-                <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/60">
-                    <span class="text-sm">👤</span>
-                    <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Profissionais mais clicados</p>
-                    <span class="ml-auto text-[10px] font-semibold text-gray-400 font-mono uppercase">cliques</span>
+            <div style="border-radius:12px; border:1px solid #e5e7eb; background:#fff; overflow:hidden;">
+                <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid #f3f4f6; background:#f9fafb;">
+                    <span style="font-size:13px;">👤</span>
+                    <p style="font-size:12px; font-weight:700; margin:0; color:#374151;">Profissionais mais clicados</p>
+                    <span style="margin-left:auto; font-size:10px; font-weight:700; color:#9ca3af;">CLIQUES</span>
                 </div>
                 @if($topPros->isEmpty())
-                    <p class="text-xs text-gray-400 py-8 text-center">Nenhum clique ainda</p>
+                    <p style="font-size:12px; color:#9ca3af; padding:24px; text-align:center;">Nenhum clique ainda</p>
                 @else
                 @php $maxPro = $topPros->max('clicks') ?: 1; @endphp
-                <div class="divide-y divide-gray-50 dark:divide-gray-700/40">
-                    @foreach($topPros as $i => $item)
-                    <div class="flex items-center gap-3 px-4 py-2.5">
-                        <span class="text-[10px] font-bold font-mono w-4 text-right shrink-0 {{ $i === 0 ? 'text-orange-500' : 'text-gray-300 dark:text-gray-600' }}">{{ $i + 1 }}</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <span class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">{{ $item->entity_name ?? '—' }}</span>
-                                <span class="text-[11px] font-black font-mono text-orange-600 dark:text-orange-400 shrink-0">{{ $item->clicks }}</span>
-                            </div>
-                            <div class="h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-orange-400 rounded-full" style="width: {{ round(($item->clicks / $maxPro) * 100) }}%"></div>
-                            </div>
+                @foreach($topPros as $i => $item)
+                <div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-top:{{ $i > 0 ? '1px solid #f3f4f6' : 'none' }};">
+                    <span style="font-size:10px; font-weight:900; font-family:monospace; width:14px; text-align:right; flex-shrink:0; color:{{ $i === 0 ? '#f97316' : '#d1d5db' }};">{{ $i + 1 }}</span>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+                            <span style="font-size:12px; font-weight:600; color:#1f2937; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $item->entity_name ?? '—' }}</span>
+                            <span style="font-size:11px; font-weight:900; font-family:monospace; color:#ea580c; flex-shrink:0;">{{ $item->clicks }}</span>
+                        </div>
+                        <div style="height:4px; background:#f3f4f6; border-radius:99px; overflow:hidden;">
+                            <div style="height:100%; width:{{ round(($item->clicks / $maxPro) * 100) }}%; background:#fb923c; border-radius:99px;"></div>
                         </div>
                     </div>
-                    @endforeach
                 </div>
+                @endforeach
                 @endif
             </div>
         </div>
 
         {{-- ── Card: Cliques por categoria ── --}}
-        <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 overflow-hidden">
-            <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/60">
-                <span class="text-sm">🖱️</span>
-                <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Cliques por categoria</p>
+        <div style="border-radius:12px; border:1px solid #e5e7eb; background:#fff; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid #f3f4f6; background:#f9fafb;">
+                <span style="font-size:13px;">🖱️</span>
+                <p style="font-size:12px; font-weight:700; margin:0; color:#374151;">Cliques por categoria</p>
             </div>
-            <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-gray-100 dark:divide-gray-700/40">
+            <div style="display:grid; grid-template-columns:repeat(4,1fr);">
                 @foreach([
-                    ['profissional', '👤', 'Profissionais', 'text-orange-700 dark:text-orange-300', 'text-orange-400'],
-                    ['evento',       '🎉', 'Eventos',       'text-purple-700 dark:text-purple-300', 'text-purple-400'],
-                    ['projeto',      '❤',  'Projetos',      'text-red-700 dark:text-red-300',       'text-red-400'],
-                    ['vaga',         '💼', 'Vagas',         'text-blue-700 dark:text-blue-300',     'text-blue-400'],
-                ] as [$type, $icon, $label, $numCls, $lblCls])
+                    ['profissional', '👤', 'Profissionais', '#ea580c', '#fff7ed', '#fed7aa'],
+                    ['evento',       '🎉', 'Eventos',       '#9333ea', '#faf5ff', '#e9d5ff'],
+                    ['projeto',      '❤',  'Projetos',      '#dc2626', '#fef2f2', '#fecaca'],
+                    ['vaga',         '💼', 'Vagas',         '#2563eb', '#eff6ff', '#bfdbfe'],
+                ] as [$i, [$type, $icon, $label, $color, $bg, $border]])
                 @php $n = $clicksByType[$type] ?? 0; @endphp
-                <div class="flex items-center gap-3 px-5 py-4">
-                    <span class="text-2xl leading-none shrink-0">{{ $icon }}</span>
+                <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; border-left:{{ $i > 0 ? '1px solid #f3f4f6' : 'none' }}; background:{{ $bg }};">
+                    <span style="font-size:22px; line-height:1;">{{ $icon }}</span>
                     <div>
-                        <p class="text-xl font-black font-mono {{ $numCls }} leading-none">{{ $n }}</p>
-                        <p class="text-[10px] font-semibold {{ $lblCls }} mt-0.5">{{ $label }}</p>
+                        <p style="font-size:22px; font-weight:900; font-family:monospace; color:{{ $color }}; line-height:1; margin:0;">{{ $n }}</p>
+                        <p style="font-size:10px; font-weight:700; color:{{ $color }}; opacity:.7; margin:3px 0 0; text-transform:uppercase; letter-spacing:.04em;">{{ $label }}</p>
                     </div>
                 </div>
                 @endforeach
