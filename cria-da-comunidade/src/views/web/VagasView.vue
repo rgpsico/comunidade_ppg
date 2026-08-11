@@ -62,6 +62,16 @@
       </span>
     </div>
 
+    <!-- Banner banco de talentos -->
+    <div class="talent-banner" @click="auth.isAuthenticated ? ui.goTo('curriculos') : ui.goTo('login')">
+      <div class="tb-icon">📄</div>
+      <div class="tb-body">
+        <div class="tb-title">Cadastre seu currículo e seja encontrado automaticamente</div>
+        <div class="tb-sub">Quando uma nova vaga for cadastrada, seu contato é enviado direto para o recrutador — de graça.</div>
+      </div>
+      <div class="tb-cta">{{ auth.isAuthenticated ? 'Cadastrar currículo →' : 'Entrar grátis →' }}</div>
+    </div>
+
     <!-- Grid de vagas -->
     <div class="vagas-grid">
       <VagaCard
@@ -78,10 +88,12 @@
 import { computed } from 'vue'
 import { useUiStore } from '../../stores/ui'
 import { useDataStore } from '../../stores/data'
+import { useAuthStore } from '../../stores/auth'
 import VagaCard from '../../components/ui/VagaCard.vue'
 
 const ui = useUiStore()
 const data = useDataStore()
+const auth = useAuthStore()
 
 const tabs = [
   { label: 'Todas', count: '312' },
@@ -179,6 +191,36 @@ function clearFilters() {
   width: 7px; height: 7px;
   background: var(--orange); border-radius: 50%;
   animation: pulse-dot 1.6s ease-out infinite; color: var(--orange);
+}
+
+/* Banner banco de talentos */
+.talent-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(255,94,26,0.10), rgba(255,210,63,0.06));
+  border: 1px solid rgba(255,94,26,0.25);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.talent-banner:hover { border-color: var(--orange); background: rgba(255,94,26,0.14); }
+.tb-icon { font-size: 28px; flex-shrink: 0; }
+.tb-body { flex: 1; min-width: 0; }
+.tb-title { font-size: 14px; font-weight: 700; color: var(--cream); margin-bottom: 3px; }
+.tb-sub { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.tb-cta {
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .talent-banner { flex-wrap: wrap; gap: 10px; }
+  .tb-cta { width: 100%; text-align: right; }
 }
 
 .vagas-grid {

@@ -150,6 +150,66 @@
           </template>
         </div>
 
+        <!-- Banco de Talentos -->
+        <div class="aside-card talent-card">
+          <div class="talent-header">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <h4 class="aside-title" style="margin:0">Banco de Talentos</h4>
+          </div>
+
+          <!-- Não autenticado -->
+          <div v-if="!auth.isAuthenticated" class="talent-body">
+            <p class="talent-text">Cadastre seu currículo e seja encontrado automaticamente pelas próximas vagas da comunidade!</p>
+            <button class="btn-talent" @click="ui.goTo('login')">Entrar e cadastrar →</button>
+          </div>
+
+          <!-- Carregando -->
+          <div v-else-if="loadingCurr" class="talent-body talent-loading">
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+            <span>Verificando seu perfil...</span>
+          </div>
+
+          <!-- Já tem currículo -->
+          <div v-else-if="data.meuCurriculo" class="talent-body talent-ok">
+            <div class="talent-ok-badge">✅ Você está no banco de talentos</div>
+            <p class="talent-text">Seu perfil será enviado automaticamente para recrutadores quando novas vagas compatíveis forem cadastradas.</p>
+            <button class="btn-talent-ghost" @click="ui.goTo('curriculos')">Ver meu currículo →</button>
+          </div>
+
+          <!-- Sem currículo — mini form -->
+          <div v-else class="talent-body">
+            <p class="talent-text">Cadastre seus dados e seja encontrado automaticamente pelas próximas vagas!</p>
+            <div class="tf-field">
+              <label>Nome completo</label>
+              <input v-model="currForm.nome" type="text" class="tf-input" placeholder="Seu nome" />
+            </div>
+            <div class="tf-field">
+              <label>WhatsApp</label>
+              <input v-model="currForm.telefone" type="tel" class="tf-input" placeholder="(21) 99999-0000" />
+            </div>
+            <div class="tf-field">
+              <label>Área de atuação</label>
+              <select v-model="currForm.area_atuacao" class="tf-input">
+                <option value="">Selecione...</option>
+                <option v-for="a in currAreas" :key="a" :value="a">{{ a }}</option>
+              </select>
+            </div>
+            <div class="tf-field">
+              <label>Disponibilidade</label>
+              <div class="tf-radios">
+                <label class="tf-radio"><input type="radio" v-model="currForm.disponibilidade" value="imediata" /> Imediata</label>
+                <label class="tf-radio"><input type="radio" v-model="currForm.disponibilidade" value="30 dias" /> 30 dias</label>
+                <label class="tf-radio"><input type="radio" v-model="currForm.disponibilidade" value="60 dias" /> 60 dias</label>
+              </div>
+            </div>
+            <button class="btn-talent" :disabled="!currFormValido || salvandoCurr" @click="salvarCurriculoRapido">
+              <svg v-if="salvandoCurr" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              {{ salvandoCurr ? 'Salvando...' : 'Entrar no banco de talentos →' }}
+            </button>
+            <p v-if="erroCurr" class="curr-error">{{ erroCurr }}</p>
+          </div>
+        </div>
+
         <div class="aside-card">
           <h4 class="aside-title">Detalhes</h4>
           <div class="detail-rows">
@@ -185,6 +245,67 @@ const applyError = ref('')
 const showShare = ref(false)
 const copied = ref(false)
 const shareWrap = ref<HTMLElement | null>(null)
+
+// Banco de Talentos
+const loadingCurr = ref(true)
+const salvandoCurr = ref(false)
+const erroCurr = ref('')
+const currForm = ref({
+  nome: '',
+  telefone: '',
+  area_atuacao: '',
+  disponibilidade: 'imediata',
+})
+
+const currAreas = [
+  'Limpeza e Doméstica', 'Construção e Reforma', 'Beleza e Estética', 'Gastronomia',
+  'Saúde e Bem-estar', 'Costura e Moda', 'Educação', 'Tecnologia',
+  'Transporte e Entregas', 'Eventos', 'Comércio', 'Arte e Artesanato',
+  'Administração', 'Hotelaria', 'Atendente', 'Trabalho na Praia', 'Outro',
+]
+
+const currFormValido = computed(() => currForm.value.nome.trim() && currForm.value.area_atuacao)
+
+const areaKeywords: [string, string[]][] = [
+  ['Limpeza e Doméstica', ['limp', 'domésti', 'faxin', 'passadei', 'camarei', 'lavanderi']],
+  ['Construção e Reforma', ['constru', 'reform', 'pintor', 'pedreir', 'eletric', 'encanad', 'carpint']],
+  ['Beleza e Estética', ['beleza', 'estétic', 'cabelei', 'manicur', 'maquiag', 'depila', 'sobrancelh']],
+  ['Gastronomia', ['cozinhei', 'gastr', 'garçom', 'confeit', 'salgad', 'marmit', 'barista']],
+  ['Saúde e Bem-estar', ['saúde', 'enferma', 'cuidador', 'fisioter', 'personal']],
+  ['Transporte e Entregas', ['motot', 'motorist', 'entregad', 'mudança', 'carreto']],
+  ['Eventos', ['event', 'fotograf', 'decoraç', 'sonori', ' dj ']],
+  ['Comércio', ['vendedor', 'caixa', 'estoquist', 'promotor', 'reposiç']],
+  ['Hotelaria', ['hotel', 'pousad', 'hosped', 'recepcion']],
+  ['Atendente', ['atendente', 'atendim', 'suporte']],
+  ['Trabalho na Praia', ['praia', 'quiosq', 'surf', 'ambulante']],
+]
+
+function detectArea(title: string): string {
+  const t = title.toLowerCase()
+  for (const [area, kws] of areaKeywords) {
+    if (kws.some(k => t.includes(k))) return area
+  }
+  return ''
+}
+
+async function salvarCurriculoRapido() {
+  salvandoCurr.value = true
+  erroCurr.value = ''
+  try {
+    await data.salvarCurriculo({
+      nome: currForm.value.nome,
+      email: auth.user?.email ?? '',
+      telefone: currForm.value.telefone || undefined,
+      area_atuacao: currForm.value.area_atuacao,
+      habilidades: [],
+      disponibilidade: currForm.value.disponibilidade,
+    })
+  } catch (e: unknown) {
+    erroCurr.value = (e as { message?: string })?.message ?? 'Erro ao salvar. Tente novamente.'
+  } finally {
+    salvandoCurr.value = false
+  }
+}
 
 async function doCandidatar() {
   if (!vaga.value || applied.value || sending.value || !vaga.value.emailContato) return
@@ -262,7 +383,15 @@ function onDocClick(e: MouseEvent) {
     showShare.value = false
   }
 }
-onMounted(() => document.addEventListener('click', onDocClick))
+onMounted(async () => {
+  document.addEventListener('click', onDocClick)
+  if (auth.isAuthenticated) {
+    await data.fetchMeuCurriculo()
+    currForm.value.nome = auth.user?.name ?? ''
+    if (vaga.value) currForm.value.area_atuacao = detectArea(vaga.value.title)
+  }
+  loadingCurr.value = false
+})
 onUnmounted(() => document.removeEventListener('click', onDocClick))
 </script>
 
@@ -413,6 +542,66 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 .drow { display: flex; justify-content: space-between; font-size: 13px; }
 .drow-k { color: var(--muted); }
 .green-text { color: var(--green); font-weight: 600; }
+
+/* ── Banco de Talentos card ── */
+.talent-card {
+  background: linear-gradient(135deg, rgba(255,94,26,0.06), rgba(255,210,63,0.04));
+  border-color: rgba(255,94,26,0.22);
+}
+.talent-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px; color: var(--orange);
+}
+.talent-body { display: flex; flex-direction: column; gap: 10px; }
+.talent-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+.talent-ok-badge {
+  font-size: 13px; font-weight: 700; color: var(--green);
+  background: rgba(43,217,107,0.10);
+  border: 1px solid rgba(43,217,107,0.2);
+  border-radius: 8px; padding: 8px 12px;
+}
+
+.talent-loading { flex-direction: row; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.loading-dots { display: flex; gap: 4px; }
+.loading-dots span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--orange); opacity: 0.4;
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-pulse { 0%,80%,100% { opacity: 0.2 } 40% { opacity: 1 } }
+
+/* Mini form */
+.tf-field { display: flex; flex-direction: column; gap: 4px; }
+.tf-field label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.tf-input {
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; color: var(--cream); outline: none;
+  font-family: inherit; width: 100%; transition: border-color 0.15s;
+}
+.tf-input:focus { border-color: var(--orange); }
+.tf-radios { display: flex; gap: 12px; flex-wrap: wrap; }
+.tf-radio { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--cream); cursor: pointer; }
+.tf-radio input { accent-color: var(--orange); }
+
+.btn-talent {
+  width: 100%; padding: 11px; border-radius: 10px;
+  background: var(--orange); color: white;
+  font-weight: 700; font-size: 13px;
+  box-shadow: var(--shadow-cta-orange);
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: opacity 0.15s;
+}
+.btn-talent:hover:not(:disabled) { opacity: 0.9; }
+.btn-talent:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-talent-ghost {
+  font-size: 12px; font-weight: 600; color: var(--orange); cursor: pointer;
+  text-align: left; padding: 0;
+}
+.btn-talent-ghost:hover { text-decoration: underline; }
+.curr-error { font-size: 12px; color: #ff6b6b; }
 
 @media (max-width: 768px) {
   .vaga-detail { padding: 16px; }
