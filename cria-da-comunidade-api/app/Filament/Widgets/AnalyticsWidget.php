@@ -15,17 +15,20 @@ class AnalyticsWidget extends Widget
     protected int | string | array $columnSpan = 'full';
 
     private static array $screenLabels = [
-        'inicio'      => 'Início',
+        'inicio'        => 'Início',
         'profissionais' => 'Profissionais',
-        'eventos'     => 'Eventos',
-        'projetos'    => 'Projetos sociais',
-        'vagas'       => 'Vagas',
-        'proDetail'   => 'Perfil de profissional',
-        'eventDetail' => 'Detalhe de evento',
-        'projDetail'  => 'Detalhe de projeto',
-        'vagaDetail'  => 'Detalhe de vaga',
-        'login'       => 'Login',
-        'perfil'      => 'Perfil do usuário',
+        'eventos'       => 'Eventos',
+        'projetos'      => 'Projetos sociais',
+        'vagas'         => 'Vagas',
+        'lojas'         => 'Lojas',
+        'artigos'       => 'Artigos',
+        'curriculos'    => 'Currículos',
+        'proDetail'     => 'Perfil de profissional',
+        'eventDetail'   => 'Detalhe de evento',
+        'projDetail'    => 'Detalhe de projeto',
+        'vagaDetail'    => 'Detalhe de vaga',
+        'login'         => 'Login',
+        'perfil'        => 'Perfil do usuário',
     ];
 
     public function getViewData(): array
@@ -65,7 +68,7 @@ class AnalyticsWidget extends Widget
             ->limit(8)
             ->get()
             ->map(function ($row) {
-                $row->screen_label = self::$screenLabels[$row->screen] ?? $row->screen;
+                $row->screen_label = self::$screenLabels[$row->screen] ?? ucfirst($row->screen);
                 return $row;
             });
 
