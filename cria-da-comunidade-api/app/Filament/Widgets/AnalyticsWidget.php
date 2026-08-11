@@ -10,6 +10,7 @@ class AnalyticsWidget extends Widget
     protected string $view = 'filament.widgets.analytics-widget';
 
     protected static ?int $sort = 2;
+    protected static bool $isLazy = false;
 
     protected int | string | array $columnSpan = 'full';
 
