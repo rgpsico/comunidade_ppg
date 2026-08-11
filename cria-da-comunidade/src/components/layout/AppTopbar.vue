@@ -9,8 +9,8 @@
           <circle cx="12" cy="10" r="3"/>
         </svg>
         <div class="loc-text">
-          <div class="loc-eyebrow">Sua quebrada</div>
-          <div class="loc-name">{{ data.activeComunidade?.nome ?? 'Todas as quebradas' }}</div>
+          <div class="loc-eyebrow">Comunidade</div>
+          <div class="loc-name">{{ data.activeComunidade?.nome ?? 'Todas as comunidades' }}</div>
         </div>
         <svg class="loc-chevron" :class="{ rotated: dropdownOpen }" width="12" height="12" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24">
           <polyline points="6 9 12 15 18 9"/>
@@ -20,7 +20,7 @@
       <!-- Dropdown -->
       <Transition name="dropdown">
         <div v-if="dropdownOpen" class="community-dropdown">
-          <div class="dropdown-header">Escolha a quebrada</div>
+          <div class="dropdown-header">Escolha a comunidade</div>
 
           <!-- All communities option -->
           <button
@@ -30,7 +30,7 @@
           >
             <div class="option-av all-av">🗺</div>
             <div class="option-info">
-              <div class="option-name">Todas as quebradas</div>
+              <div class="option-name">Todas as comunidades</div>
               <div class="option-sub">Ver tudo, sem filtro</div>
             </div>
             <div v-if="data.activeComunidadeId === null" class="option-check">✓</div>
