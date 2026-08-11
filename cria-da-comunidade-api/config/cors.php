@@ -11,6 +11,8 @@ return [
         'http://192.168.1.66:5173',
         'https://ppg.comunidadeppg.com.br',
         'http://ppg.comunidadeppg.com.br',
+        'https://portal.comunidadeppg.com.br',
+        'http://portal.comunidadeppg.com.br',
     ],
 
     'allowed_origins_patterns' => [],
