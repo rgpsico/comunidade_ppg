@@ -15,7 +15,7 @@
         <div class="status-title">Currículo cadastrado</div>
         <div class="status-sub">Você está no banco de talentos · atualizado {{ formatDate(data.meuCurriculo.created_at) }}</div>
       </div>
-      <button class="ghost-btn small" @click="editando = true">Editar</button>
+      <button class="ghost-btn small" @click="startEdit">Editar</button>
     </div>
 
     <!-- Tabs: formulário ou PDF -->
@@ -268,8 +268,8 @@ const form = ref({
 })
 
 const formValido = computed(() =>
-  form.value.nome.trim() &&
-  form.value.email.trim() &&
+  (form.value.nome ?? '').trim() &&
+  (form.value.email ?? '').trim() &&
   form.value.area_atuacao
 )
 
@@ -312,14 +312,20 @@ function cancelarEdicao() {
 
 function preencherForm(c: typeof data.meuCurriculo) {
   if (!c) return
-  form.value.nome = c.nome
-  form.value.email = c.email
+  form.value.nome = c.nome ?? ''
+  form.value.email = c.email ?? ''
   form.value.telefone = c.telefone ?? ''
-  form.value.area_atuacao = c.area_atuacao
+  form.value.area_atuacao = c.area_atuacao ?? ''
   form.value.habilidades = [...(c.habilidades ?? [])]
   form.value.experiencia = c.experiencia ?? ''
   form.value.cidade = c.cidade ?? ''
-  form.value.disponibilidade = c.disponibilidade
+  form.value.disponibilidade = c.disponibilidade ?? 'imediata'
+}
+
+function startEdit() {
+  if (data.meuCurriculo) preencherForm(data.meuCurriculo)
+  editando.value = true
+  modo.value = 'form'
 }
 
 async function salvar() {
