@@ -72,26 +72,32 @@
             </div>
           </div>
           <div class="form-field full">
-            <label>Habilidades</label>
-            <div class="tags-input-area" @click="focarInput">
-              <span
-                v-for="(tag, i) in form.habilidades"
-                :key="i"
-                class="skill-tag"
+            <label>
+              Habilidades
+              <span class="habilidades-counter">{{ form.habilidades.length }}/4 selecionadas</span>
+            </label>
+            <div v-if="!form.area_atuacao" class="habilidades-hint">
+              Selecione sua área acima para ver as habilidades disponíveis.
+            </div>
+            <div v-else class="checkbox-grid">
+              <label
+                v-for="h in habilidadesDisponiveis"
+                :key="h"
+                class="checkbox-opt"
+                :class="{
+                  checked: form.habilidades.includes(h),
+                  disabled: !form.habilidades.includes(h) && form.habilidades.length >= 4
+                }"
               >
-                {{ tag }}
-                <button @click.prevent="removerHabilidade(i)" class="tag-remove">×</button>
-              </span>
-              <input
-                ref="tagsInput"
-                v-model="novaHabilidade"
-                @keydown.enter.prevent="adicionarHabilidade"
-                @keydown.comma.prevent="adicionarHabilidade"
-                @keydown.backspace="backspaceHabilidade"
-                type="text"
-                placeholder="Ex: Costura — pressione Enter para adicionar"
-                class="tags-input"
-              />
+                <input
+                  type="checkbox"
+                  :value="h"
+                  :checked="form.habilidades.includes(h)"
+                  :disabled="!form.habilidades.includes(h) && form.habilidades.length >= 4"
+                  @change="toggleHabilidade(h)"
+                />
+                <span>{{ h }}</span>
+              </label>
             </div>
           </div>
           <div class="form-field full">
@@ -240,8 +246,35 @@ const enviandoPdf = ref(false)
 const erroPdf = ref('')
 const sucessoPdf = ref('')
 const pdfFile = ref<File | null>(null)
-const novaHabilidade = ref('')
-const tagsInput = ref<HTMLInputElement | null>(null)
+const habilidadesPorArea: Record<string, string[]> = {
+  'Limpeza e Doméstica': ['Faxina', 'Passadeira', 'Cozinheira', 'Babá', 'Cuidador de idosos', 'Jardinagem', 'Lavanderia'],
+  'Construção e Reforma': ['Pedreiro', 'Pintor', 'Eletricista', 'Encanador', 'Carpinteiro', 'Soldador', 'Azulejista'],
+  'Beleza e Estética': ['Cabeleireiro', 'Manicure', 'Maquiagem', 'Depilação', 'Massagem', 'Sobrancelha', 'Unhas em gel'],
+  'Gastronomia': ['Cozinheiro', 'Confeiteiro', 'Auxiliar de cozinha', 'Garçom', 'Barista', 'Salgadeiro', 'Marmita'],
+  'Saúde e Bem-estar': ['Cuidador de idosos', 'Téc. de enfermagem', 'Fisioterapia', 'Nutrição', 'Acompanhante', 'Personal trainer'],
+  'Costura e Moda': ['Costureira', 'Modelista', 'Bordado', 'Tricô e Crochê', 'Ajuste de roupas', 'Uniformes'],
+  'Educação': ['Professor particular', 'Reforço escolar', 'Educação infantil', 'Curso profissionalizante', 'Pedagogia'],
+  'Tecnologia': ['Programador', 'Suporte de TI', 'Design gráfico', 'Redes sociais', 'Montagem de PC', 'Aplicativos'],
+  'Transporte e Entregas': ['Mototaxista', 'Motorista', 'Entregador', 'Mudança', 'Carreto', 'App de entrega'],
+  'Eventos': ['DJ', 'Decoração', 'Fotografia', 'Segurança', 'Garçom', 'Buffet', 'Sonorização'],
+  'Comércio': ['Vendedor', 'Caixa', 'Estoquista', 'Reposição', 'Promotor de vendas', 'Telemarketing'],
+  'Arte e Artesanato': ['Pintura artística', 'Artesanato', 'Escultura', 'Customização', 'Marcenaria'],
+  'Administração': ['Assistente adm.', 'Financeiro', 'RH', 'Secretaria', 'Recepcionista', 'Digitação'],
+  'Outro': ['Serviços gerais', 'Manutenção', 'Porteiro', 'Zeladoria', 'Mensageiro', 'Auxiliar geral'],
+}
+
+const habilidadesDisponiveis = computed(() =>
+  habilidadesPorArea[form.value.area_atuacao] ?? habilidadesPorArea['Outro']
+)
+
+function toggleHabilidade(h: string) {
+  const idx = form.value.habilidades.indexOf(h)
+  if (idx >= 0) {
+    form.value.habilidades.splice(idx, 1)
+  } else if (form.value.habilidades.length < 4) {
+    form.value.habilidades.push(h)
+  }
+}
 
 const areas = [
   'Beleza e Estética', 'Construção e Reforma', 'Costura e Moda',
@@ -280,28 +313,6 @@ function iniciais(nome: string | null | undefined) {
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-}
-
-function adicionarHabilidade() {
-  const tag = novaHabilidade.value.trim().replace(/,$/, '')
-  if (tag && !form.value.habilidades.includes(tag)) {
-    form.value.habilidades.push(tag)
-  }
-  novaHabilidade.value = ''
-}
-
-function removerHabilidade(i: number) {
-  form.value.habilidades.splice(i, 1)
-}
-
-function backspaceHabilidade() {
-  if (!novaHabilidade.value && form.value.habilidades.length) {
-    form.value.habilidades.pop()
-  }
-}
-
-function focarInput() {
-  tagsInput.value?.focus()
 }
 
 function cancelarEdicao() {
@@ -488,52 +499,60 @@ onMounted(async () => {
 textarea.input { resize: vertical; }
 select.input { cursor: pointer; }
 
-/* Tags input */
-.tags-input-area {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 8px 10px;
-  cursor: text;
-  transition: border-color 0.15s;
-  min-height: 42px;
-  align-items: center;
+/* Habilidades checkboxes */
+.habilidades-counter {
+  margin-left: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--orange);
+  letter-spacing: 0.04em;
 }
-.tags-input-area:focus-within { border-color: var(--orange); }
-.tags-input {
-  background: transparent;
-  border: none;
-  outline: none;
+.habilidades-hint {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 10px 0;
+}
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+.checkbox-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
   font-size: 13px;
   color: var(--cream);
-  flex: 1;
-  min-width: 120px;
-  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
 }
-.tags-input::placeholder { color: var(--muted); }
-.skill-tag {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.checkbox-opt:hover:not(.disabled) {
+  border-color: var(--orange);
+  background: rgba(255,94,26,0.06);
+}
+.checkbox-opt.checked {
+  border-color: var(--orange);
   background: rgba(255,94,26,0.12);
   color: var(--orange);
-  font-size: 12px;
   font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 20px;
 }
-.tag-remove {
-  font-size: 14px;
-  line-height: 1;
-  color: var(--orange);
-  opacity: 0.6;
+.checkbox-opt.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.checkbox-opt input[type="checkbox"] {
+  accent-color: var(--orange);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
   cursor: pointer;
-  padding: 0;
 }
-.tag-remove:hover { opacity: 1; }
+.checkbox-opt.disabled input[type="checkbox"] { cursor: not-allowed; }
 
 /* Radio group */
 .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
