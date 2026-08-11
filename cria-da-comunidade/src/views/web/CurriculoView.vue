@@ -99,6 +99,21 @@
                 <span>{{ h }}</span>
               </label>
             </div>
+            <div v-if="form.area_atuacao" class="outra-habilidade-row">
+              <input
+                v-model="outraHabilidade"
+                type="text"
+                class="input outra-input"
+                placeholder="Outra habilidade... (pressione Enter)"
+                :disabled="form.habilidades.length >= 4"
+                @keydown.enter.prevent="adicionarOutra"
+              />
+              <button
+                class="outra-btn"
+                :disabled="!outraHabilidade.trim() || form.habilidades.length >= 4"
+                @click="adicionarOutra"
+              >+ Adicionar</button>
+            </div>
           </div>
           <div class="form-field full">
             <label>Experiência profissional</label>
@@ -246,6 +261,8 @@ const enviandoPdf = ref(false)
 const erroPdf = ref('')
 const sucessoPdf = ref('')
 const pdfFile = ref<File | null>(null)
+const outraHabilidade = ref('')
+
 const habilidadesPorArea: Record<string, string[]> = {
   'Limpeza e Doméstica': ['Faxina', 'Passadeira', 'Cozinheira', 'Babá', 'Cuidador de idosos', 'Jardinagem', 'Lavanderia'],
   'Construção e Reforma': ['Pedreiro', 'Pintor', 'Eletricista', 'Encanador', 'Carpinteiro', 'Soldador', 'Azulejista'],
@@ -276,6 +293,14 @@ function toggleHabilidade(h: string) {
     form.value.habilidades.splice(idx, 1)
   } else if (form.value.habilidades.length < 4) {
     form.value.habilidades.push(h)
+  }
+}
+
+function adicionarOutra() {
+  const h = outraHabilidade.value.trim()
+  if (h && !form.value.habilidades.includes(h) && form.value.habilidades.length < 4) {
+    form.value.habilidades.push(h)
+    outraHabilidade.value = ''
   }
 }
 
@@ -557,6 +582,30 @@ select.input { cursor: pointer; }
   cursor: pointer;
 }
 .checkbox-opt.disabled input[type="checkbox"] { cursor: not-allowed; }
+
+/* Campo "outra habilidade" */
+.outra-habilidade-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  align-items: center;
+}
+.outra-input { flex: 1; }
+.outra-btn {
+  white-space: nowrap;
+  padding: 9px 14px;
+  border-radius: 9px;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.outra-btn:hover:not(:disabled) { background: var(--orange); color: white; }
+.outra-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* Radio group */
 .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
