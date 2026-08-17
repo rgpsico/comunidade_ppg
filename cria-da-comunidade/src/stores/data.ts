@@ -86,6 +86,7 @@ export interface ApiFeedPost {
 
 export interface ApiInformativo {
   id: number
+  slug: string
   titulo: string
   fonte: string | null
   data_ocorrencia: string | null
@@ -283,6 +284,7 @@ function mapArtigo(a: ApiArtigo): Artigo {
 function mapInformativo(i: ApiInformativo): Informativo {
   return {
     id: String(i.id),
+    slug: i.slug ?? String(i.id),
     titulo: i.titulo,
     fonte: i.fonte ?? null,
     dataOcorrencia: i.data_ocorrencia ?? null,

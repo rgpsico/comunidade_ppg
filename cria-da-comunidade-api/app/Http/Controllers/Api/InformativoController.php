@@ -21,4 +21,12 @@ class InformativoController extends Controller
         $perPage = min((int) ($request->per_page ?? 30), 100);
         return response()->json($query->paginate($perPage));
     }
+
+    public function show(Informativo $informativo): JsonResponse
+    {
+        if (!$informativo->publicado) {
+            abort(404);
+        }
+        return response()->json($informativo->load('comunidade:id,nome,slug'));
+    }
 }

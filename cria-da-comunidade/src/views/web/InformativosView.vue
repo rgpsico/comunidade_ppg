@@ -17,6 +17,8 @@
         :key="inf.id"
         class="info-card"
         :class="{ urgente: inf.urgente }"
+        @click="ui.openInformativo(inf)"
+        style="cursor:pointer"
       >
         <div class="info-top">
           <div class="info-badges">
@@ -35,8 +37,10 @@
 
 <script setup lang="ts">
 import { useDataStore } from '../../stores/data'
+import { useUiStore } from '../../stores/ui'
 
 const data = useDataStore()
+const ui   = useUiStore()
 
 function formatData(iso: string | null): string {
   if (!iso) return ''

@@ -180,6 +180,7 @@ export interface ComentariosState {
 
 export interface Informativo {
   id: string
+  slug: string
   titulo: string
   fonte: string | null
   dataOcorrencia: string | null
@@ -218,7 +219,7 @@ export interface Curriculo {
 
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos' | 'informativos'
-  | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail'
+  | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail' | 'informativoDetail'
   | 'login' | 'perfil' | 'curriculos'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'

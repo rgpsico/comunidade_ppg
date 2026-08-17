@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja, Artigo } from '../types'
+import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja, Artigo, Informativo } from '../types'
 import { trackPageView, trackClick } from '../services/analytics'
 import { useDataStore } from './data'
 
@@ -14,6 +14,7 @@ export const useUiStore = defineStore('ui', () => {
   const selectedVaga = ref<Vaga | null>(null)
   const selectedLoja = ref<Loja | null>(null)
   const selectedArtigo = ref<Artigo | null>(null)
+  const selectedInformativo = ref<Informativo | null>(null)
 
   const prosFilters = ref({
     catActive: 'Todos',
@@ -119,10 +120,17 @@ export const useUiStore = defineStore('ui', () => {
     history.pushState({}, '', prefixedPath(`/artigos/${artigo.slug}`))
   }
 
+  function openInformativo(inf: Informativo) {
+    selectedInformativo.value = inf
+    activeView.value = 'informativoDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', prefixedPath(`/informativos/${inf.slug}`))
+  }
+
   return {
     activeView, mobileScreen,
-    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedArtigo,
+    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedArtigo, selectedInformativo,
     prosFilters, eventsFilters, projectsFilters, vagasFilters, lojasFilters,
-    goTo, openPro, openEvent, openProj, openVaga, openLoja, openArtigo,
+    goTo, openPro, openEvent, openProj, openVaga, openLoja, openArtigo, openInformativo,
   }
 })

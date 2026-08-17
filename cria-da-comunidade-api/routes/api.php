@@ -54,7 +54,8 @@ Route::get('artigos/{artigo}',     [ArtigoController::class, 'show']);
 
 Route::get('feed-posts',           [FeedPostController::class, 'index']);
 
-Route::get('informativos',         [InformativoController::class, 'index']);
+Route::get('informativos',              [InformativoController::class, 'index']);
+Route::get('informativos/{informativo}', [InformativoController::class, 'show']);
 
 // Rotas protegidas por Sanctum
 Route::middleware('auth:sanctum')->group(function () {
