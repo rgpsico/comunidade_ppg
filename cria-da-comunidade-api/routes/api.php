@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\ArtigoController;
+use App\Http\Controllers\Api\InformativoController;
 use App\Http\Controllers\Api\FeedPostController;
 use App\Http\Controllers\Api\AvaliacaoController;
 use App\Http\Controllers\Api\ComentarioController;
@@ -52,6 +53,8 @@ Route::get('artigos',              [ArtigoController::class, 'index']);
 Route::get('artigos/{artigo}',     [ArtigoController::class, 'show']);
 
 Route::get('feed-posts',           [FeedPostController::class, 'index']);
+
+Route::get('informativos',         [InformativoController::class, 'index']);
 
 // Rotas protegidas por Sanctum
 Route::middleware('auth:sanctum')->group(function () {

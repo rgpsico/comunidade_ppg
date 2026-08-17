@@ -33,6 +33,7 @@ import LojasView from './views/web/LojasView.vue'
 import LojaDetail from './views/web/details/LojaDetail.vue'
 import ArtigosView from './views/web/ArtigosView.vue'
 import ArtigoDetail from './views/web/details/ArtigoDetail.vue'
+import InformativosView from './views/web/InformativosView.vue'
 import LoginView from './views/web/LoginView.vue'
 import ProfileView from './views/web/ProfileView.vue'
 import CurriculoView from './views/web/CurriculoView.vue'
@@ -56,6 +57,7 @@ const views = {
   lojaDetail: LojaDetail,
   artigos: ArtigosView,
   artigoDetail: ArtigoDetail,
+  informativos: InformativosView,
   login: LoginView,
   perfil: ProfileView,
   curriculos: CurriculoView,

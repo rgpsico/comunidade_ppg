@@ -178,6 +178,16 @@ export interface ComentariosState {
   total: number
 }
 
+export interface Informativo {
+  id: string
+  titulo: string
+  fonte: string | null
+  dataOcorrencia: string | null
+  corpo: string
+  urgente: boolean
+  createdAt: string
+}
+
 export interface Artigo {
   id: string
   slug: string
@@ -207,7 +217,7 @@ export interface Curriculo {
 }
 
 export type WebView =
-  | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos'
+  | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos' | 'informativos'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail'
   | 'login' | 'perfil' | 'curriculos'
 

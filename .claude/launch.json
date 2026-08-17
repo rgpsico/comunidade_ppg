@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gym-tracker-web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "C:\\laragon\\www\\treino_cloude\\comunidadeppg\\start-gym-tracker.bat"],
+      "port": 5173,
+      "url": "http://localhost:5173",
+      "cwd": "."
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '../services/api'
 import type { Paginated } from '../services/api'
-import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo } from '../types'
+import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo } from '../types'
 
 // ── API response shapes ──────────────────────────────────────────────────────
 
@@ -82,6 +82,16 @@ export interface ApiFeedPost {
   id: number; autor: string; legenda: string | null
   imagem_url: string | null; cor1: string; cor2: string
   tamanho: 'normal' | 'tall' | 'wide'; created_at: string
+}
+
+export interface ApiInformativo {
+  id: number
+  titulo: string
+  fonte: string | null
+  data_ocorrencia: string | null
+  corpo: string
+  urgente: boolean
+  created_at: string
 }
 
 export interface ApiCurriculo {
@@ -270,6 +280,18 @@ function mapArtigo(a: ApiArtigo): Artigo {
   }
 }
 
+function mapInformativo(i: ApiInformativo): Informativo {
+  return {
+    id: String(i.id),
+    titulo: i.titulo,
+    fonte: i.fonte ?? null,
+    dataOcorrencia: i.data_ocorrencia ?? null,
+    corpo: i.corpo,
+    urgente: i.urgente,
+    createdAt: i.created_at,
+  }
+}
+
 function mapLoja(l: ApiLoja): Loja {
   return {
     id: String(l.id),
@@ -300,6 +322,7 @@ export const useDataStore = defineStore('data', () => {
   const vagas = ref<Vaga[]>([])
   const lojas = ref<Loja[]>([])
   const artigos = ref<Artigo[]>([])
+  const informativos = ref<Informativo[]>([])
   const feedPosts = ref<ApiFeedPost[]>([])
   const meuCurriculo = ref<ApiCurriculo | null>(null)
   const loading = ref(false)
@@ -332,13 +355,14 @@ export const useDataStore = defineStore('data', () => {
     try {
       const cid = activeComunidadeId.value
       const cParam = cid ? `&comunidade_id=${cid}` : ''
-      const [pRes, eRes, prRes, vRes, lRes, aRes, fRes] = await Promise.all([
+      const [pRes, eRes, prRes, vRes, lRes, aRes, iRes, fRes] = await Promise.all([
         api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
         api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
         api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
         api.get<Paginated<ApiVaga>>(`/vagas?per_page=50${cParam}`),
         api.get<Paginated<ApiLoja>>(`/lojas?per_page=60${cParam}`),
         api.get<Paginated<ApiArtigo>>(`/artigos?per_page=50${cParam}`),
+        api.get<Paginated<ApiInformativo>>(`/informativos?per_page=50${cParam}`),
         api.get<Paginated<ApiFeedPost>>(`/feed-posts?per_page=8${cParam}`),
       ])
       pros.value = pRes.data.map(mapPro)
@@ -347,6 +371,7 @@ export const useDataStore = defineStore('data', () => {
       vagas.value = vRes.data.map(mapVaga)
       lojas.value = lRes.data.map(mapLoja)
       artigos.value = aRes.data.map(mapArtigo)
+      informativos.value = iRes.data.map(mapInformativo)
       feedPosts.value = fRes.data
     } catch (e: unknown) {
       error.value = 'Não foi possível carregar os dados. Verifique a conexão com a API.'
@@ -420,7 +445,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
-    pros, events, projects, vagas, lojas, artigos, feedPosts, meuCurriculo, loading, error,
+    pros, events, projects, vagas, lojas, artigos, informativos, feedPosts, meuCurriculo, loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,
