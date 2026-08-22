@@ -31,6 +31,7 @@ import ProjDetail from './views/web/details/ProjDetail.vue'
 import VagaDetail from './views/web/details/VagaDetail.vue'
 import LojasView from './views/web/LojasView.vue'
 import LojaDetail from './views/web/details/LojaDetail.vue'
+import ProdutoDetail from './views/web/details/ProdutoDetail.vue'
 import ArtigosView from './views/web/ArtigosView.vue'
 import ArtigoDetail from './views/web/details/ArtigoDetail.vue'
 import InformativosView from './views/web/InformativosView.vue'
@@ -56,6 +57,7 @@ const views = {
   vagaDetail: VagaDetail,
   lojas: LojasView,
   lojaDetail: LojaDetail,
+  produtoDetail: ProdutoDetail,
   artigos: ArtigosView,
   artigoDetail: ArtigoDetail,
   informativos: InformativosView,

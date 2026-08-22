@@ -125,7 +125,7 @@
                 :key="p.id"
                 class="prod-card-wrap"
               >
-                <div class="prod-card" @click="openedProduto = p">
+                <div class="prod-card" @click="ui.openProduto(p, loja!)">
                   <ProdutoCard :produto="p" :cor="loja.cor1" />
                 </div>
                 <button
@@ -156,7 +156,7 @@
               :key="p.id"
               class="prod-card-wrap"
             >
-              <div class="prod-card" @click="openedProduto = p">
+              <div class="prod-card" @click="ui.openProduto(p, loja!)">
                 <ProdutoCard :produto="p" :cor="loja.cor1" />
               </div>
               <button
@@ -219,53 +219,6 @@
       @saved="onSaved"
     />
 
-    <!-- Produto modal -->
-    <Transition name="modal">
-      <div v-if="openedProduto" class="prod-modal-overlay" @click.self="openedProduto = null">
-        <div class="prod-modal">
-          <button class="modal-close" @click="openedProduto = null">✕</button>
-
-          <!-- Imagens -->
-          <div v-if="openedProduto.imagens.length" class="pm-gallery">
-            <img
-              v-for="(img, i) in openedProduto.imagens"
-              :key="i"
-              :src="img"
-              :alt="openedProduto.nome"
-              class="pm-img"
-              :class="{ active: galleryIdx === i }"
-              @click="galleryIdx = i"
-            />
-          </div>
-          <div v-else class="pm-no-img" :style="{ background: `linear-gradient(135deg, ${loja.cor1}33, ${loja.cor2}33)` }">
-            <span style="font-size: 48px">📦</span>
-          </div>
-
-          <div class="pm-body">
-            <div v-if="openedProduto.categoria" class="pm-cat">{{ openedProduto.categoria }}</div>
-            <h2 class="pm-nome">{{ openedProduto.nome }}</h2>
-            <div class="pm-preco-row">
-              <span v-if="openedProduto.precoPromocional" class="pm-de">{{ fmtMoney(openedProduto.preco) }}</span>
-              <span class="pm-por" :style="{ color: loja.cor1 }">{{ fmtMoney(openedProduto.precoPromocional ?? openedProduto.preco) }}</span>
-              <span v-if="openedProduto.precoPromocional" class="pm-off">
-                -{{ Math.round((1 - openedProduto.precoPromocional / openedProduto.preco) * 100) }}%
-              </span>
-            </div>
-            <p v-if="openedProduto.descricao" class="pm-desc">{{ openedProduto.descricao }}</p>
-
-            <button
-              class="btn-pm-interesse"
-              :class="{ sent: openedProduto && interesseEnviado[openedProduto.id], loading: openedProduto && interesseLoading[openedProduto.id] }"
-              :style="{ background: loja.cor1 }"
-              :disabled="(openedProduto && interesseEnviado[openedProduto.id]) || (openedProduto && interesseLoading[openedProduto.id])"
-              @click="openedProduto && enviarInteresse(openedProduto)"
-            >
-              {{ openedProduto && interesseEnviado[openedProduto.id] ? '✓ Interesse enviado!' : openedProduto && interesseLoading[openedProduto.id] ? 'Enviando...' : 'Tenho interesse' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
   </div>
 
   <div v-else class="no-loja">
@@ -444,8 +397,6 @@ async function enviarInteresse(p: Produto) {
 const tabs = ['Produtos', 'Sobre']
 const activeTab = ref('Produtos')
 const prodCatActive = ref('Todos')
-const openedProduto = ref<Produto | null>(null)
-const galleryIdx = ref(0)
 
 const heroStyle = computed(() => {
   if (!loja.value) return {}
@@ -474,9 +425,6 @@ const prodsFiltrados = computed(() => {
   return prods.filter(p => p.categoria === prodCatActive.value)
 })
 
-function fmtMoney(val: number): string {
-  return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja, Artigo, Informativo } from '../types'
+import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo } from '../types'
 import { trackPageView, trackClick } from '../services/analytics'
 import { useDataStore } from './data'
 
@@ -13,6 +13,7 @@ export const useUiStore = defineStore('ui', () => {
   const selectedProj = ref<Project | null>(null)
   const selectedVaga = ref<Vaga | null>(null)
   const selectedLoja = ref<Loja | null>(null)
+  const selectedProduto = ref<Produto | null>(null)
   const selectedArtigo = ref<Artigo | null>(null)
   const selectedInformativo = ref<Informativo | null>(null)
 
@@ -113,6 +114,14 @@ export const useUiStore = defineStore('ui', () => {
     history.pushState({}, '', prefixedPath(`/lojas/${loja.id}-${toSlug(loja.nome)}`))
   }
 
+  function openProduto(produto: Produto, loja: Loja) {
+    selectedProduto.value = produto
+    selectedLoja.value = loja
+    activeView.value = 'produtoDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', prefixedPath(`/lojas/${loja.id}/produtos/${produto.id}`))
+  }
+
   function openArtigo(artigo: Artigo) {
     selectedArtigo.value = artigo
     activeView.value = 'artigoDetail'
@@ -129,8 +138,8 @@ export const useUiStore = defineStore('ui', () => {
 
   return {
     activeView, mobileScreen,
-    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedArtigo, selectedInformativo,
+    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedProduto, selectedArtigo, selectedInformativo,
     prosFilters, eventsFilters, projectsFilters, vagasFilters, lojasFilters,
-    goTo, openPro, openEvent, openProj, openVaga, openLoja, openArtigo, openInformativo,
+    goTo, openPro, openEvent, openProj, openVaga, openLoja, openProduto, openArtigo, openInformativo,
   }
 })
