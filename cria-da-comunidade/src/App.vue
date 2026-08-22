@@ -130,6 +130,25 @@ function resolveDeepLink() {
     const v = data.vagas.find(v => v.id === vagaPath[1])
     if (v) { ui.openVaga(v); return }
   }
+  // Produto detail: /lojas/:lojaId/produtos/:produtoId (com ou sem slug de comunidade)
+  const produtoPathBare    = path.match(/^\/lojas\/(\d+)\/produtos\/(\d+)/)
+  const produtoPathSlugged = path.match(/^\/[a-z0-9_-]+\/lojas\/(\d+)\/produtos\/(\d+)/)
+  const produtoMatch       = produtoPathBare ?? produtoPathSlugged
+  if (produtoMatch) {
+    const lojaId    = produtoPathBare ? produtoPathBare[1] : produtoPathSlugged![1]
+    const produtoId = produtoPathBare ? produtoPathBare[2] : produtoPathSlugged![2]
+    ;(async () => {
+      let loja = data.lojas.find(l => l.id === lojaId) ?? null
+      if (!loja) loja = await data.fetchLojaDetail(lojaId)
+      else if (!loja.produtos?.length) loja = await data.fetchLojaDetail(lojaId) ?? loja
+      if (!loja) return
+      const produto = loja.produtos?.find(p => p.id === produtoId)
+      if (produto) ui.openProduto(produto, loja)
+      else ui.openLoja(loja)
+    })()
+    return
+  }
+
   const lojaPath = path.match(/^\/lojas\/(\d+)/)
   if (lojaPath) {
     const l = data.lojas.find(l => l.id === lojaPath[1])
