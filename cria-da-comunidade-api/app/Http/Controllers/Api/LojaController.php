@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Loja;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class LojaController extends Controller
 {
@@ -92,5 +93,37 @@ class LojaController extends Controller
         $this->authorize('delete', $loja);
         $loja->delete();
         return response()->json(null, 204);
+    }
+
+    public function interesse(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'produto_nome'  => 'required|string|max:200',
+            'produto_preco' => 'required|string|max:50',
+            'loja_nome'     => 'required|string|max:200',
+            'loja_id'       => 'required|string',
+        ]);
+
+        $preco     = $data['produto_preco'];
+        $produto   = $data['produto_nome'];
+        $loja      = $data['loja_nome'];
+        $lojaId    = $data['loja_id'];
+        $usuario   = $request->user()?->name ?? 'Visitante anônimo';
+
+        Mail::raw(
+            "Novo interesse em produto!\n\n" .
+            "Produto: {$produto}\n" .
+            "Preço: {$preco}\n" .
+            "Loja: {$loja} (ID: {$lojaId})\n" .
+            "Usuário: {$usuario}\n" .
+            "Data: " . now()->format('d/m/Y H:i'),
+            function ($msg) use ($produto, $loja) {
+                $msg->to('rogernevesn@gmail.com')
+                    ->from(config('mail.from.address'), config('mail.from.name'))
+                    ->subject("Interesse: {$produto} — {$loja}");
+            }
+        );
+
+        return response()->json(['ok' => true]);
     }
 }

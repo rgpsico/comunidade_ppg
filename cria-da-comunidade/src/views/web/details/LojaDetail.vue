@@ -72,19 +72,7 @@
       </div>
     </div>
 
-    <!-- Actions bar -->
-    <div class="actions-bar">
-      <a
-        v-if="loja.whatsapp"
-        :href="`https://wa.me/${loja.whatsapp}`"
-        target="_blank"
-        rel="noopener"
-        class="btn-wpp-main"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Falar no WhatsApp
-      </a>
-    </div>
+    <!-- Actions bar vazia (contato agora é via botão Tenho Interesse nos produtos) -->
 
     <div class="detail-layout">
       <div class="detail-main">
@@ -140,17 +128,14 @@
                 <div class="prod-card" @click="openedProduto = p">
                   <ProdutoCard :produto="p" :cor="loja.cor1" />
                 </div>
-                <a
-                  v-if="loja.whatsapp"
-                  :href="wppProduto(p)"
-                  target="_blank"
-                  rel="noopener"
-                  class="btn-wpp-prod"
-                  @click.stop
+                <button
+                  class="btn-interesse-prod"
+                  :class="{ sent: interesseEnviado[p.id], loading: interesseLoading[p.id] }"
+                  @click.stop="enviarInteresse(p)"
+                  :disabled="interesseEnviado[p.id] || interesseLoading[p.id]"
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-                  Tenho interesse
-                </a>
+                  {{ interesseEnviado[p.id] ? '✓ Enviado!' : interesseLoading[p.id] ? '...' : 'Tenho interesse' }}
+                </button>
                 <div v-if="isOwner" class="prod-owner-btns">
                   <button class="pob pob-edit" @click.stop="openEditModal(p)" title="Editar">
                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -174,17 +159,14 @@
               <div class="prod-card" @click="openedProduto = p">
                 <ProdutoCard :produto="p" :cor="loja.cor1" />
               </div>
-              <a
-                v-if="loja.whatsapp"
-                :href="wppProduto(p)"
-                target="_blank"
-                rel="noopener"
-                class="btn-wpp-prod"
-                @click.stop
+              <button
+                class="btn-interesse-prod"
+                :class="{ sent: interesseEnviado[p.id], loading: interesseLoading[p.id] }"
+                @click.stop="enviarInteresse(p)"
+                :disabled="interesseEnviado[p.id] || interesseLoading[p.id]"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-                Tenho interesse
-              </a>
+                {{ interesseEnviado[p.id] ? '✓ Enviado!' : interesseLoading[p.id] ? '...' : 'Tenho interesse' }}
+              </button>
               <div v-if="isOwner" class="prod-owner-btns">
                 <button class="pob pob-edit" @click.stop="openEditModal(p)" title="Editar">
                   <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -211,10 +193,6 @@
           <p class="body-text">{{ loja.descricao || 'Sem descrição disponível.' }}</p>
 
           <div class="sobre-info-grid">
-            <div v-if="loja.whatsapp" class="sobre-info-item">
-              <div class="sii-label">WhatsApp</div>
-              <a :href="`https://wa.me/${loja.whatsapp}`" target="_blank" class="sii-value link">{{ loja.whatsapp }}</a>
-            </div>
             <div v-if="loja.endereco" class="sobre-info-item">
               <div class="sii-label">Endereço</div>
               <div class="sii-value">{{ loja.endereco }}</div>
@@ -275,17 +253,15 @@
             </div>
             <p v-if="openedProduto.descricao" class="pm-desc">{{ openedProduto.descricao }}</p>
 
-            <a
-              v-if="loja.whatsapp"
-              :href="prodWppLink"
-              target="_blank"
-              rel="noopener"
-              class="btn-pm-wpp"
+            <button
+              class="btn-pm-interesse"
+              :class="{ sent: openedProduto && interesseEnviado[openedProduto.id], loading: openedProduto && interesseLoading[openedProduto.id] }"
               :style="{ background: loja.cor1 }"
+              :disabled="(openedProduto && interesseEnviado[openedProduto.id]) || (openedProduto && interesseLoading[openedProduto.id])"
+              @click="openedProduto && enviarInteresse(openedProduto)"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              Pedir pelo WhatsApp
-            </a>
+              {{ openedProduto && interesseEnviado[openedProduto.id] ? '✓ Interesse enviado!' : openedProduto && interesseLoading[openedProduto.id] ? 'Enviando...' : 'Tenho interesse' }}
+            </button>
           </div>
         </div>
       </div>
@@ -441,11 +417,27 @@ onMounted(async () => {
 
 onUnmounted(() => document.removeEventListener('click', onDocClick))
 
-function wppProduto(p: Produto): string {
-  const preco = p.precoPromocional ?? p.preco
-  const precoStr = 'R$ ' + preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const msg = `Olá! Vi o produto *${p.nome}* (${precoStr}) na loja *${loja.value?.nome}* e tenho interesse. Pode me dar mais informações?`
-  return `https://wa.me/${loja.value?.whatsapp}?text=${encodeURIComponent(msg)}`
+const interesseLoading = ref<Record<string, boolean>>({})
+const interesseEnviado = ref<Record<string, boolean>>({})
+
+async function enviarInteresse(p: Produto) {
+  if (!loja.value || interesseEnviado.value[p.id] || interesseLoading.value[p.id]) return
+  interesseLoading.value[p.id] = true
+  try {
+    const preco = p.precoPromocional ?? p.preco
+    const precoStr = 'R$ ' + preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    await api.post('/interesse', {
+      produto_nome:  p.nome,
+      produto_preco: precoStr,
+      loja_nome:     loja.value.nome,
+      loja_id:       loja.value.id,
+    })
+    interesseEnviado.value[p.id] = true
+  } catch {
+    alert('Erro ao enviar interesse. Tente novamente.')
+  } finally {
+    interesseLoading.value[p.id] = false
+  }
 }
 
 const tabs = ['Produtos', 'Sobre']
@@ -479,12 +471,6 @@ const prodsFiltrados = computed(() => {
   const prods = loja.value?.produtos?.filter(p => p.disponivel) ?? []
   if (prodCatActive.value === 'Todos') return prods
   return prods.filter(p => p.categoria === prodCatActive.value)
-})
-
-const prodWppLink = computed(() => {
-  if (!loja.value?.whatsapp || !openedProduto.value) return '#'
-  const msg = encodeURIComponent(`Olá! Tenho interesse no produto: ${openedProduto.value.nome}`)
-  return `https://wa.me/${loja.value.whatsapp}?text=${msg}`
 })
 
 function fmtMoney(val: number): string {
@@ -677,26 +663,7 @@ function fmtMoney(val: number): string {
 }
 
 /* Actions */
-.actions-bar {
-  padding: 0 32px 12px;
-  display: flex;
-  gap: 10px;
-}
-.btn-wpp-main {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: rgba(43,217,107,0.15);
-  color: var(--green);
-  border: 1px solid rgba(43,217,107,0.35);
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-.btn-wpp-main:hover { background: rgba(43,217,107,0.25); }
+.actions-bar { display: none; }
 
 /* Detail layout */
 .detail-layout {
@@ -834,22 +801,25 @@ function fmtMoney(val: number): string {
 .pob-del:hover { background: #e53e3e; }
 .pob:disabled { opacity: 0.5; cursor: wait; }
 
-.btn-wpp-prod {
+.btn-interesse-prod {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   width: 100%;
   padding: 7px 0;
-  background: #25D366;
-  color: #000;
+  background: var(--orange);
+  color: #fff;
   font-size: 11px;
   font-weight: 700;
-  text-decoration: none;
+  border: none;
   border-radius: 0 0 11px 11px;
-  transition: background 0.15s;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
 }
-.btn-wpp-prod:hover { background: #1ebe5a; }
+.btn-interesse-prod:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-interesse-prod.sent { background: var(--green); cursor: default; }
+.btn-interesse-prod.loading { opacity: 0.7; cursor: wait; }
+.btn-interesse-prod:disabled { cursor: default; }
 
 /* Empty */
 .empty-prod {
@@ -1008,21 +978,24 @@ function fmtMoney(val: number): string {
   line-height: 1.6;
   margin-bottom: 16px;
 }
-.btn-pm-wpp {
+.btn-pm-interesse {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   width: 100%;
   padding: 12px;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   color: #fff;
-  text-decoration: none;
-  transition: filter 0.15s;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
 }
-.btn-pm-wpp:hover { filter: brightness(1.1); }
+.btn-pm-interesse:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-pm-interesse.sent { opacity: 0.85; cursor: default; }
+.btn-pm-interesse.loading { opacity: 0.7; cursor: wait; }
+.btn-pm-interesse:disabled { cursor: default; }
 
 /* Modal transitions */
 .modal-enter-active,

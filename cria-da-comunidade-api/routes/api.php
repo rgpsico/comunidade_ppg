@@ -48,6 +48,7 @@ Route::get('vagas/{vaga}',         [VagaController::class, 'show']);
 
 Route::get('lojas',                [LojaController::class, 'index']);
 Route::get('lojas/{loja}',         [LojaController::class, 'show']);
+Route::post('interesse',           [LojaController::class, 'interesse']);
 
 Route::get('artigos',              [ArtigoController::class, 'index']);
 Route::get('artigos/{artigo}',     [ArtigoController::class, 'show']);
