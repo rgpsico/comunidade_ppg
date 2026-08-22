@@ -57,6 +57,9 @@
       </div>
     </section>
 
+    <!-- Patrocinador Master -->
+    <PatrocinadorBanner />
+
     <!-- Profissionais Premium -->
     <section class="section">
       <div class="section-head">
@@ -190,6 +193,7 @@
 import { ref, computed } from 'vue'
 import { useUiStore } from '../../stores/ui'
 import { useDataStore } from '../../stores/data'
+import PatrocinadorBanner from '../../components/ui/PatrocinadorBanner.vue'
 import ProCard from '../../components/ui/ProCard.vue'
 import EventCard from '../../components/ui/EventCard.vue'
 import ProjectCard from '../../components/ui/ProjectCard.vue'

@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\LojaController;
 use App\Http\Controllers\Api\ProfissionalController;
 use App\Http\Controllers\Api\ProjetoController;
 use App\Http\Controllers\Api\VagaController;
+use App\Http\Controllers\Api\PatrocinadorController;
+use App\Http\Controllers\Api\ConfiguracaoController;
 use Illuminate\Support\Facades\Route;
 
 // Analytics — pública (user_id preenchido quando há token válido)
@@ -29,6 +31,10 @@ Route::prefix('auth')->group(function () {
 // Avaliações e comentários — leitura pública, escrita requer auth
 Route::get('{tipo}/{id}/avaliacoes',  [AvaliacaoController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
 Route::get('{tipo}/{id}/comentarios', [ComentarioController::class, 'index'])->where('tipo', 'profissionais|eventos|projetos|lojas|vagas|artigos');
+
+// Patrocinador e configurações — públicas
+Route::get('patrocinador-ativo', [PatrocinadorController::class, 'ativo']);
+Route::get('configuracoes',      [ConfiguracaoController::class, 'index']);
 
 // Rotas públicas de leitura
 Route::get('comunidades',          [ComunidadeController::class, 'index']);

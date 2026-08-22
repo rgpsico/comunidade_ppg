@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '../services/api'
 import type { Paginated } from '../services/api'
-import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo } from '../types'
+import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo, Patrocinador, Configuracao } from '../types'
 
 // ── API response shapes ──────────────────────────────────────────────────────
 
@@ -327,6 +327,21 @@ export const useDataStore = defineStore('data', () => {
   const informativos = ref<Informativo[]>([])
   const feedPosts = ref<ApiFeedPost[]>([])
   const meuCurriculo = ref<ApiCurriculo | null>(null)
+  const patrocinador = ref<Patrocinador | null>(null)
+  const configuracao = ref<Configuracao>({
+    nome_plataforma: 'Cria da Comunidade',
+    logo_url: null,
+    favicon_url: null,
+    cor_primaria: '#FF5E1A',
+    cor_secundaria: '#FFD23F',
+    cor_destaque: '#2BD96B',
+    cor_fundo: '#0D0B09',
+    cor_card: '#1C1916',
+    cor_texto: '#F5F0E8',
+    cor_muted: '#8B847B',
+    listagem_tipo: 'grade',
+    itens_por_pagina: 20,
+  })
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -357,7 +372,7 @@ export const useDataStore = defineStore('data', () => {
     try {
       const cid = activeComunidadeId.value
       const cParam = cid ? `&comunidade_id=${cid}` : ''
-      const [pRes, eRes, prRes, vRes, lRes, aRes, iRes, fRes] = await Promise.all([
+      const [pRes, eRes, prRes, vRes, lRes, aRes, iRes, fRes, spRes, cfRes] = await Promise.all([
         api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
         api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
         api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
@@ -366,6 +381,8 @@ export const useDataStore = defineStore('data', () => {
         api.get<Paginated<ApiArtigo>>(`/artigos?per_page=50${cParam}`),
         api.get<Paginated<ApiInformativo>>(`/informativos?per_page=50${cParam}`),
         api.get<Paginated<ApiFeedPost>>(`/feed-posts?per_page=8${cParam}`),
+        api.get<Patrocinador | null>(`/patrocinador-ativo${cid ? `?comunidade_id=${cid}` : ''}`).catch(() => null),
+        api.get<Configuracao>(`/configuracoes${cid ? `?comunidade_id=${cid}` : ''}`).catch(() => null),
       ])
       pros.value = pRes.data.map(mapPro)
       events.value = eRes.data.map(mapEvent)
@@ -375,6 +392,8 @@ export const useDataStore = defineStore('data', () => {
       artigos.value = aRes.data.map(mapArtigo)
       informativos.value = iRes.data.map(mapInformativo)
       feedPosts.value = fRes.data
+      patrocinador.value = spRes ?? null
+      if (cfRes) configuracao.value = { ...configuracao.value, ...cfRes }
     } catch (e: unknown) {
       error.value = 'Não foi possível carregar os dados. Verifique a conexão com a API.'
       console.error('API error:', e)
@@ -447,7 +466,9 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
-    pros, events, projects, vagas, lojas, artigos, informativos, feedPosts, meuCurriculo, loading, error,
+    pros, events, projects, vagas, lojas, artigos, informativos, feedPosts, meuCurriculo,
+    patrocinador, configuracao,
+    loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,

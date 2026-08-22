@@ -217,6 +217,30 @@ export interface Curriculo {
   createdAt: string
 }
 
+export interface Patrocinador {
+  id: string
+  nome: string
+  imagem_url: string | null
+  texto: string | null
+  link_url: string | null
+  texto_botao: string
+}
+
+export interface Configuracao {
+  nome_plataforma: string
+  logo_url: string | null
+  favicon_url: string | null
+  cor_primaria: string
+  cor_secundaria: string
+  cor_destaque: string
+  cor_fundo: string
+  cor_card: string
+  cor_texto: string
+  cor_muted: string
+  listagem_tipo: 'grade' | 'lista'
+  itens_por_pagina: number
+}
+
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos' | 'informativos'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail' | 'informativoDetail'

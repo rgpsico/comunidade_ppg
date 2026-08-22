@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useUiStore } from './stores/ui'
 import { useDataStore } from './stores/data'
 import { useAuthStore } from './stores/auth'
@@ -178,6 +178,23 @@ function resolveDeepLink() {
     if (ev) { ui.openEvent(ev); return }
   }
 }
+
+// Aplica variáveis CSS da configuração visual dinamicamente
+watch(
+  () => data.configuracao,
+  (cfg) => {
+    const root = document.documentElement
+    root.style.setProperty('--orange',   cfg.cor_primaria)
+    root.style.setProperty('--yellow',   cfg.cor_secundaria)
+    root.style.setProperty('--green',    cfg.cor_destaque)
+    root.style.setProperty('--bg',       cfg.cor_fundo)
+    root.style.setProperty('--card',     cfg.cor_card)
+    root.style.setProperty('--cream',    cfg.cor_texto)
+    root.style.setProperty('--muted',    cfg.cor_muted)
+    if (cfg.nome_plataforma) document.title = cfg.nome_plataforma
+  },
+  { deep: true }
+)
 
 onMounted(async () => {
   // Carrega comunidades e usuário em paralelo
