@@ -11,8 +11,6 @@
   <meta property="og:title"        content="{{ $ogTitle }}">
   <meta property="og:description"  content="{{ $ogDesc }}">
   <meta property="og:image"        content="{{ $ogImage }}">
-  <meta property="og:image:width"  content="1200">
-  <meta property="og:image:height" content="630">
   <meta property="og:locale"       content="pt_BR">
   <meta property="og:site_name"    content="{{ $siteName }}">
 
