@@ -5,6 +5,16 @@
       <button class="back-btn" @click="ui.openLoja(loja)">
         ← {{ loja.nome }}
       </button>
+      <a
+        :href="`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`"
+        target="_blank"
+        rel="noopener"
+        class="btn-share-fb"
+        title="Compartilhar no Facebook"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Compartilhar
+      </a>
     </div>
 
     <!-- Galeria -->
@@ -93,6 +103,12 @@ const activeImg = ref(0)
 const loading   = ref(false)
 const enviado   = ref(false)
 
+const shareUrl = computed(() =>
+  produto.value
+    ? encodeURIComponent(`https://api.comunidadeppg.com.br/share/produto/${produto.value.id}`)
+    : ''
+)
+
 function fmt(val: number): string {
   return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -141,6 +157,22 @@ async function enviarInteresse() {
   transition: color 0.15s;
 }
 .back-btn:hover { color: var(--cream); }
+
+.btn-share-fb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(24,119,242,0.12);
+  color: #1877F2;
+  border: 1px solid rgba(24,119,242,0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-share-fb:hover { background: rgba(24,119,242,0.22); }
 
 /* ── Galeria ── */
 .gallery-wrap {
