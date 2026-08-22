@@ -131,7 +131,7 @@
                 <button
                   class="btn-interesse-prod"
                   :class="{ sent: interesseEnviado[p.id], loading: interesseLoading[p.id] }"
-                  @click.stop="enviarInteresse(p)"
+                  @click.stop="abrirModalInteresse(p)"
                   :disabled="interesseEnviado[p.id] || interesseLoading[p.id]"
                 >
                   {{ interesseEnviado[p.id] ? '✓ Enviado!' : interesseLoading[p.id] ? '...' : 'Tenho interesse' }}
@@ -162,7 +162,7 @@
               <button
                 class="btn-interesse-prod"
                 :class="{ sent: interesseEnviado[p.id], loading: interesseLoading[p.id] }"
-                @click.stop="enviarInteresse(p)"
+                @click.stop="abrirModalInteresse(p)"
                 :disabled="interesseEnviado[p.id] || interesseLoading[p.id]"
               >
                 {{ interesseEnviado[p.id] ? '✓ Enviado!' : interesseLoading[p.id] ? '...' : 'Tenho interesse' }}
@@ -225,10 +225,51 @@
     <button class="back-btn" @click="ui.goTo('lojas')">← Lojas</button>
     <p>Loja não encontrada.</p>
   </div>
+
+  <!-- Modal de interesse -->
+  <Teleport to="body">
+    <div v-if="modalInteresseAberto" class="modal-overlay" @click.self="fecharModalInteresse">
+      <div class="modal-box">
+        <button class="modal-close" @click="fecharModalInteresse">✕</button>
+
+        <div v-if="produtoInteresse" class="modal-prod-info">
+          <img v-if="produtoInteresse.imagens?.length" :src="produtoInteresse.imagens[0]" class="modal-prod-img" />
+          <div>
+            <div class="modal-prod-nome">{{ produtoInteresse.nome }}</div>
+            <div class="modal-prod-preco" :style="{ color: loja?.cor1 }">
+              {{ fmtPreco(produtoInteresse.precoPromocional ?? produtoInteresse.preco) }}
+            </div>
+          </div>
+        </div>
+
+        <p class="modal-desc">Deixe seu nome e telefone e entraremos em contato.</p>
+
+        <div class="modal-form">
+          <label class="modal-label">
+            Nome
+            <input v-model="formInteresse.nome" class="modal-input" placeholder="Seu nome completo" maxlength="120" autocomplete="name" />
+          </label>
+          <label class="modal-label">
+            Telefone / WhatsApp
+            <input v-model="formInteresse.fone" class="modal-input" placeholder="(11) 99999-9999" type="tel" maxlength="20" autocomplete="tel" />
+          </label>
+          <div v-if="formInteresseErro" class="modal-erro">{{ formInteresseErro }}</div>
+          <button
+            class="modal-submit"
+            :style="{ background: loja?.cor1 }"
+            :disabled="interesseLoading[produtoInteresse?.id ?? '']"
+            @click="confirmarInteresseLoja"
+          >
+            {{ interesseLoading[produtoInteresse?.id ?? ''] ? 'Enviando...' : 'Confirmar interesse' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 import { useDataStore } from '../../../stores/data'
 import { useAuthStore } from '../../../stores/auth'
@@ -373,22 +414,50 @@ onUnmounted(() => document.removeEventListener('click', onDocClick))
 const interesseLoading = ref<Record<string, boolean>>({})
 const interesseEnviado = ref<Record<string, boolean>>({})
 
-async function enviarInteresse(p: Produto) {
-  if (!loja.value || interesseEnviado.value[p.id] || interesseLoading.value[p.id]) return
-  if (!confirm(`Confirmar interesse em "${p.nome}"?\n\nVocê receberá um contato em breve.`)) return
+const modalInteresseAberto = ref(false)
+const produtoInteresse     = ref<Produto | null>(null)
+const formInteresse        = reactive({ nome: '', fone: '' })
+const formInteresseErro    = ref('')
+
+function fmtPreco(val: number): string {
+  return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function abrirModalInteresse(p: Produto) {
+  if (interesseEnviado.value[p.id]) return
+  produtoInteresse.value = p
+  formInteresse.nome = ''
+  formInteresse.fone = ''
+  formInteresseErro.value = ''
+  modalInteresseAberto.value = true
+}
+
+function fecharModalInteresse() {
+  modalInteresseAberto.value = false
+}
+
+async function confirmarInteresseLoja() {
+  const p = produtoInteresse.value
+  if (!p || !loja.value || interesseLoading.value[p.id]) return
+  formInteresseErro.value = ''
+  if (!formInteresse.nome.trim()) { formInteresseErro.value = 'Informe seu nome.'; return }
+  if (!formInteresse.fone.trim()) { formInteresseErro.value = 'Informe seu telefone.'; return }
+
   interesseLoading.value[p.id] = true
   try {
     const preco = p.precoPromocional ?? p.preco
-    const precoStr = 'R$ ' + preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     await api.post('/interesse', {
-      produto_nome:  p.nome,
-      produto_preco: precoStr,
-      loja_nome:     loja.value.nome,
-      loja_id:       loja.value.id,
+      produto_nome:   p.nome,
+      produto_preco:  fmtPreco(preco),
+      loja_nome:      loja.value.nome,
+      loja_id:        loja.value.id,
+      comprador_nome: formInteresse.nome.trim(),
+      comprador_fone: formInteresse.fone.trim(),
     })
     interesseEnviado.value[p.id] = true
+    modalInteresseAberto.value = false
   } catch {
-    alert('Erro ao enviar interesse. Tente novamente.')
+    formInteresseErro.value = 'Erro ao enviar. Tente novamente.'
   } finally {
     interesseLoading.value[p.id] = false
   }
@@ -998,4 +1067,112 @@ const prodsFiltrados = computed(() => {
   .prods-grid { grid-template-columns: repeat(2, 1fr); }
   .sobre-info-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Modal de interesse ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: overlay-in 0.2s ease;
+}
+@keyframes overlay-in { from { opacity: 0 } to { opacity: 1 } }
+
+.modal-box {
+  position: relative;
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px 24px 40px;
+  animation: slide-up 0.25s ease;
+}
+@keyframes slide-up { from { transform: translateY(60px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: var(--bg-2);
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.15s;
+}
+.modal-close:hover { color: var(--cream); }
+
+.modal-prod-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.modal-prod-img {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.modal-prod-nome { font-size: 15px; font-weight: 700; color: var(--cream); }
+.modal-prod-preco { font-size: 18px; font-weight: 800; margin-top: 2px; }
+
+.modal-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-form { display: flex; flex-direction: column; gap: 14px; }
+
+.modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.modal-input {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--cream);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.modal-input:focus { border-color: var(--orange); }
+
+.modal-erro {
+  font-size: 13px;
+  color: #f87171;
+  text-align: center;
+}
+
+.modal-submit {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+  margin-top: 4px;
+}
+.modal-submit:hover:not(:disabled) { filter: brightness(1.1); }
+.modal-submit:disabled { opacity: 0.6; cursor: wait; }
 </style>

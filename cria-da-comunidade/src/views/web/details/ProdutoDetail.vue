@@ -70,12 +70,12 @@
       <!-- CTA -->
       <button
         class="btn-interesse"
-        :class="{ sent: enviado, loading }"
+        :class="{ sent: enviado }"
         :style="{ background: loja.cor1 }"
-        :disabled="enviado || loading"
-        @click="enviarInteresse"
+        :disabled="enviado"
+        @click="abrirModal"
       >
-        {{ enviado ? '✓ Interesse enviado!' : loading ? 'Enviando...' : 'Tenho interesse' }}
+        {{ enviado ? '✓ Interesse enviado!' : 'Tenho interesse' }}
       </button>
 
       <div v-if="enviado" class="feedback-sent">
@@ -84,14 +84,68 @@
     </div>
   </div>
 
-  <div v-else class="no-produto">
+  <!-- Modal de contato -->
+  <Teleport to="body">
+    <div v-if="modalAberto" class="modal-overlay" @click.self="fecharModal">
+      <div class="modal-box">
+        <button class="modal-close" @click="fecharModal">✕</button>
+
+        <div class="modal-prod-info">
+          <img v-if="produto?.imagens?.length" :src="produto.imagens[0]" class="modal-prod-img" />
+          <div>
+            <div class="modal-prod-nome">{{ produto?.nome }}</div>
+            <div class="modal-prod-preco" :style="{ color: loja?.cor1 }">{{ fmt(produto?.precoPromocional ?? produto?.preco ?? 0) }}</div>
+          </div>
+        </div>
+
+        <p class="modal-desc">Deixe seu nome e telefone e entraremos em contato.</p>
+
+        <div class="modal-form">
+          <label class="modal-label">
+            Nome
+            <input
+              v-model="form.nome"
+              class="modal-input"
+              placeholder="Seu nome completo"
+              maxlength="120"
+              autocomplete="name"
+            />
+          </label>
+          <label class="modal-label">
+            Telefone / WhatsApp
+            <input
+              v-model="form.fone"
+              class="modal-input"
+              placeholder="(11) 99999-9999"
+              type="tel"
+              maxlength="20"
+              autocomplete="tel"
+            />
+          </label>
+
+          <div v-if="formErro" class="modal-erro">{{ formErro }}</div>
+
+          <button
+            class="modal-submit"
+            :style="{ background: loja?.cor1 }"
+            :disabled="loading"
+            @click="confirmarInteresse"
+          >
+            {{ loading ? 'Enviando...' : 'Confirmar interesse' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <div v-if="!produto || !loja" class="no-produto">
     <button class="back-btn" @click="ui.goTo('lojas')">← Lojas</button>
     <p>Produto não encontrado.</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 import { api } from '../../../services/api'
 
@@ -99,9 +153,12 @@ const ui = useUiStore()
 const produto = computed(() => ui.selectedProduto)
 const loja    = computed(() => ui.selectedLoja)
 
-const activeImg = ref(0)
-const loading   = ref(false)
-const enviado   = ref(false)
+const activeImg   = ref(0)
+const loading     = ref(false)
+const enviado     = ref(false)
+const modalAberto = ref(false)
+const formErro    = ref('')
+const form        = reactive({ nome: '', fone: '' })
 
 const shareUrl = computed(() =>
   produto.value
@@ -113,21 +170,38 @@ function fmt(val: number): string {
   return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-async function enviarInteresse() {
-  if (!produto.value || !loja.value || enviado.value || loading.value) return
-  if (!confirm(`Confirmar interesse em "${produto.value.nome}"?\n\nVocê receberá um contato em breve.`)) return
+function abrirModal() {
+  if (enviado.value) return
+  formErro.value = ''
+  modalAberto.value = true
+}
+
+function fecharModal() {
+  modalAberto.value = false
+}
+
+async function confirmarInteresse() {
+  if (!produto.value || !loja.value || loading.value) return
+
+  formErro.value = ''
+  if (!form.nome.trim()) { formErro.value = 'Informe seu nome.'; return }
+  if (!form.fone.trim()) { formErro.value = 'Informe seu telefone.'; return }
+
   loading.value = true
   try {
     const preco = produto.value.precoPromocional ?? produto.value.preco
     await api.post('/interesse', {
-      produto_nome:  produto.value.nome,
-      produto_preco: fmt(preco),
-      loja_nome:     loja.value.nome,
-      loja_id:       loja.value.id,
+      produto_nome:   produto.value.nome,
+      produto_preco:  fmt(preco),
+      loja_nome:      loja.value.nome,
+      loja_id:        loja.value.id,
+      comprador_nome: form.nome.trim(),
+      comprador_fone: form.fone.trim(),
     })
     enviado.value = true
+    modalAberto.value = false
   } catch {
-    alert('Erro ao enviar interesse. Tente novamente.')
+    formErro.value = 'Erro ao enviar. Tente novamente.'
   } finally {
     loading.value = false
   }
@@ -351,7 +425,117 @@ async function enviarInteresse() {
 
 .no-produto { padding: 40px; color: var(--muted); }
 
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  animation: overlay-in 0.2s ease;
+}
+@keyframes overlay-in { from { opacity: 0 } to { opacity: 1 } }
+
+.modal-box {
+  position: relative;
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px 24px 40px;
+  animation: slide-up 0.25s ease;
+}
+@keyframes slide-up { from { transform: translateY(60px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: var(--bg-2);
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.15s;
+}
+.modal-close:hover { color: var(--cream); }
+
+.modal-prod-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.modal-prod-img {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.modal-prod-nome { font-size: 15px; font-weight: 700; color: var(--cream); }
+.modal-prod-preco { font-size: 18px; font-weight: 800; margin-top: 2px; }
+
+.modal-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-form { display: flex; flex-direction: column; gap: 14px; }
+
+.modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.modal-input {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--cream);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.modal-input:focus { border-color: var(--orange); }
+
+.modal-erro {
+  font-size: 13px;
+  color: #f87171;
+  text-align: center;
+}
+
+.modal-submit {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+  margin-top: 4px;
+}
+.modal-submit:hover:not(:disabled) { filter: brightness(1.1); }
+.modal-submit:disabled { opacity: 0.6; cursor: wait; }
+
 @media (max-width: 768px) {
   .gallery-img { height: 260px; }
+  .modal-box { border-radius: 20px 20px 0 0; }
 }
 </style>

@@ -98,29 +98,37 @@ class LojaController extends Controller
     public function interesse(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'produto_nome'  => 'required|string|max:200',
-            'produto_preco' => 'required|string|max:50',
-            'loja_nome'     => 'required|string|max:200',
-            'loja_id'       => 'required|string',
+            'produto_nome'     => 'required|string|max:200',
+            'produto_preco'    => 'required|string|max:50',
+            'loja_nome'        => 'required|string|max:200',
+            'loja_id'          => 'required|string',
+            'comprador_nome'   => 'required|string|max:120',
+            'comprador_fone'   => 'required|string|max:30',
         ]);
 
-        $preco     = $data['produto_preco'];
-        $produto   = $data['produto_nome'];
-        $loja      = $data['loja_nome'];
-        $lojaId    = $data['loja_id'];
-        $usuario   = $request->user()?->name ?? 'Visitante anônimo';
+        $preco    = $data['produto_preco'];
+        $produto  = $data['produto_nome'];
+        $loja     = $data['loja_nome'];
+        $lojaId   = $data['loja_id'];
+        $nome     = $data['comprador_nome'];
+        $fone     = $data['comprador_fone'];
+        $wppLink  = 'https://wa.me/55' . preg_replace('/\D/', '', $fone);
 
         Mail::raw(
-            "Novo interesse em produto!\n\n" .
+            "🛍 Novo interesse em produto!\n\n" .
             "Produto: {$produto}\n" .
             "Preço: {$preco}\n" .
-            "Loja: {$loja} (ID: {$lojaId})\n" .
-            "Usuário: {$usuario}\n" .
+            "Loja: {$loja} (ID: {$lojaId})\n\n" .
+            "━━━━━━━━━━━━━━━━━━\n" .
+            "Comprador: {$nome}\n" .
+            "Telefone: {$fone}\n" .
+            "WhatsApp: {$wppLink}\n" .
+            "━━━━━━━━━━━━━━━━━━\n\n" .
             "Data: " . now()->format('d/m/Y H:i'),
-            function ($msg) use ($produto, $loja) {
+            function ($msg) use ($produto, $loja, $nome) {
                 $msg->to('rogernevesn@gmail.com')
                     ->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject("Interesse: {$produto} — {$loja}");
+                    ->subject("Interesse: {$produto} — {$loja} (comprador: {$nome})");
             }
         );
 
