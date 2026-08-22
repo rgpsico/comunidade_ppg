@@ -52,4 +52,34 @@ class FacebookService
 
         return ['sucesso' => true, 'post_id' => $response->json('id')];
     }
+
+    public function publicarProduto(int $produtoId, string $nome, string $descricao, float $preco, ?float $precoPromocional, string $lojaNome): array
+    {
+        $url       = "https://api.comunidadeppg.com.br/share/produto/{$produtoId}";
+        $precoStr  = $precoPromocional
+            ? 'R$ ' . number_format($precoPromocional, 2, ',', '.') . ' ~~R$ ' . number_format($preco, 2, ',', '.') . '~~'
+            : 'R$ ' . number_format($preco, 2, ',', '.');
+
+        $linhas = ["🛍 *{$nome}* — {$lojaNome}", '', $precoStr];
+        if ($descricao) {
+            $linhas[] = '';
+            $linhas[] = mb_strlen($descricao) > 200 ? mb_substr($descricao, 0, 197) . '...' : $descricao;
+        }
+        $linhas[] = '';
+        $linhas[] = '👉 Ver produto: ' . $url;
+
+        $pageToken = $this->getPageAccessToken();
+
+        $response = Http::post("{$this->graphBase}/{$this->pageId}/feed", [
+            'message'      => implode("\n", $linhas),
+            'link'         => $url,
+            'access_token' => $pageToken,
+        ]);
+
+        if ($response->failed()) {
+            return ['sucesso' => false, 'erro' => $response->json('error.message', 'Erro desconhecido')];
+        }
+
+        return ['sucesso' => true, 'post_id' => $response->json('id')];
+    }
 }

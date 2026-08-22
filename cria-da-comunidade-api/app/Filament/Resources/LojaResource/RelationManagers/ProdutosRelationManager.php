@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\LojaResource\RelationManagers;
 
+use App\Models\Produto;
+use App\Services\FacebookService;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -119,6 +122,40 @@ class ProdutosRelationManager extends RelationManager
             ->reorderable('ordem')
             ->actions([
                 Actions\EditAction::make(),
+                Actions\Action::make('publicar_facebook')
+                    ->label('Divulgar')
+                    ->icon('heroicon-o-share')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Publicar na Divulga PPG')
+                    ->modalDescription(fn (Produto $record) => "Publicar \"{$record->nome}\" na página do Facebook Divulga PPG?")
+                    ->modalSubmitActionLabel('Sim, publicar')
+                    ->visible(fn (Produto $record) => $record->disponivel)
+                    ->action(function (Produto $record) {
+                        $loja = $record->loja;
+                        $resultado = app(FacebookService::class)->publicarProduto(
+                            $record->id,
+                            $record->nome,
+                            $record->descricao ?? '',
+                            $record->preco,
+                            $record->preco_promocional,
+                            $loja?->nome ?? '',
+                        );
+
+                        if ($resultado['sucesso']) {
+                            Notification::make()
+                                ->title('Publicado no Facebook!')
+                                ->body("O produto \"{$record->nome}\" foi divulgado na página.")
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Erro ao publicar')
+                                ->body($resultado['erro'])
+                                ->danger()
+                                ->send();
+                        }
+                    }),
                 Actions\DeleteAction::make(),
             ])
             ->headerActions([
