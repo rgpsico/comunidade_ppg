@@ -6,6 +6,7 @@ use App\Models\Artigo;
 use App\Models\Comunidade;
 use App\Models\Evento;
 use App\Models\Loja;
+use App\Models\Produto;
 use App\Models\Profissional;
 use App\Models\Projeto;
 use App\Models\Vaga;
@@ -161,6 +162,37 @@ class ShareController extends Controller
             'ogImage'     => $image,
             'siteName'    => $com['nome'],
             'redirectUrl' => $this->frontUrl($com['slug'], "/vagas/{$vaga->id}"),
+        ]);
+    }
+
+    public function produto(Produto $produto): \Illuminate\Contracts\View\View
+    {
+        $produto->load('loja');
+        $loja = $produto->loja;
+
+        $desc = strip_tags($produto->descricao ?? '');
+        $desc = mb_strlen($desc) > 160
+            ? mb_substr($desc, 0, 157) . '...'
+            : $desc;
+
+        $preco = $produto->preco_promocional ?? $produto->preco;
+        $precoStr = 'R$ ' . number_format($preco, 2, ',', '.');
+        $lojaInfo = $loja ? " · {$loja->nome}" : '';
+
+        $image = $produto->imagem_principal_url
+            ?? ($loja?->logo_url)
+            ?? asset('images/og-default.png');
+
+        $com = $this->comunidadeInfo($loja?->comunidade_id ?? null);
+
+        return view('share.produto', [
+            'produto'     => $produto,
+            'loja'        => $loja,
+            'ogTitle'     => "{$produto->nome}{$lojaInfo}",
+            'ogDesc'      => $desc ?: "{$precoStr}{$lojaInfo}",
+            'ogImage'     => $image,
+            'siteName'    => $com['nome'],
+            'redirectUrl' => $this->frontUrl($com['slug'], "/lojas/{$loja?->id}/produtos/{$produto->id}"),
         ]);
     }
 }
