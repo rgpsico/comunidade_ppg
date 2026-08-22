@@ -422,6 +422,7 @@ const interesseEnviado = ref<Record<string, boolean>>({})
 
 async function enviarInteresse(p: Produto) {
   if (!loja.value || interesseEnviado.value[p.id] || interesseLoading.value[p.id]) return
+  if (!confirm(`Confirmar interesse em "${p.nome}"?\n\nVocê receberá um contato em breve.`)) return
   interesseLoading.value[p.id] = true
   try {
     const preco = p.precoPromocional ?? p.preco
