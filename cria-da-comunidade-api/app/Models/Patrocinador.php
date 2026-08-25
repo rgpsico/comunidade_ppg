@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Patrocinador extends Model
 {
+    protected $table = 'patrocinadores';
+
     protected $fillable = [
         'comunidade_id', 'nome', 'imagem_url', 'texto',
         'link_url', 'texto_botao', 'ativo', 'publicado_em', 'expira_em',
