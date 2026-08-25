@@ -141,6 +141,60 @@
       </div>
     </section>
 
+    <!-- Heróis da Comunidade (Ranking de Chamados) -->
+    <section v-if="data.ranking.length > 0" class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">🏆 quem ajuda mais</div>
+          <h2 class="section-title display">Heróis da <span class="text-gradient-green">Comunidade</span></h2>
+        </div>
+        <button class="link-btn" @click="ui.goTo('chamados')">Ver chamados →</button>
+      </div>
+      <div class="ranking-scroll">
+        <div
+          v-for="(hero, i) in data.ranking.slice(0, 5)"
+          :key="hero.user_id"
+          class="ranking-card"
+        >
+          <div class="rank-pos" :class="{ gold: i === 0, silver: i === 1, bronze: i === 2 }">
+            {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}` }}
+          </div>
+          <div class="rank-avatar">{{ hero.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase() }}</div>
+          <div class="rank-info">
+            <div class="rank-name">{{ hero.name }}</div>
+            <div class="rank-pts">{{ hero.pontos }} pts</div>
+            <div class="rank-desc">
+              <span v-if="hero.chamados_ajudados > 0">{{ hero.chamados_ajudados }} chamados</span>
+              <span v-if="hero.total_doado > 0">R$ {{ hero.total_doado.toLocaleString('pt-BR') }} doados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chamados em aberto preview -->
+    <section v-if="chamadosAbertos.length > 0" class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">🔧 precisa de ajuda</div>
+          <h2 class="section-title display">Chamados <span class="text-gradient-orange">em aberto</span></h2>
+        </div>
+        <button class="link-btn" @click="ui.goTo('chamados')">Ver todos →</button>
+      </div>
+      <div class="chamados-preview">
+        <div
+          v-for="c in chamadosAbertos.slice(0, 3)"
+          :key="c.id"
+          class="chamado-pill"
+          @click="ui.openChamado(c)"
+        >
+          <span class="pill-urgencia" :class="c.urgencia">{{ c.urgencia === 'critico' ? '🚨' : c.urgencia === 'urgente' ? '⚡' : '📋' }}</span>
+          <span class="pill-titulo">{{ c.titulo }}</span>
+          <span class="pill-cat">{{ c.categoria }}</span>
+        </div>
+      </div>
+    </section>
+
     <!-- Vagas + Feed -->
     <section class="section two-col-section">
       <div class="vagas-col">
@@ -207,6 +261,9 @@ const proCategories = ['Todos', 'Beleza', 'Construção', 'Casa', 'Transporte']
 
 // Home: apenas premium
 const premiumPros = computed(() => data.pros.filter(p => p.isPremium))
+
+// Chamados em aberto
+const chamadosAbertos = computed(() => data.chamados.filter(c => c.status === 'aberto'))
 
 const filteredPros = computed(() =>
   activeCat.value === 'Todos'
@@ -507,5 +564,89 @@ const skylineHouses = Array.from({ length: 18 }, (_, i) => ({
 
   .two-col-section { grid-template-columns: 1fr; gap: 28px; }
   .feed-col { display: none; }
+  .ranking-scroll { gap: 10px; }
+  .ranking-card { min-width: 160px; }
+  .chamados-preview { gap: 8px; }
+}
+
+/* Ranking */
+.ranking-scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.ranking-scroll::-webkit-scrollbar { display: none; }
+
+.ranking-card {
+  min-width: 180px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.rank-pos {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.rank-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-info { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.rank-name { font-size: 13px; font-weight: 700; color: var(--cream); }
+.rank-pts { font-size: 18px; font-weight: 900; color: var(--orange); font-family: var(--mono); }
+.rank-desc { font-size: 11px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+
+/* Chamados preview */
+.chamados-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chamado-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.chamado-pill:hover {
+  border-color: var(--orange);
+  transform: translateX(4px);
+}
+
+.pill-urgencia { font-size: 18px; flex-shrink: 0; }
+.pill-titulo { flex: 1; font-size: 14px; font-weight: 600; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill-cat {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 </style>

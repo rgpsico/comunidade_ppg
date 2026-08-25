@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ProjetoController;
 use App\Http\Controllers\Api\VagaController;
 use App\Http\Controllers\Api\PatrocinadorController;
 use App\Http\Controllers\Api\ConfiguracaoController;
+use App\Http\Controllers\Api\ChamadoController;
 use Illuminate\Support\Facades\Route;
 
 // Analytics — pública (user_id preenchido quando há token válido)
@@ -35,6 +36,15 @@ Route::get('{tipo}/{id}/comentarios', [ComentarioController::class, 'index'])->w
 // Patrocinador e configurações — públicas
 Route::get('patrocinador-ativo', [PatrocinadorController::class, 'ativo']);
 Route::get('configuracoes',      [ConfiguracaoController::class, 'index']);
+
+// Chamados Comunitários
+Route::get('chamados',                         [ChamadoController::class, 'index']);
+Route::get('chamados-ranking',                 [ChamadoController::class, 'ranking']);
+Route::get('chamados/{id}',                    [ChamadoController::class, 'show']);
+Route::post('chamados',                        [ChamadoController::class, 'store'])->middleware('auth:sanctum');
+Route::post('chamados/{id}/aceitar',           [ChamadoController::class, 'aceitar'])->middleware('auth:sanctum');
+Route::post('chamados/{id}/resolver',          [ChamadoController::class, 'resolver'])->middleware('auth:sanctum');
+Route::post('chamados/{id}/doacoes',           [ChamadoController::class, 'doacao'])->middleware('auth:sanctum');
 
 // Rotas públicas de leitura
 Route::get('comunidades',          [ComunidadeController::class, 'index']);

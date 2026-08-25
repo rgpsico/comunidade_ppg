@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '../services/api'
 import type { Paginated } from '../services/api'
-import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo, Patrocinador, Configuracao } from '../types'
+import type { Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo, Patrocinador, Configuracao, Chamado, ChamadoDoacao, RankingItem } from '../types'
 
 // ── API response shapes ──────────────────────────────────────────────────────
 
@@ -294,6 +294,36 @@ function mapInformativo(i: ApiInformativo): Informativo {
   }
 }
 
+function mapChamado(c: any): Chamado {
+  return {
+    id: String(c.id),
+    tipo: c.tipo,
+    titulo: c.titulo,
+    descricao: c.descricao,
+    categoria: c.categoria,
+    fotos: Array.isArray(c.fotos) ? c.fotos : [],
+    local: c.local ?? null,
+    estimativa_valor: c.estimativa_valor ?? null,
+    valor_acordado: c.valor_acordado ?? null,
+    urgencia: c.urgencia,
+    status: c.status,
+    user: c.user ?? null,
+    profissional: c.profissional ?? null,
+    doacoes: Array.isArray(c.doacoes) ? c.doacoes.map((d: any): ChamadoDoacao => ({
+      id: String(d.id),
+      chamado_id: String(d.chamado_id),
+      user: d.user ?? null,
+      valor: Number(d.valor),
+      mensagem: d.mensagem ?? null,
+      created_at: d.created_at,
+    })) : [],
+    total_doacoes: Number(c.total_doacoes ?? 0),
+    aceito_em: c.aceito_em ?? null,
+    resolvido_em: c.resolvido_em ?? null,
+    created_at: c.created_at,
+  }
+}
+
 function mapLoja(l: ApiLoja): Loja {
   return {
     id: String(l.id),
@@ -327,6 +357,8 @@ export const useDataStore = defineStore('data', () => {
   const informativos = ref<Informativo[]>([])
   const feedPosts = ref<ApiFeedPost[]>([])
   const meuCurriculo = ref<ApiCurriculo | null>(null)
+  const chamados = ref<Chamado[]>([])
+  const ranking = ref<RankingItem[]>([])
   const patrocinador = ref<Patrocinador | null>(null)
   const configuracao = ref<Configuracao>({
     nome_plataforma: 'Cria da Comunidade',
@@ -372,7 +404,7 @@ export const useDataStore = defineStore('data', () => {
     try {
       const cid = activeComunidadeId.value
       const cParam = cid ? `&comunidade_id=${cid}` : ''
-      const [pRes, eRes, prRes, vRes, lRes, aRes, iRes, fRes, spRes, cfRes] = await Promise.all([
+      const [pRes, eRes, prRes, vRes, lRes, aRes, iRes, fRes, spRes, cfRes, chRes, rkRes] = await Promise.all([
         api.get<Paginated<ApiProfissional>>(`/profissionais?per_page=50${cParam}`),
         api.get<Paginated<ApiEvento>>(`/eventos?per_page=50${cParam}`),
         api.get<Paginated<ApiProjeto>>(`/projetos?per_page=50${cParam}`),
@@ -383,6 +415,8 @@ export const useDataStore = defineStore('data', () => {
         api.get<Paginated<ApiFeedPost>>(`/feed-posts?per_page=8${cParam}`),
         api.get<Patrocinador | null>(`/patrocinador-ativo${cid ? `?comunidade_id=${cid}` : ''}`).catch(() => null),
         api.get<Configuracao>(`/configuracoes${cid ? `?comunidade_id=${cid}` : ''}`).catch(() => null),
+        api.get<{ data: any[] }>(`/chamados?per_page=50${cParam}`).catch(() => null),
+        api.get<RankingItem[]>('/chamados-ranking').catch(() => null),
       ])
       pros.value = pRes.data.map(mapPro)
       events.value = eRes.data.map(mapEvent)
@@ -394,6 +428,8 @@ export const useDataStore = defineStore('data', () => {
       feedPosts.value = fRes.data
       patrocinador.value = spRes ?? null
       if (cfRes) configuracao.value = { ...configuracao.value, ...cfRes }
+      if (chRes) chamados.value = chRes.data.map(mapChamado)
+      if (rkRes) ranking.value = rkRes
     } catch (e: unknown) {
       error.value = 'Não foi possível carregar os dados. Verifique a conexão com a API.'
       console.error('API error:', e)
@@ -465,13 +501,54 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
+  async function fetchChamadoDetail(id: string): Promise<Chamado | null> {
+    try {
+      const res = await api.get<any>(`/chamados/${id}`)
+      return mapChamado(res)
+    } catch {
+      return null
+    }
+  }
+
+  async function aceitarChamado(id: string): Promise<Chamado> {
+    const res = await api.post<any>(`/chamados/${id}/aceitar`, {})
+    const updated = mapChamado(res)
+    const idx = chamados.value.findIndex(c => c.id === id)
+    if (idx !== -1) chamados.value[idx] = updated
+    return updated
+  }
+
+  async function resolverChamado(id: string): Promise<Chamado> {
+    const res = await api.post<any>(`/chamados/${id}/resolver`, {})
+    const updated = mapChamado(res)
+    const idx = chamados.value.findIndex(c => c.id === id)
+    if (idx !== -1) chamados.value[idx] = updated
+    return updated
+  }
+
+  async function registrarDoacao(chamadoId: string, valor: number, mensagem: string): Promise<void> {
+    await api.post(`/chamados/${chamadoId}/doacoes`, { valor, mensagem })
+  }
+
+  async function criarChamado(payload: {
+    tipo: string; titulo: string; descricao: string; categoria: string
+    local?: string; estimativa_valor?: string; urgencia: string; comunidade_id?: number | null
+  }): Promise<Chamado> {
+    const res = await api.post<any>('/chamados', payload)
+    const created = mapChamado(res)
+    chamados.value.unshift(created)
+    return created
+  }
+
   return {
     pros, events, projects, vagas, lojas, artigos, informativos, feedPosts, meuCurriculo,
+    chamados, ranking,
     patrocinador, configuracao,
     loading, error,
     communities, activeComunidadeId, activeComunidade,
     fetchComunidades, setComunidade, fetchAll,
     rsvp, apoiar, candidatar, fetchLojaDetail, fetchProjetoDetail,
     fetchMeuCurriculo, salvarCurriculo, uploadCurriculoPdf,
+    fetchChamadoDetail, aceitarChamado, resolverChamado, registrarDoacao, criarChamado,
   }
 })

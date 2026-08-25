@@ -241,10 +241,49 @@ export interface Configuracao {
   itens_por_pagina: number
 }
 
+export interface Chamado {
+  id: string
+  tipo: 'problema' | 'servico'
+  titulo: string
+  descricao: string
+  categoria: string
+  fotos: string[]
+  local: string | null
+  estimativa_valor: string | null
+  valor_acordado: string | null
+  urgencia: 'normal' | 'urgente' | 'critico'
+  status: 'aberto' | 'aceito' | 'em_andamento' | 'resolvido' | 'cancelado'
+  user: { id: number; name: string } | null
+  profissional: { id: number; nome: string; foto_url: string | null; whatsapp: string | null } | null
+  doacoes: ChamadoDoacao[]
+  total_doacoes: number
+  aceito_em: string | null
+  resolvido_em: string | null
+  created_at: string
+}
+
+export interface ChamadoDoacao {
+  id: string
+  chamado_id: string
+  user: { id: number; name: string } | null
+  valor: number
+  mensagem: string | null
+  created_at: string
+}
+
+export interface RankingItem {
+  user_id: number
+  name: string
+  pontos: number
+  chamados_ajudados: number
+  total_doado: number
+}
+
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos' | 'informativos'
+  | 'chamados'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail' | 'informativoDetail'
-  | 'produtoDetail'
+  | 'produtoDetail' | 'chamadoDetail'
   | 'login' | 'perfil' | 'curriculos'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'

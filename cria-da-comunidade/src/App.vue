@@ -39,6 +39,8 @@ import InformativoDetail from './views/web/details/InformativoDetail.vue'
 import LoginView from './views/web/LoginView.vue'
 import ProfileView from './views/web/ProfileView.vue'
 import CurriculoView from './views/web/CurriculoView.vue'
+import ChamadosView from './views/web/ChamadosView.vue'
+import ChamadoDetail from './views/web/details/ChamadoDetail.vue'
 import BottomNav from './components/layout/BottomNav.vue'
 
 const ui = useUiStore()
@@ -65,6 +67,8 @@ const views = {
   login: LoginView,
   perfil: ProfileView,
   curriculos: CurriculoView,
+  chamados: ChamadosView,
+  chamadoDetail: ChamadoDetail,
 }
 
 const currentView = computed(() => views[ui.activeView])

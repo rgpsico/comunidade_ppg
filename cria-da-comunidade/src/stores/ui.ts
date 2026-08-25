@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo } from '../types'
+import type { WebView, MobileScreen, Pro, Event, Project, Vaga, Loja, Produto, Artigo, Informativo, Chamado } from '../types'
 import { trackPageView, trackClick } from '../services/analytics'
 import { useDataStore } from './data'
 
@@ -16,6 +16,7 @@ export const useUiStore = defineStore('ui', () => {
   const selectedProduto = ref<Produto | null>(null)
   const selectedArtigo = ref<Artigo | null>(null)
   const selectedInformativo = ref<Informativo | null>(null)
+  const selectedChamado = ref<Chamado | null>(null)
 
   const prosFilters = ref({
     catActive: 'Todos',
@@ -42,6 +43,7 @@ export const useUiStore = defineStore('ui', () => {
     artigos: '/artigos',
     informativos: '/informativos',
     curriculos: '/curriculos',
+    chamados: '/chamados',
   }
 
   function slug(): string {
@@ -136,10 +138,17 @@ export const useUiStore = defineStore('ui', () => {
     history.pushState({}, '', prefixedPath(`/informativos/${inf.slug}`))
   }
 
+  function openChamado(chamado: Chamado) {
+    selectedChamado.value = chamado
+    activeView.value = 'chamadoDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', prefixedPath(`/chamados/${chamado.id}`))
+  }
+
   return {
     activeView, mobileScreen,
-    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedProduto, selectedArtigo, selectedInformativo,
+    selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedProduto, selectedArtigo, selectedInformativo, selectedChamado,
     prosFilters, eventsFilters, projectsFilters, vagasFilters, lojasFilters,
-    goTo, openPro, openEvent, openProj, openVaga, openLoja, openProduto, openArtigo, openInformativo,
+    goTo, openPro, openEvent, openProj, openVaga, openLoja, openProduto, openArtigo, openInformativo, openChamado,
   }
 })
