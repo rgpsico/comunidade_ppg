@@ -33,7 +33,7 @@ class Produto extends Model
     {
         if (!$this->imagens) return [];
         return collect($this->imagens)
-            ->map(fn ($p) => Storage::disk('public')->url($p))
+            ->map(fn ($p) => str_starts_with($p, 'http') ? $p : Storage::disk('public')->url($p))
             ->values()
             ->toArray();
     }
