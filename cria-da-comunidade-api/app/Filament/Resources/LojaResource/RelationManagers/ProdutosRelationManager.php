@@ -120,6 +120,40 @@ class ProdutosRelationManager extends RelationManager
             ])
             ->defaultSort('ordem')
             ->reorderable('ordem')
+            ->filters([
+                Tables\Filters\SelectFilter::make('disponivel')
+                    ->label('Status')
+                    ->options([
+                        '1' => 'Disponível',
+                        '0' => 'Indisponível',
+                    ])
+                    ->placeholder('Todos'),
+
+                Tables\Filters\SelectFilter::make('destaque')
+                    ->label('Destaque')
+                    ->options([
+                        '1' => 'Em destaque',
+                        '0' => 'Sem destaque',
+                    ])
+                    ->placeholder('Todos'),
+
+                Tables\Filters\Filter::make('categoria')
+                    ->form([
+                        Forms\Components\TextInput::make('categoria')
+                            ->label('Categoria')
+                            ->placeholder('Ex: Marmitas, Lanches…'),
+                    ])
+                    ->query(fn ($query, array $data) =>
+                        $query->when(
+                            $data['categoria'] ?? null,
+                            fn ($q, $v) => $q->where('categoria', 'like', "%{$v}%")
+                        )
+                    )
+                    ->indicateUsing(fn (array $data) =>
+                        ($data['categoria'] ?? null) ? 'Categoria: ' . $data['categoria'] : null
+                    ),
+            ])
+            ->filtersFormColumns(3)
             ->actions([
                 Actions\EditAction::make(),
                 Actions\Action::make('publicar_facebook')
