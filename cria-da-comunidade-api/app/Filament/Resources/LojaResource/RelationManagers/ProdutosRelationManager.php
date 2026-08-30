@@ -160,6 +160,37 @@ class ProdutosRelationManager extends RelationManager
             ])
             ->headerActions([
                 Actions\CreateAction::make(),
+            ])
+            ->bulkActions([
+                Actions\BulkAction::make('ativar')
+                    ->label('Ativar selecionados')
+                    ->icon('heroicon-o-eye')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Ativar produtos selecionados')
+                    ->modalDescription('Todos os produtos selecionados ficarão disponíveis na loja.')
+                    ->action(fn ($records) => $records->each->update(['disponivel' => true]))
+                    ->deselectRecordsAfterCompletion(),
+
+                Actions\BulkAction::make('desativar')
+                    ->label('Desativar selecionados')
+                    ->icon('heroicon-o-eye-slash')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Desativar produtos selecionados')
+                    ->modalDescription('Todos os produtos selecionados ficarão ocultos na loja.')
+                    ->action(fn ($records) => $records->each->update(['disponivel' => false]))
+                    ->deselectRecordsAfterCompletion(),
+
+                Actions\BulkAction::make('excluir')
+                    ->label('Excluir selecionados')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Excluir produtos selecionados')
+                    ->modalDescription('Esta ação não pode ser desfeita. Todos os produtos selecionados serão excluídos permanentemente.')
+                    ->action(fn ($records) => $records->each->delete())
+                    ->deselectRecordsAfterCompletion(),
             ]);
     }
 }
