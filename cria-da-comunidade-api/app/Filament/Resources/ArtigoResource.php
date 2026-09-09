@@ -5,13 +5,17 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ArtigoResource\Pages;
 use App\Models\Artigo;
 use App\Models\Comunidade;
+use App\Services\DeepSeekArtigoService;
 use App\Services\FacebookService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Actions as FormActions;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -29,6 +33,58 @@ class ArtigoResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            Section::make('Gerar com IA')
+                ->description('Digite um tema e deixe a IA (DeepSeek) escrever o rascunho do artigo — título, resumo e corpo.')
+                ->schema([
+                    Grid::make(4)->schema([
+                        Forms\Components\TextInput::make('ia_tema')
+                            ->label('Tema do artigo')
+                            ->placeholder('Ex: Como funciona o auxílio para pequenos empreendedores da comunidade')
+                            ->columnSpan(3)
+                            ->dehydrated(false),
+
+                        FormActions::make([
+                            Actions\Action::make('gerar_com_ia')
+                                ->label('Gerar com IA')
+                                ->icon('heroicon-o-sparkles')
+                                ->color('primary')
+                                ->action(function (Get $get, Set $set) {
+                                    $tema = trim((string) $get('ia_tema'));
+
+                                    if ($tema === '') {
+                                        Notification::make()
+                                            ->title('Digite um tema antes de gerar')
+                                            ->warning()
+                                            ->send();
+
+                                        return;
+                                    }
+
+                                    try {
+                                        $artigo = app(DeepSeekArtigoService::class)->gerar($tema, $get('categoria'));
+
+                                        $set('titulo', $artigo['titulo']);
+                                        $set('slug', $artigo['slug']);
+                                        $set('resumo', $artigo['resumo']);
+                                        $set('corpo', $artigo['corpo']);
+
+                                        Notification::make()
+                                            ->title('Artigo gerado com sucesso!')
+                                            ->body('Revise o conteúdo antes de publicar.')
+                                            ->success()
+                                            ->send();
+                                    } catch (\Throwable $e) {
+                                        Notification::make()
+                                            ->title('Erro ao gerar artigo')
+                                            ->body($e->getMessage())
+                                            ->danger()
+                                            ->send();
+                                    }
+                                }),
+                        ])->columnSpan(1),
+                    ]),
+                ]),
+
             Section::make('Informações do artigo')
                 ->schema([
                     Forms\Components\Select::make('comunidade_id')
