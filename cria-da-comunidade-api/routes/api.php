@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\VagaController;
 use App\Http\Controllers\Api\PatrocinadorController;
 use App\Http\Controllers\Api\ConfiguracaoController;
 use App\Http\Controllers\Api\ChamadoController;
+use App\Http\Controllers\Api\PeladaController;
 use Illuminate\Support\Facades\Route;
 
 // Analytics — pública (user_id preenchido quando há token válido)
@@ -45,6 +46,10 @@ Route::post('chamados',                        [ChamadoController::class, 'store
 Route::post('chamados/{id}/aceitar',           [ChamadoController::class, 'aceitar'])->middleware('auth:sanctum');
 Route::post('chamados/{id}/resolver',          [ChamadoController::class, 'resolver'])->middleware('auth:sanctum');
 Route::post('chamados/{id}/doacoes',           [ChamadoController::class, 'doacao'])->middleware('auth:sanctum');
+
+// Futebol (peladas) — leitura pública
+Route::get('peladas',            [PeladaController::class, 'index']);
+Route::get('peladas/{pelada}',   [PeladaController::class, 'show']);
 
 // Rotas públicas de leitura
 Route::get('comunidades',          [ComunidadeController::class, 'index']);
@@ -84,6 +89,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('profissionais',                   [ProfissionalController::class, 'store']);
     Route::put('profissionais/{profissional}',      [ProfissionalController::class, 'update']);
     Route::delete('profissionais/{profissional}',   [ProfissionalController::class, 'destroy']);
+
+    // Futebol (peladas)
+    Route::post('peladas',                                   [PeladaController::class, 'store']);
+    Route::put('peladas/{pelada}',                           [PeladaController::class, 'update']);
+    Route::delete('peladas/{pelada}',                        [PeladaController::class, 'destroy']);
+    Route::post('peladas/{pelada}/entrar',                   [PeladaController::class, 'entrar']);
+    Route::delete('peladas/{pelada}/sair',                   [PeladaController::class, 'sair']);
+    Route::post('peladas/{pelada}/voltar-fila',              [PeladaController::class, 'voltarFila']);
+    Route::post('peladas/{pelada}/convidados',               [PeladaController::class, 'convidado']);
+    Route::delete('peladas/{pelada}/jogadores/{jogador}',    [PeladaController::class, 'removerJogador']);
+    Route::post('peladas/{pelada}/rodizio',                  [PeladaController::class, 'rodizio']);
+    Route::post('peladas/{pelada}/zerar',                    [PeladaController::class, 'zerar']);
 
     // Eventos
     Route::post('eventos',                    [EventoController::class, 'store']);

@@ -41,6 +41,8 @@ import ProfileView from './views/web/ProfileView.vue'
 import CurriculoView from './views/web/CurriculoView.vue'
 import ChamadosView from './views/web/ChamadosView.vue'
 import ChamadoDetail from './views/web/details/ChamadoDetail.vue'
+import FutebolView from './views/web/FutebolView.vue'
+import PeladaDetail from './views/web/details/PeladaDetail.vue'
 import BottomNav from './components/layout/BottomNav.vue'
 
 const ui = useUiStore()
@@ -69,6 +71,8 @@ const views = {
   curriculos: CurriculoView,
   chamados: ChamadosView,
   chamadoDetail: ChamadoDetail,
+  futebol: FutebolView,
+  peladaDetail: PeladaDetail,
 }
 
 const currentView = computed(() => views[ui.activeView])
@@ -80,6 +84,17 @@ function resolveDeepLink() {
   // Currículos
   if (path.match(/^\/curriculos/) || path.match(/^\/[a-z0-9_-]+\/curriculos/)) {
     ui.activeView = 'curriculos'
+    return
+  }
+
+  // Futebol: /futebol, /futebol/{id} (com ou sem slug de comunidade)
+  const peladaMatch = path.match(/^(?:\/[a-z0-9_-]+)?\/futebol\/(\d+)/)
+  if (peladaMatch) {
+    ui.openPelada(Number(peladaMatch[1]))
+    return
+  }
+  if (path.match(/^\/futebol\/?$/) || path.match(/^\/[a-z0-9_-]+\/futebol\/?$/)) {
+    ui.activeView = 'futebol'
     return
   }
 
@@ -238,6 +253,11 @@ onMounted(async () => {
     else if (p.startsWith('/projetos') && !p.match(/\/\d+/)) ui.activeView = 'projetos'
     else if (p.startsWith('/artigos') && !p.match(/\/[a-z0-9_-]+/)) ui.activeView = 'artigos'
     else if (p.startsWith('/curriculos')) ui.activeView = 'curriculos'
+    else if (p.match(/^\/futebol\/(\d+)/)) {
+      ui.selectedPeladaId = Number(p.match(/^\/futebol\/(\d+)/)![1])
+      ui.activeView = 'peladaDetail'
+    }
+    else if (p.startsWith('/futebol')) ui.activeView = 'futebol'
   })
 })
 </script>

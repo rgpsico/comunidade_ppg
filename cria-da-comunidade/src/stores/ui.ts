@@ -17,6 +17,7 @@ export const useUiStore = defineStore('ui', () => {
   const selectedArtigo = ref<Artigo | null>(null)
   const selectedInformativo = ref<Informativo | null>(null)
   const selectedChamado = ref<Chamado | null>(null)
+  const selectedPeladaId = ref<number | null>(null)
 
   const prosFilters = ref({
     catActive: 'Todos',
@@ -44,6 +45,7 @@ export const useUiStore = defineStore('ui', () => {
     informativos: '/informativos',
     curriculos: '/curriculos',
     chamados: '/chamados',
+    futebol: '/futebol',
   }
 
   function slug(): string {
@@ -145,10 +147,17 @@ export const useUiStore = defineStore('ui', () => {
     history.pushState({}, '', prefixedPath(`/chamados/${chamado.id}`))
   }
 
+  function openPelada(id: number) {
+    selectedPeladaId.value = id
+    activeView.value = 'peladaDetail'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    history.pushState({}, '', prefixedPath(`/futebol/${id}`))
+  }
+
   return {
-    activeView, mobileScreen,
+    activeView, mobileScreen, selectedPeladaId,
     selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedProduto, selectedArtigo, selectedInformativo, selectedChamado,
     prosFilters, eventsFilters, projectsFilters, vagasFilters, lojasFilters,
-    goTo, openPro, openEvent, openProj, openVaga, openLoja, openProduto, openArtigo, openInformativo, openChamado,
+    goTo, openPro, openEvent, openProj, openVaga, openLoja, openProduto, openArtigo, openInformativo, openChamado, openPelada,
   }
 })

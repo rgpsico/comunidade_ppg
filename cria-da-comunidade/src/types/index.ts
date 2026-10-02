@@ -279,11 +279,72 @@ export interface RankingItem {
   total_doado: number
 }
 
+export type PeladaTipo = 'quadra' | 'society' | 'campo' | 'racha'
+
+export interface PeladaJogador {
+  id: number
+  user_id: number | null
+  nome: string
+  convidado: boolean
+  goleiro: boolean
+  posicao: number
+}
+
+export interface PeladaTime {
+  indice: number
+  status: 'quadra' | 'fila'
+  ordem_fila: number | null
+  linha: PeladaJogador[]
+  goleiro: PeladaJogador | null
+  vagas_linha: number
+  vaga_goleiro: boolean
+  completo: boolean
+}
+
+export interface Pelada {
+  id: number
+  comunidade_id: number | null
+  organizador: { id: number; name: string } | null
+  nome: string
+  tipo: PeladaTipo
+  jogadores_linha: number
+  goleiros_por_time: number
+  tempo_jogo_min: number
+  local: string | null
+  quando: string | null
+  ativo: boolean
+  total_jogadores: number
+  times: PeladaTime[]
+}
+
+export interface PeladaResumo {
+  id: number
+  nome: string
+  tipo: PeladaTipo
+  jogadores_linha: number
+  goleiros_por_time: number
+  tempo_jogo_min: number
+  local: string | null
+  quando: string | null
+  jogadores_count: number
+  organizador: { id: number; name: string } | null
+}
+
+export interface PeladaForm {
+  nome: string
+  tipo: PeladaTipo
+  jogadores_linha: number
+  goleiros_por_time: number
+  tempo_jogo_min: number
+  local: string
+  quando: string
+}
+
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos' | 'informativos'
-  | 'chamados'
+  | 'chamados' | 'futebol'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail' | 'informativoDetail'
-  | 'produtoDetail' | 'chamadoDetail'
+  | 'produtoDetail' | 'chamadoDetail' | 'peladaDetail'
   | 'login' | 'perfil' | 'curriculos'
 
 export type MobileScreen = 'home' | 'buscar' | 'postar' | 'msg' | 'perfil'
