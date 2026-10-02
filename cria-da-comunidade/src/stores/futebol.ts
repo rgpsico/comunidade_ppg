@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api } from '../services/api'
 import { useDataStore } from './data'
-import type { Pelada, PeladaForm, PeladaResumo } from '../types'
+import type { Pelada, PeladaForm, PeladaResumo, Quadra } from '../types'
 
 export const useFutebolStore = defineStore('futebol', () => {
   const peladas = ref<PeladaResumo[]>([])
@@ -10,6 +10,8 @@ export const useFutebolStore = defineStore('futebol', () => {
   const atual = ref<Pelada | null>(null)
   const loadingAtual = ref(false)
   const notFound = ref(false)
+  const quadras = ref<Quadra[]>([])
+  const loadingQuadras = ref(false)
 
   async function fetchPeladas() {
     const data = useDataStore()
@@ -23,6 +25,21 @@ export const useFutebolStore = defineStore('futebol', () => {
       peladas.value = []
     } finally {
       loadingList.value = false
+    }
+  }
+
+  async function fetchQuadras() {
+    const data = useDataStore()
+    loadingQuadras.value = true
+    try {
+      const cid = data.activeComunidadeId
+      const qs = cid ? `?comunidade_id=${cid}` : ''
+      const res = await api.get<{ data: Quadra[] }>(`/quadras${qs}`)
+      quadras.value = res.data
+    } catch {
+      quadras.value = []
+    } finally {
+      loadingQuadras.value = false
     }
   }
 
@@ -74,7 +91,7 @@ export const useFutebolStore = defineStore('futebol', () => {
   }
 
   return {
-    peladas, loadingList, atual, loadingAtual, notFound,
-    fetchPeladas, fetchPelada, criar, entrar, sair, voltarFila, addConvidado, removerJogador, rodizio, zerar, excluir,
+    peladas, loadingList, atual, loadingAtual, notFound, quadras, loadingQuadras,
+    fetchPeladas, fetchQuadras, fetchPelada, criar, entrar, sair, voltarFila, addConvidado, removerJogador, rodizio, zerar, excluir,
   }
 })

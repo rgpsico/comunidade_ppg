@@ -279,6 +279,36 @@ export interface RankingItem {
   total_doado: number
 }
 
+export interface QuadraSlot {
+  time_id: number
+  time_nome: string
+  hora_inicio: string
+  hora_fim: string
+}
+
+export interface QuadraDia {
+  dia: number
+  nome: string
+  slots: QuadraSlot[]
+}
+
+export interface QuadraTimeInfo {
+  id: number
+  nome: string
+  descricao: string | null
+  regras: string | null
+  horarios: { dia_semana: number; hora_inicio: string; hora_fim: string }[]
+}
+
+export interface Quadra {
+  id: number
+  nome: string
+  endereco: string | null
+  descricao: string | null
+  times: QuadraTimeInfo[]
+  semana: QuadraDia[]
+}
+
 export type PeladaTipo = 'quadra' | 'society' | 'campo' | 'racha'
 
 export interface PeladaJogador {

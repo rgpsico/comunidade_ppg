@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\PatrocinadorController;
 use App\Http\Controllers\Api\ConfiguracaoController;
 use App\Http\Controllers\Api\ChamadoController;
 use App\Http\Controllers\Api\PeladaController;
+use App\Http\Controllers\Api\QuadraController;
 use Illuminate\Support\Facades\Route;
 
 // Analytics — pública (user_id preenchido quando há token válido)
@@ -50,6 +51,7 @@ Route::post('chamados/{id}/doacoes',           [ChamadoController::class, 'doaca
 // Futebol (peladas) — leitura pública
 Route::get('peladas',            [PeladaController::class, 'index']);
 Route::get('peladas/{pelada}',   [PeladaController::class, 'show']);
+Route::get('quadras',            [QuadraController::class, 'index']);
 
 // Rotas públicas de leitura
 Route::get('comunidades',          [ComunidadeController::class, 'index']);

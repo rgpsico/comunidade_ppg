@@ -6,9 +6,17 @@
         <h1 class="view-title display">Futebol <span class="text-gradient-orange">da Comunidade</span></h1>
         <p class="view-sub">Entre na fila da pelada direto do celular e acompanhe quem joga a seguir.</p>
       </div>
-      <button class="btn-primary" @click="criarPelada">+ Criar pelada</button>
+      <button v-if="aba === 'peladas'" class="btn-primary" @click="criarPelada">+ Criar pelada</button>
     </div>
 
+    <div class="tabs" role="tablist">
+      <button role="tab" class="tab" :class="{ active: aba === 'peladas' }" :aria-selected="aba === 'peladas'" @click="aba = 'peladas'">⚽ Peladas</button>
+      <button role="tab" class="tab" :class="{ active: aba === 'quadras' }" :aria-selected="aba === 'quadras'" @click="aba = 'quadras'">🏟️ Quadras e horários</button>
+    </div>
+
+    <QuadrasPanel v-if="aba === 'quadras'" />
+
+    <template v-else>
     <div v-if="futebol.loadingList" class="loading-msg">Carregando peladas...</div>
     <div v-else-if="futebol.peladas.length === 0" class="empty-state">
       <div class="empty-icon">⚽</div>
@@ -23,6 +31,7 @@
         @click="ui.openPelada(p.id)"
       />
     </div>
+    </template>
 
     <FutebolSetupWizard
       v-if="showWizard"
@@ -40,12 +49,14 @@ import { useDataStore } from '../../stores/data'
 import { useFutebolStore } from '../../stores/futebol'
 import PeladaCard from '../../components/ui/PeladaCard.vue'
 import FutebolSetupWizard from '../../components/ui/FutebolSetupWizard.vue'
+import QuadrasPanel from '../../components/ui/QuadrasPanel.vue'
 
 const ui = useUiStore()
 const auth = useAuthStore()
 const data = useDataStore()
 const futebol = useFutebolStore()
 const showWizard = ref(false)
+const aba = ref<'peladas' | 'quadras'>('peladas')
 
 onMounted(() => futebol.fetchPeladas())
 watch(() => data.activeComunidadeId, () => futebol.fetchPeladas())
@@ -86,6 +97,20 @@ function onCreated(id: number) {
 }
 .view-title { font-size: 32px; font-weight: 900; color: var(--cream); margin: 0 0 8px; }
 .view-sub { font-size: 14px; color: var(--muted); margin: 0; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.tab {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab.active, .tab:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
 
 .peladas-grid {
   display: grid;
