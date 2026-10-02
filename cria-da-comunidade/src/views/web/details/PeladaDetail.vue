@@ -20,6 +20,11 @@
           <span v-if="p.local" class="chip">📍 {{ p.local }}</span>
           <span class="chip">👥 {{ p.total_jogadores }} na lista</span>
         </div>
+        <div class="share-row">
+          <button class="btn-share" @click="compartilhar">📤 Compartilhar</button>
+          <a class="btn-share wa" :href="linkWhatsapp" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn-share fb" :href="linkFacebook" target="_blank" rel="noopener">Facebook</a>
+        </div>
       </header>
 
       <div v-if="msg" class="toast" :class="{ erro: msgErro }" role="status">{{ msg }}</div>
@@ -152,6 +157,28 @@ const souOrganizador = computed(() => {
   if (!u || !p.value) return false
   return u.id === p.value.organizador?.id || u.roles?.some(r => ['super_admin', 'admin', 'moderador'].includes(r.name))
 })
+
+// Link com pré-visualização (Open Graph) servido pela API; redireciona pro portal
+const SHARE_BASE = (import.meta.env.VITE_API_BASE ?? 'https://api.comunidadeppg.com.br/api').replace(/\/api\/?$/, '')
+const shareUrl = computed(() => (p.value ? `${SHARE_BASE}/share/pelada/${p.value.id}` : ''))
+const shareTexto = computed(() => (p.value ? `⚽ ${p.value.nome} — entre na fila da pelada:` : ''))
+const linkWhatsapp = computed(() => `https://wa.me/?text=${encodeURIComponent(`${shareTexto.value} ${shareUrl.value}`)}`)
+const linkFacebook = computed(() => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`)
+
+async function compartilhar() {
+  if (!p.value) return
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: p.value.nome, text: shareTexto.value, url: shareUrl.value })
+      return
+    }
+    await navigator.clipboard.writeText(shareUrl.value)
+    aviso('Link copiado! Cole no grupo.')
+  } catch (e: unknown) {
+    if (e instanceof DOMException && e.name === 'AbortError') return
+    aviso('Não deu pra compartilhar. Copie o link da barra do navegador.', true)
+  }
+}
 
 const ocupado = ref(false)
 const msg = ref('')
@@ -289,6 +316,17 @@ function jogadorLi(j: PeladaJogador) {
 .title { font-size: 30px; font-weight: 900; color: var(--cream); margin: 0 0 12px; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
 .chip { font-size: 12px; padding: 5px 11px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+
+.share-row { display: flex; gap: 8px; flex-wrap: wrap; margin: -6px 0 18px; }
+.btn-share {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 18px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line-strong); color: var(--cream);
+  font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer;
+}
+.btn-share:hover { border-color: var(--orange); }
+.btn-share.wa { border-color: #25D366; color: #25D366; }
+.btn-share.fb { border-color: #1877F2; color: #6FA8FF; }
 
 .toast { position: sticky; top: 8px; z-index: 5; padding: 10px 14px; border-radius: 12px; background: #2BD96B22; border: 1px solid var(--green); color: var(--cream); font-size: 14px; margin-bottom: 14px; }
 .toast.erro { background: #EF444422; border-color: #EF4444; }

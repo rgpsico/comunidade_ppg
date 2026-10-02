@@ -6,6 +6,7 @@ use App\Models\Artigo;
 use App\Models\Comunidade;
 use App\Models\Evento;
 use App\Models\Loja;
+use App\Models\Pelada;
 use App\Models\Produto;
 use App\Models\Profissional;
 use App\Models\Projeto;
@@ -78,6 +79,38 @@ class ShareController extends Controller
             'ogImage'     => $image,
             'siteName'    => $com['nome'],
             'redirectUrl' => $this->frontUrl($com['slug'], "/eventos/{$evento->id}"),
+        ]);
+    }
+
+    public function pelada(Pelada $pelada): \Illuminate\Contracts\View\View
+    {
+        $tipos = ['quadra' => 'Quadra', 'society' => 'Society', 'campo' => 'Campo', 'racha' => 'Racha'];
+        $formato = $pelada->goleiros_por_time > 0
+            ? "{$pelada->jogadores_linha} na linha + gol"
+            : "{$pelada->jogadores_linha} na linha";
+        $naLista = $pelada->jogadores()->count();
+
+        $partes = array_filter([
+            $tipos[$pelada->tipo] ?? 'Pelada',
+            $formato,
+            "{$pelada->tempo_jogo_min} min por jogo",
+            $pelada->quando,
+            $pelada->local,
+        ]);
+        $desc = implode(' · ', $partes) . '. '
+            . ($naLista > 0 ? "{$naLista} na lista" : 'Lista aberta')
+            . ' — entre na fila pelo celular!';
+
+        $com = $this->comunidadeInfo($pelada->comunidade_id);
+
+        return view('share.pelada', [
+            'pelada'      => $pelada,
+            'ogTitle'     => "⚽ {$pelada->nome}",
+            'ogDesc'      => $desc,
+            'ogImage'     => asset('images/og-pelada.png'),
+            'ogUrl'       => route('share.pelada', $pelada),
+            'siteName'    => $com['nome'],
+            'redirectUrl' => $this->frontUrl($com['slug'], "/futebol/{$pelada->id}"),
         ]);
     }
 
