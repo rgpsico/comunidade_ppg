@@ -117,6 +117,14 @@ function formatData(iso: string | null): string {
 .artigo-corpo :deep(a) { color: var(--orange); text-decoration: underline; }
 .artigo-corpo :deep(ul), .artigo-corpo :deep(ol) { padding-left: 20px; margin-bottom: 16px; }
 .artigo-corpo :deep(li) { margin-bottom: 6px; }
+/* Vídeo no corpo do artigo: <iframe> (YouTube/Vimeo) ou <video>, sempre 16:9 e do tamanho da coluna */
+.artigo-corpo :deep(iframe), .artigo-corpo :deep(video) {
+  display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0;
+  border-radius: var(--radius-lg); background: #000; margin: 8px 0 22px;
+}
+.artigo-corpo :deep(.video-embed) { margin: 8px 0 22px; }
+.artigo-corpo :deep(.video-embed iframe), .artigo-corpo :deep(.video-embed video) { margin: 0; }
+.artigo-corpo :deep(.video-embed figcaption) { color: var(--muted); font-size: 12px; margin-top: 8px; }
 .artigo-corpo :deep(blockquote) {
   border-left: 3px solid var(--orange); padding-left: 16px;
   color: var(--cream); font-style: italic; margin: 20px 0;
