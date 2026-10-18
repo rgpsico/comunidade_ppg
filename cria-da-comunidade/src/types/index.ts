@@ -372,7 +372,7 @@ export interface PeladaForm {
 
 export type WebView =
   | 'inicio' | 'profissionais' | 'eventos' | 'projetos' | 'vagas' | 'lojas' | 'artigos' | 'informativos'
-  | 'chamados' | 'futebol'
+  | 'chamados' | 'futebol' | 'cadastroPro'
   | 'proDetail' | 'eventDetail' | 'projDetail' | 'vagaDetail' | 'lojaDetail' | 'artigoDetail' | 'informativoDetail'
   | 'produtoDetail' | 'chamadoDetail' | 'peladaDetail'
   | 'login' | 'perfil' | 'curriculos'

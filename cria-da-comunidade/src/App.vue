@@ -1,4 +1,7 @@
 <template>
+  <!-- Assistente de cadastro de profissionais: tela cheia, sem menus (é um link para enviar a quem ainda não conhece o portal) -->
+  <CadastroProView v-if="ui.activeView === 'cadastroPro'" />
+  <template v-else>
   <div class="app">
     <AppSidebar />
     <div class="main-wrap">
@@ -11,6 +14,7 @@
     </div>
   </div>
   <BottomNav />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -43,6 +47,7 @@ import ChamadosView from './views/web/ChamadosView.vue'
 import ChamadoDetail from './views/web/details/ChamadoDetail.vue'
 import FutebolView from './views/web/FutebolView.vue'
 import PeladaDetail from './views/web/details/PeladaDetail.vue'
+import CadastroProView from './views/web/CadastroProView.vue'
 import BottomNav from './components/layout/BottomNav.vue'
 
 const ui = useUiStore()
@@ -73,6 +78,7 @@ const views = {
   chamadoDetail: ChamadoDetail,
   futebol: FutebolView,
   peladaDetail: PeladaDetail,
+  cadastroPro: CadastroProView,
 }
 
 const currentView = computed(() => views[ui.activeView])
@@ -80,6 +86,12 @@ const currentView = computed(() => views[ui.activeView])
 function resolveDeepLink() {
   const path   = window.location.pathname
   const params = new URLSearchParams(window.location.search)
+
+  // Cadastro rápido de profissionais: /cadastro ou /{slug}/cadastro
+  if (path.match(/^(?:\/[a-z0-9_-]+)?\/cadastro\/?$/)) {
+    ui.activeView = 'cadastroPro'
+    return
+  }
 
   // Currículos
   if (path.match(/^\/curriculos/) || path.match(/^\/[a-z0-9_-]+\/curriculos/)) {
@@ -216,6 +228,9 @@ watch(
 )
 
 onMounted(async () => {
+  // O link do cadastro abre na hora, sem esperar o carregamento do resto do portal.
+  if (/^(?:\/[a-z0-9_-]+)?\/cadastro\/?$/.test(window.location.pathname)) ui.activeView = 'cadastroPro'
+
   // Carrega comunidades e usuário em paralelo
   await Promise.all([data.fetchComunidades(), auth.fetchMe()])
 
@@ -258,6 +273,7 @@ onMounted(async () => {
       ui.activeView = 'peladaDetail'
     }
     else if (p.startsWith('/futebol')) ui.activeView = 'futebol'
+    else if (p.startsWith('/cadastro')) ui.activeView = 'cadastroPro'
   })
 })
 </script>

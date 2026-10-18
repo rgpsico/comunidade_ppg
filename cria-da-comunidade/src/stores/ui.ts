@@ -46,6 +46,7 @@ export const useUiStore = defineStore('ui', () => {
     curriculos: '/curriculos',
     chamados: '/chamados',
     futebol: '/futebol',
+    cadastroPro: '/cadastro',
   }
 
   function slug(): string {
@@ -158,6 +159,7 @@ export const useUiStore = defineStore('ui', () => {
     activeView, mobileScreen, selectedPeladaId,
     selectedPro, selectedEvent, selectedProj, selectedVaga, selectedLoja, selectedProduto, selectedArtigo, selectedInformativo, selectedChamado,
     prosFilters, eventsFilters, projectsFilters, vagasFilters, lojasFilters,
+    slugPath: prefixedPath,
     goTo, openPro, openEvent, openProj, openVaga, openLoja, openProduto, openArtigo, openInformativo, openChamado, openPelada,
   }
 })

@@ -20,10 +20,14 @@ use App\Http\Controllers\Api\ConfiguracaoController;
 use App\Http\Controllers\Api\ChamadoController;
 use App\Http\Controllers\Api\PeladaController;
 use App\Http\Controllers\Api\QuadraController;
+use App\Http\Controllers\Api\CadastroProfissionalController;
 use Illuminate\Support\Facades\Route;
 
 // Analytics — pública (user_id preenchido quando há token válido)
 Route::post('analytics/track', [AnalyticsController::class, 'track']);
+
+// Cadastro rápido de profissionais (assistente do link compartilhado) — público, com limite por IP
+Route::post('cadastro-profissional', [CadastroProfissionalController::class, 'store'])->middleware('throttle:20,60');
 
 // Auth — públicas
 Route::prefix('auth')->group(function () {

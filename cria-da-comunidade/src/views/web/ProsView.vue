@@ -6,6 +6,7 @@
         <h1 class="page-title display">Profissionais perto de você</h1>
         <p class="page-sub">2.413 verificados · Complexo do Alemão e arredores</p>
       </div>
+      <button class="cad-cta" type="button" @click="ui.goTo('cadastroPro')">🛠️ Sou profissional: quero me cadastrar</button>
       <div class="view-toggle">
         <button class="toggle-btn active">Grade</button>
         <button class="toggle-btn">Lista</button>
@@ -152,6 +153,8 @@ function clearFilters() {
 </script>
 
 <style scoped>
+.cad-cta { background: color-mix(in srgb, var(--orange) 16%, var(--card)); border: 1px solid var(--orange); color: var(--cream); border-radius: var(--radius-full); padding: 10px 18px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; min-height: 44px; }
+.cad-cta:hover { background: var(--orange); color: #fff; }
 .pros-page { padding: 28px 32px; max-width: 1480px; }
 
 .page-head {
