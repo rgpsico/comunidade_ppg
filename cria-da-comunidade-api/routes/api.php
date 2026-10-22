@@ -28,6 +28,7 @@ Route::post('analytics/track', [AnalyticsController::class, 'track']);
 
 // Cadastro rápido de profissionais (assistente do link compartilhado) — público, com limite por IP
 Route::post('cadastro-profissional', [CadastroProfissionalController::class, 'store'])->middleware('throttle:20,60');
+Route::post('cadastro-profissional/progresso', [CadastroProfissionalController::class, 'progresso'])->middleware('throttle:60,60');
 
 // Auth — públicas
 Route::prefix('auth')->group(function () {

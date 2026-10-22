@@ -6,7 +6,7 @@
     </header>
 
     <main class="cad-card" aria-live="polite">
-      <!-- ───────── Boas-vindas ───────── -->
+      <!-- ───────── Boas-vindas (só no link de CONVITE direto, ?convite=1) ───────── -->
       <section v-if="fase === 'boasvindas'" class="cad-center">
         <div class="cad-emoji" aria-hidden="true">🎉</div>
         <h1 class="cad-title">Seja muito bem-vindo(a)!</h1>
@@ -17,24 +17,26 @@
         </div>
         <p class="cad-sub">Responda algumas perguntinhas rápidas, leva uns <strong>2 minutinhos</strong>. Depois a gente chama você no WhatsApp.</p>
         <button class="btn-primary cad-big" type="button" @click="fase = 'form'">Começar meu cadastro →</button>
-        <p class="cad-mini">Seus dados só são usados pela nossa equipe para falar com você.</p>
       </section>
 
       <!-- ───────── Sucesso ───────── -->
       <section v-else-if="fase === 'sucesso'" class="cad-center">
         <div class="cad-emoji" aria-hidden="true">✅</div>
         <h1 class="cad-title">Pronto, {{ primeiroNome }}! Cadastro enviado.</h1>
-        <div class="cad-sorte">
+        <div v-if="convite" class="cad-sorte">
           <span aria-hidden="true">🍀</span>
-          <p>Lembra? Você teve sorte: o dono do sistema reconheceu o seu trabalho. <strong>Em breve a nossa equipe te chama no WhatsApp {{ f.whatsapp }}</strong>
-            para os próximos passos.</p>
+          <p>Lembra? Você teve sorte: o dono do sistema reconheceu o seu trabalho. <strong>Em breve a nossa equipe te chama no WhatsApp {{ f.whatsapp }}</strong> para os próximos passos.</p>
+        </div>
+        <div v-else class="cad-sorte">
+          <span aria-hidden="true">📲</span>
+          <p>Recebemos os seus dados. <strong>Em breve a nossa equipe te chama no WhatsApp {{ f.whatsapp }}</strong> para os próximos passos.</p>
         </div>
         <p class="cad-sub">Salve o nosso número quando ele chegar, para não perder a mensagem. 😉</p>
         <button class="btn-primary cad-big" type="button" @click="conhecer">Conhecer a comunidade</button>
         <a class="cad-link" :href="compartilharUrl" target="_blank" rel="noopener">Indicar outro profissional pelo WhatsApp</a>
       </section>
 
-      <!-- ───────── Formulário (5 passos) ───────── -->
+      <!-- ───────── Formulário (3 passos) ───────── -->
       <form v-else novalidate @submit.prevent="avancar">
         <div class="cad-head">
           <button v-if="passo > 1" class="cad-back" type="button" @click="voltar">← Voltar</button>
@@ -48,10 +50,10 @@
         <!-- Isca anti-robô: invisível para pessoas -->
         <div class="cad-hp" aria-hidden="true"><label>Apelido<input v-model="f.apelido" type="text" name="apelido" tabindex="-1" autocomplete="off" /></label></div>
 
-        <!-- 1. Quem é você -->
+        <!-- 1. Contato -->
         <section v-if="passo === 1">
-          <h2 class="cad-h">Vamos nos conhecer</h2>
-          <p class="cad-sub">Só o básico para a gente poder falar com você.</p>
+          <h1 class="cad-h">Cadastre o seu serviço de graça</h1>
+          <p class="cad-sub">Seja encontrado por quem mora perto de você. São só 3 passos rápidos, direto do celular.</p>
 
           <div class="cad-field">
             <label for="c-nome">Seu nome *</label>
@@ -68,6 +70,7 @@
             <input id="c-mail" v-model="f.email" class="cad-input" :class="{ err: erros.email }" type="email" inputmode="email" placeholder="seunome@email.com" autocomplete="email" maxlength="150" />
             <span v-if="erros.email" class="cad-err">{{ erros.email }}</span>
           </div>
+          <p class="cad-mini">É grátis. Ao continuar, você concorda que a equipe da {{ data.configuracao.nome_plataforma || 'Comunidade PPG' }} fale com você pelo WhatsApp sobre o seu cadastro.</p>
         </section>
 
         <!-- 2. O que você faz -->
@@ -93,18 +96,6 @@
             </div>
           </template>
           <span v-if="erros.categoria || erros.profissao" class="cad-err">{{ erros.categoria || erros.profissao }}</span>
-        </section>
-
-        <!-- 3. Serviço -->
-        <section v-else-if="passo === 3">
-          <h2 class="cad-h">Conte sobre o seu serviço</h2>
-          <p class="cad-sub">Pode pular a descrição se preferir, ela é opcional.</p>
-
-          <div class="cad-field">
-            <label for="c-desc">Descrição do serviço <small>(opcional)</small></label>
-            <textarea id="c-desc" v-model="f.descricao" class="cad-input" rows="4" maxlength="1000" placeholder="Ex.: Instalação e conserto elétrico residencial. Atendo a região toda."></textarea>
-            <small class="cad-count">{{ f.descricao.length }}/1000</small>
-          </div>
 
           <div v-if="perguntaDomicilio" class="cad-field">
             <label id="l-dom">Você atende em domicílio (na casa do cliente)? *</label>
@@ -114,11 +105,17 @@
             </div>
             <span v-if="erros.atende_domicilio" class="cad-err">{{ erros.atende_domicilio }}</span>
           </div>
+
+          <button v-if="!mostrarDescricao" type="button" class="cad-mais" @click="mostrarDescricao = true">＋ Quer contar mais sobre o seu serviço? (opcional)</button>
+          <div v-else class="cad-field">
+            <label for="c-desc">Descrição do serviço <small>(opcional)</small></label>
+            <textarea id="c-desc" v-model="f.descricao" class="cad-input" rows="3" maxlength="1000" placeholder="Ex.: Instalação e conserto elétrico residencial. Atendo a região toda."></textarea>
+          </div>
         </section>
 
-        <!-- 4. Digital -->
-        <section v-else-if="passo === 4">
-          <h2 class="cad-h">E no mundo digital?</h2>
+        <!-- 3. Digital -->
+        <section v-else>
+          <h2 class="cad-h">Última coisa: o digital</h2>
           <p class="cad-sub">Sem certo ou errado: serve para a gente saber como ajudar você.</p>
 
           <div class="cad-field">
@@ -152,25 +149,6 @@
             </div>
             <span v-if="erros.nivel_digital" class="cad-err">{{ erros.nivel_digital }}</span>
           </div>
-        </section>
-
-        <!-- 5. Revisão -->
-        <section v-else>
-          <h2 class="cad-h">Confira os seus dados</h2>
-          <p class="cad-sub">Está tudo certo? Se precisar corrigir, toque em “Editar”.</p>
-
-          <dl class="cad-resumo">
-            <div><dt>Nome</dt><dd>{{ f.nome }}</dd><button type="button" @click="irPara(1)">Editar</button></div>
-            <div><dt>WhatsApp</dt><dd>{{ f.whatsapp }}</dd><button type="button" @click="irPara(1)">Editar</button></div>
-            <div v-if="f.email"><dt>E-mail</dt><dd>{{ f.email }}</dd><button type="button" @click="irPara(1)">Editar</button></div>
-            <div><dt>Profissão</dt><dd>{{ f.profissao }} <small>({{ f.categoria }})</small></dd><button type="button" @click="irPara(2)">Editar</button></div>
-            <div v-if="f.descricao"><dt>Serviço</dt><dd>{{ f.descricao }}</dd><button type="button" @click="irPara(3)">Editar</button></div>
-            <div v-if="perguntaDomicilio"><dt>Atende em domicílio</dt><dd>{{ f.atende_domicilio ? 'Sim' : 'Não' }}</dd><button type="button" @click="irPara(3)">Editar</button></div>
-            <div><dt>Tem site</dt><dd>{{ f.tem_site ? 'Sim' : 'Não' }}</dd><button type="button" @click="irPara(4)">Editar</button></div>
-            <div><dt>Google Meu Negócio</dt><dd>{{ f.tem_google_meu_negocio ? 'Sim' : 'Não' }}</dd><button type="button" @click="irPara(4)">Editar</button></div>
-            <div><dt>Nível digital</dt><dd>{{ f.nivel_digital === 'avancado' ? 'Avançado' : 'Só o básico' }}</dd><button type="button" @click="irPara(4)">Editar</button></div>
-          </dl>
-          <p class="cad-mini">Ao enviar, você concorda que a equipe da {{ data.configuracao.nome_plataforma || 'Comunidade PPG' }} entre em contato pelo WhatsApp.</p>
           <p v-if="erroEnvio" class="cad-err cad-err-box" role="alert">{{ erroEnvio }}</p>
         </section>
 
@@ -189,7 +167,7 @@ import { useDataStore } from '../../stores/data'
 import { api } from '../../services/api'
 
 interface Profissao { label: string; domicilio?: boolean }
-interface Area { nome: string; emoji: string; profissoes: Profissao[]; domicilioSempre?: boolean }
+interface Area { nome: string; emoji: string; profissoes: Profissao[] }
 
 // "nome" é a categoria da plataforma (a mesma do cadastro de profissionais). "domicilio": a pergunta
 // "atende em domicílio?" só aparece onde faz sentido (barbeiro, manicure...); obra e reparo já vão até o cliente.
@@ -207,15 +185,26 @@ const AREAS: Area[] = [
   { nome: 'Transporte', emoji: '🚚', profissoes: [{ label: 'Frete e mudança' }, { label: 'Motorista particular' }, { label: 'Entregador(a) / mototáxi' }] },
 ]
 
-const TOTAL = 5
+const TOTAL = 3
 const ui = useUiStore()
 const data = useDataStore()
 
-const fase = ref<'boasvindas' | 'form' | 'sucesso'>('boasvindas')
+// Parâmetros do link. ?convite=1 mostra a mensagem de boas-vindas (convite direto no WhatsApp).
+// ?ref= e os utm_ (anúncios) são guardados junto do cadastro para saber de onde veio cada pessoa.
+const query = new URLSearchParams(window.location.search)
+const convite = query.has('convite')
+const param = (k: string): string | null => {
+  const v = query.get(k)
+  return v && !v.startsWith('{') ? v : null // ignora macros do Meta que não foram substituídas
+}
+const origem = { origem: param('ref'), utm_source: param('utm_source'), utm_campaign: param('utm_campaign'), utm_content: param('utm_content') }
+
+const fase = ref<'boasvindas' | 'form' | 'sucesso'>(convite ? 'boasvindas' : 'form')
 const passo = ref(1)
 const enviando = ref(false)
 const erroEnvio = ref('')
 const outra = ref(false)
+const mostrarDescricao = ref(false)
 const erros = reactive<Record<string, string>>({})
 
 const f = reactive({
@@ -239,7 +228,7 @@ const perguntaDomicilio = computed(() => {
 })
 
 const compartilharUrl = computed(() => {
-  const link = `${window.location.origin}${ui.slugPath('/cadastro')}`
+  const link = `${window.location.origin}${ui.slugPath('/cadastro')}?ref=indicacao`
   const texto = `Oi! Conheci a ${data.configuracao.nome_plataforma || 'Comunidade PPG'} e lembrei de você. Faz o cadastro rápido por aqui (2 minutinhos): ${link}`
   return `https://wa.me/?text=${encodeURIComponent(texto)}`
 })
@@ -272,9 +261,8 @@ function validar(n: number): boolean {
   } else if (n === 2) {
     if (!f.categoria) erros.categoria = 'Escolha a sua área de atuação.'
     else if (f.profissao.trim().length < 2) erros.profissao = outra.value ? 'Escreva qual é a sua profissão.' : 'Escolha a sua profissão (ou toque em “Outra”).'
+    else if (perguntaDomicilio.value && f.atende_domicilio === null) erros.atende_domicilio = 'Responda sim ou não.'
   } else if (n === 3) {
-    if (perguntaDomicilio.value && f.atende_domicilio === null) erros.atende_domicilio = 'Responda sim ou não.'
-  } else if (n === 4) {
     if (f.tem_site === null) erros.tem_site = 'Responda sim ou não.'
     if (f.tem_google_meu_negocio === null) erros.tem_google_meu_negocio = 'Responda sim ou não.'
     if (!f.nivel_digital) erros.nivel_digital = 'Escolha uma das opções.'
@@ -284,11 +272,27 @@ function validar(n: number): boolean {
 
 function rolarTopo() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 function voltar() { limparErros(); passo.value--; rolarTopo() }
-function irPara(n: number) { limparErros(); passo.value = n; rolarTopo() }
+
+// Guarda o que já foi preenchido assim que o passo termina: quem desistir no meio continua sendo um lead contatável.
+// Falha aqui nunca trava a pessoa (o envio final repete tudo).
+async function salvarProgresso(etapa: number) {
+  try {
+    await api.post('/cadastro-profissional/progresso', {
+      nome: f.nome.trim(), whatsapp: f.whatsapp, email: f.email.trim() || null, etapa,
+      categoria: etapa >= 2 ? f.categoria : null, profissao: etapa >= 2 ? f.profissao.trim() : null,
+      comunidade_id: data.activeComunidadeId ?? null, ...origem, apelido: f.apelido,
+    })
+  } catch { /* segue em frente */ }
+}
 
 async function avancar() {
   if (!validar(passo.value)) return
-  if (passo.value < TOTAL) { passo.value++; rolarTopo(); return }
+  if (passo.value < TOTAL) {
+    void salvarProgresso(passo.value)
+    passo.value++
+    rolarTopo()
+    return
+  }
   await enviar()
 }
 
@@ -296,7 +300,6 @@ async function enviar() {
   erroEnvio.value = ''
   enviando.value = true
   try {
-    const ref = new URLSearchParams(window.location.search).get('ref')
     await api.post('/cadastro-profissional', {
       nome: f.nome.trim(),
       whatsapp: f.whatsapp,
@@ -309,7 +312,7 @@ async function enviar() {
       tem_google_meu_negocio: f.tem_google_meu_negocio,
       nivel_digital: f.nivel_digital,
       comunidade_id: data.activeComunidadeId ?? null,
-      origem: ref,
+      ...origem,
       apelido: f.apelido,
     })
     fase.value = 'sucesso'
@@ -391,4 +394,7 @@ textarea.cad-input { resize: vertical; min-height: 110px; }
 .cad-big:disabled { opacity: .6; cursor: wait; }
 .cad-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 @media (max-width: 380px) { .cad-areas { grid-template-columns: 1fr; } .cad-resumo > div { grid-template-columns: 90px 1fr auto; } }
+
+.cad-mais { background: none; border: 1px dashed var(--line-strong); color: var(--muted); border-radius: 12px; padding: 12px 14px; margin-top: 18px; font: inherit; font-size: 14px; cursor: pointer; width: 100%; text-align: left; min-height: 48px; }
+.cad-mais:hover { color: var(--cream); border-color: var(--orange); }
 </style>

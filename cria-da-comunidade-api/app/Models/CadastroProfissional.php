@@ -16,12 +16,12 @@ class CadastroProfissional extends Model
 
     public const NIVEIS = ['basico' => 'Só o básico', 'avancado' => 'Avançado no digital'];
 
-    public const STATUS = ['novo' => 'Novo', 'contatado' => 'Contatado', 'aprovado' => 'Aprovado', 'descartado' => 'Descartado'];
+    public const STATUS = ['parcial' => 'Não terminou', 'novo' => 'Novo', 'contatado' => 'Contatado', 'aprovado' => 'Aprovado', 'descartado' => 'Descartado'];
 
     protected $fillable = [
         'comunidade_id', 'nome', 'whatsapp', 'email', 'categoria', 'profissao', 'descricao',
         'atende_domicilio', 'tem_site', 'tem_google_meu_negocio', 'nivel_digital',
-        'status', 'profissional_id', 'origem', 'observacao_admin',
+        'status', 'etapa', 'profissional_id', 'origem', 'utm_source', 'utm_campaign', 'utm_content', 'observacao_admin',
     ];
 
     protected function casts(): array

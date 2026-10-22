@@ -87,6 +87,56 @@ class CadastroProfissionalTest extends TestCase
         $this->postJson('/api/cadastro-profissional', $this->payload(['whatsapp' => '21999990099']))->assertStatus(429);
     }
 
+    public function test_lead_e_salvo_no_passo_1_e_vira_parcial_com_utm(): void
+    {
+        $this->postJson('/api/cadastro-profissional/progresso', [
+            'nome' => 'Carlos Eletricista', 'whatsapp' => '(21) 98888-1111', 'etapa' => 1,
+            'origem' => 'fb-eletricista', 'utm_source' => 'fb', 'utm_campaign' => 'Teste Zona Sul', 'utm_content' => 'Anuncio 1 | Eletricista',
+        ])->assertCreated();
+
+        $c = CadastroProfissional::first();
+        $this->assertSame('parcial', $c->status);
+        $this->assertSame(1, $c->etapa);
+        $this->assertSame('21988881111', $c->whatsapp);
+        $this->assertNull($c->categoria);
+        $this->assertSame('fb-eletricista', $c->origem);
+        $this->assertSame('Anuncio 1 | Eletricista', $c->utm_content);
+    }
+
+    public function test_passo_2_avanca_sem_voltar_e_o_envio_final_completa_o_mesmo_lead(): void
+    {
+        $base = ['nome' => 'Carlos', 'whatsapp' => '21988881111', 'origem' => 'fb-eletricista'];
+        $this->postJson('/api/cadastro-profissional/progresso', $base + ['etapa' => 1])->assertCreated();
+        $this->postJson('/api/cadastro-profissional/progresso', $base + ['etapa' => 2, 'categoria' => 'Construção', 'profissao' => 'Eletricista'])->assertCreated();
+        $this->postJson('/api/cadastro-profissional/progresso', $base + ['etapa' => 1])->assertCreated(); // voltou e reenviou
+
+        $c = CadastroProfissional::first();
+        $this->assertSame(2, $c->etapa);
+        $this->assertSame('Eletricista', $c->profissao);
+        $this->assertSame(1, CadastroProfissional::count());
+
+        $this->postJson('/api/cadastro-profissional', $this->payload(['nome' => 'Carlos', 'whatsapp' => '21988881111'])) // sem origem no reenvio final
+            ->assertCreated();
+
+        $c->refresh();
+        $this->assertSame(1, CadastroProfissional::count());
+        $this->assertSame('novo', $c->status);
+        $this->assertSame(3, $c->etapa);
+        $this->assertSame('fb-eletricista', $c->origem); // a origem do anúncio não se perde
+    }
+
+    public function test_progresso_nao_mexe_em_quem_ja_completou_e_valida_whatsapp_e_isca(): void
+    {
+        $this->postJson('/api/cadastro-profissional', $this->payload())->assertCreated();
+        $this->postJson('/api/cadastro-profissional/progresso', ['nome' => 'Outro Nome', 'whatsapp' => '21999998888', 'etapa' => 1])->assertCreated();
+        $this->assertSame('João da Silva', CadastroProfissional::first()->nome);
+        $this->assertSame('novo', CadastroProfissional::first()->status);
+
+        $this->postJson('/api/cadastro-profissional/progresso', ['nome' => 'X Y', 'whatsapp' => '123', 'etapa' => 1])->assertStatus(422)->assertJsonValidationErrors('whatsapp');
+        $this->postJson('/api/cadastro-profissional/progresso', ['nome' => 'Robo Bot', 'whatsapp' => '21911112222', 'etapa' => 1, 'apelido' => 'spam'])->assertCreated();
+        $this->assertSame(1, CadastroProfissional::count());
+    }
+
     public function test_normalizacao_de_whatsapp(): void
     {
         foreach (['(21) 99999-8888' => '21999998888', '021999998888' => '21999998888', '5521999998888' => '21999998888', '2133334444' => '2133334444'] as $in => $out) {

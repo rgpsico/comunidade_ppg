@@ -24,10 +24,10 @@ class CadastroProfissionalResource extends Resource
     protected static ?string $modelLabel = 'Cadastro de profissional';
     protected static ?string $pluralModelLabel = 'Cadastros de profissionais';
 
-    /** Bolinha no menu com a quantidade de cadastros novos, ainda sem retorno. */
+    /** Bolinha no menu com os cadastros (completos ou que pararam no meio) ainda sem retorno. */
     public static function getNavigationBadge(): ?string
     {
-        $novos = CadastroProfissional::where('status', 'novo')->count();
+        $novos = CadastroProfissional::whereIn('status', ['novo', 'parcial'])->count();
 
         return $novos ? (string) $novos : null;
     }
@@ -46,8 +46,8 @@ class CadastroProfissionalResource extends Resource
             Section::make('O que faz')
                 ->columns(2)
                 ->schema([
-                    Forms\Components\Select::make('categoria')->options(array_combine(CadastroProfissional::CATEGORIAS, CadastroProfissional::CATEGORIAS))->required(),
-                    Forms\Components\TextInput::make('profissao')->label('Profissão')->required()->maxLength(80),
+                    Forms\Components\Select::make('categoria')->options(array_combine(CadastroProfissional::CATEGORIAS, CadastroProfissional::CATEGORIAS)),
+                    Forms\Components\TextInput::make('profissao')->label('Profissão')->maxLength(80),
                     Forms\Components\Textarea::make('descricao')->label('Descrição do serviço')->rows(3)->columnSpanFull(),
                     Forms\Components\Select::make('atende_domicilio')->label('Atende em domicílio?')
                         ->options([1 => 'Sim', 0 => 'Não'])->placeholder('Não se aplica'),
@@ -57,13 +57,15 @@ class CadastroProfissionalResource extends Resource
                 ->schema([
                     Forms\Components\Toggle::make('tem_site')->label('Tem site'),
                     Forms\Components\Toggle::make('tem_google_meu_negocio')->label('Tem Google Meu Negócio'),
-                    Forms\Components\Select::make('nivel_digital')->label('Nível digital')->options(CadastroProfissional::NIVEIS)->required(),
+                    Forms\Components\Select::make('nivel_digital')->label('Nível digital')->options(CadastroProfissional::NIVEIS),
                 ]),
             Section::make('Acompanhamento (só você vê)')
                 ->columns(2)
                 ->schema([
                     Forms\Components\Select::make('status')->options(CadastroProfissional::STATUS)->required(),
                     Forms\Components\TextInput::make('origem')->label('Origem do link (?ref=)')->disabled(),
+                    Forms\Components\TextInput::make('utm_campaign')->label('Campanha (utm)')->disabled(),
+                    Forms\Components\TextInput::make('utm_content')->label('Anúncio (utm)')->disabled(),
                     Forms\Components\Textarea::make('observacao_admin')->label('Anotações')->rows(3)->columnSpanFull(),
                 ]),
         ]);
@@ -76,6 +78,7 @@ class CadastroProfissionalResource extends Resource
                 Tables\Columns\TextColumn::make('nome')->searchable()->weight('bold')
                     ->description(fn (CadastroProfissional $r) => $r->email),
                 Tables\Columns\TextColumn::make('profissao')->label('Profissão')->searchable()
+                    ->placeholder('— (parou antes)')
                     ->description(fn (CadastroProfissional $r) => $r->categoria),
                 Tables\Columns\TextColumn::make('whatsapp')->label('WhatsApp')->searchable()
                     ->url(fn (CadastroProfissional $r) => $r->whatsapp_url, true)->color('success')->icon('heroicon-o-chat-bubble-left-right'),
@@ -85,15 +88,18 @@ class CadastroProfissionalResource extends Resource
                 Tables\Columns\TextColumn::make('nivel_digital')->label('Digital')->badge()
                     ->formatStateUsing(fn ($state) => CadastroProfissional::NIVEIS[$state] ?? $state)
                     ->color(fn ($state) => $state === 'avancado' ? 'success' : 'gray'),
+                Tables\Columns\TextColumn::make('etapa')->label('Passo')->formatStateUsing(fn ($state) => "{$state} de 3")->toggleable(),
                 Tables\Columns\TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => CadastroProfissional::STATUS[$state] ?? $state)
-                    ->color(fn ($state) => match ($state) { 'novo' => 'warning', 'contatado' => 'info', 'aprovado' => 'success', default => 'gray' }),
+                    ->color(fn ($state) => match ($state) { 'parcial' => 'danger', 'novo' => 'warning', 'contatado' => 'info', 'aprovado' => 'success', default => 'gray' }),
                 Tables\Columns\TextColumn::make('comunidade.nome')->label('Comunidade')->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('origem')->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('utm_content')->label('Anúncio (utm)')->placeholder('—')->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')->label('Chegou em')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')->options(CadastroProfissional::STATUS),
+                Tables\Filters\SelectFilter::make('origem')->label('Origem')->options(fn () => CadastroProfissional::whereNotNull('origem')->distinct()->pluck('origem', 'origem')->all()),
                 Tables\Filters\SelectFilter::make('categoria')->options(array_combine(CadastroProfissional::CATEGORIAS, CadastroProfissional::CATEGORIAS)),
                 Tables\Filters\SelectFilter::make('nivel_digital')->label('Nível digital')->options(CadastroProfissional::NIVEIS),
                 Tables\Filters\TernaryFilter::make('tem_site')->label('Tem site'),
@@ -103,13 +109,15 @@ class CadastroProfissionalResource extends Resource
             ->actions([
                 Actions\Action::make('whatsapp')->label('Chamar')->icon('heroicon-o-chat-bubble-left-right')->color('success')
                     ->url(fn (CadastroProfissional $r) => $r->whatsapp_url . '?text=' . rawurlencode(
-                        "Olá, {$r->nome}! Aqui é da Comunidade PPG. Vi o seu cadastro como {$r->profissao} e queria conversar. Podemos falar agora?"
+                        $r->status === 'parcial' || ! $r->profissao
+                            ? "Olá, {$r->nome}! Aqui é da Comunidade PPG. Vi que você começou o seu cadastro e não terminou. Posso te ajudar a concluir? Leva 2 minutinhos."
+                            : "Olá, {$r->nome}! Aqui é da Comunidade PPG. Vi o seu cadastro como {$r->profissao} e queria conversar. Podemos falar agora?"
                     ), true),
                 Actions\Action::make('contatado')->label('Marcar contatado')->icon('heroicon-o-check')->color('info')
-                    ->visible(fn (CadastroProfissional $r) => $r->status === 'novo')
+                    ->visible(fn (CadastroProfissional $r) => in_array($r->status, ['novo', 'parcial'], true))
                     ->action(fn (CadastroProfissional $r) => $r->update(['status' => 'contatado'])),
                 Actions\Action::make('aprovar')->label('Aprovar e criar perfil')->icon('heroicon-o-check-badge')->color('success')
-                    ->visible(fn (CadastroProfissional $r) => $r->status !== 'aprovado')
+                    ->visible(fn (CadastroProfissional $r) => $r->status !== 'aprovado' && $r->categoria && $r->profissao)
                     ->requiresConfirmation()
                     ->modalHeading('Criar o perfil no portal?')
                     ->modalDescription('O profissional passa a aparecer na lista de Profissionais da comunidade (sem foto; você pode adicionar depois).')
