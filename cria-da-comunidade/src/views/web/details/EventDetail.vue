@@ -36,7 +36,7 @@
     </div>
 
     <!-- Hero -->
-    <div class="event-hero" :style="{ background: `linear-gradient(135deg, ${event.c1}, ${event.c2})` }">
+    <div class="event-hero" :style="heroStyle">
       <div class="eh-pattern"></div>
       <div class="eh-overlay"></div>
       <div class="eh-date">
@@ -179,6 +179,12 @@ import { useUiStore } from '../../../stores/ui'
 
 const ui = useUiStore()
 const event = computed(() => ui.selectedEvent)
+// Com capa cadastrada, a foto vira o fundo do topo (o degradê escuro por cima mantém o texto legível); sem capa, segue o degradê das cores do evento.
+const heroStyle = computed(() => {
+  const e = event.value
+  if (e?.imagemCapaUrl) return { background: `center / cover no-repeat url("${e.imagemCapaUrl}")` }
+  return { background: `linear-gradient(135deg, ${e?.c1}, ${e?.c2})` }
+})
 
 // Share
 const shareWrap = ref<HTMLElement | null>(null)
