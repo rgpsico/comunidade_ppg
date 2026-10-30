@@ -1,4 +1,6 @@
 <template>
+  <!-- Uma única raiz: o <Transition> do App.vue não consegue sair de componentes com várias raízes (a tela seguinte ficava em branco). -->
+  <div class="loja-page">
   <div class="loja-detail fade-up" v-if="loja">
     <div class="top-bar">
       <button class="back-btn" @click="ui.goTo('lojas')">← Lojas</button>
@@ -266,6 +268,7 @@
       </div>
     </div>
   </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">

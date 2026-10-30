@@ -1,4 +1,6 @@
 <template>
+  <!-- Uma única raiz: o <Transition> do App.vue não consegue entrar/sair de componentes com várias raízes. -->
+  <div class="produto-page">
   <div class="produto-detail fade-up" v-if="produto && loja">
     <!-- Top bar -->
     <div class="top-bar">
@@ -141,6 +143,7 @@
   <div v-if="!produto || !loja" class="no-produto">
     <button class="back-btn" @click="ui.goTo('lojas')">← Lojas</button>
     <p>Produto não encontrado.</p>
+  </div>
   </div>
 </template>
 
