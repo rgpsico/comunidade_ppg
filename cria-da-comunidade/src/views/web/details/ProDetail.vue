@@ -9,7 +9,8 @@
       </div>
       <div class="hero-body">
         <div class="avatar" :style="{ background: `linear-gradient(135deg, ${pro.c1}, ${pro.c2})` }">
-          {{ pro.initials }}
+          <img v-if="pro.photoUrl" :src="pro.photoUrl" class="av-img" :alt="pro.name" />
+          <template v-else>{{ pro.initials }}</template>
           <span v-if="pro.verified" class="av-verified">✓</span>
         </div>
         <div class="hero-info">
@@ -97,7 +98,12 @@
 
         <!-- Galeria -->
         <div v-if="activeTab === 'Galeria'" class="tab-content">
-          <div class="gallery-grid">
+          <div v-if="pro?.galleryUrls?.length" class="gallery-grid">
+            <div v-for="(url, i) in pro.galleryUrls" :key="url" class="gallery-item" :class="{ tall: i === 0 }">
+              <img :src="url" class="gallery-img" :alt="`${pro.name} — foto ${i + 1}`" loading="lazy" />
+            </div>
+          </div>
+          <div v-else class="gallery-grid">
             <div
               v-for="(g, i) in galleryItems"
               :key="i"
@@ -197,6 +203,8 @@ const galleryItems = [
   border: 4px solid var(--card);
   position: relative; flex-shrink: 0;
 }
+.av-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
+.gallery-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .av-verified {
   position: absolute; bottom: -4px; right: -4px;
   width: 22px; height: 22px; background: var(--green);
