@@ -142,6 +142,10 @@ const drawerItems: { view: WebView; label: string; icon: string }[] = [
     icon: '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>',
   },
   {
+    view: 'mototaxis', label: 'Mototáxi',
+    icon: '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h3l2 5.5M5.5 17.5L9 9h6l3.5 8.5M9 9L7 6H4"/></svg>',
+  },
+  {
     view: 'futebol', label: 'Futebol',
     icon: '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="12 7.5 16.3 10.6 14.7 15.6 9.3 15.6 7.7 10.6"/><line x1="12" y1="7.5" x2="12" y2="2.5"/><line x1="16.3" y1="10.6" x2="21" y2="9"/><line x1="14.7" y1="15.6" x2="17.6" y2="19.7"/><line x1="9.3" y1="15.6" x2="6.4" y2="19.7"/><line x1="7.7" y1="10.6" x2="3" y2="9"/></svg>',
   },

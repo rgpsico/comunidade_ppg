@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\ChamadoController;
 use App\Http\Controllers\Api\PeladaController;
 use App\Http\Controllers\Api\QuadraController;
 use App\Http\Controllers\Api\CadastroProfissionalController;
+use App\Http\Controllers\Api\MototaxiController;
 use Illuminate\Support\Facades\Route;
 
 // Analytics — pública (user_id preenchido quando há token válido)
@@ -29,6 +30,13 @@ Route::post('analytics/track', [AnalyticsController::class, 'track']);
 // Cadastro rápido de profissionais (assistente do link compartilhado) — público, com limite por IP
 Route::post('cadastro-profissional', [CadastroProfissionalController::class, 'store'])->middleware('throttle:20,60');
 Route::post('cadastro-profissional/progresso', [CadastroProfissionalController::class, 'progresso'])->middleware('throttle:60,60');
+
+// Mototáxi: lista com status online, cadastro por link e painel do mototaxista (o token do link é a chave)
+Route::get('mototaxis', [MototaxiController::class, 'index']);
+Route::post('mototaxi/cadastro', [MototaxiController::class, 'cadastro'])->middleware('throttle:20,60');
+Route::get('mototaxi/painel/{token}', [MototaxiController::class, 'painel'])->middleware('throttle:60,1');
+Route::post('mototaxi/painel/{token}/ping', [MototaxiController::class, 'ping'])->middleware('throttle:30,1');
+Route::post('mototaxi/painel/{token}/offline', [MototaxiController::class, 'offline'])->middleware('throttle:30,1');
 
 // Auth — públicas
 Route::prefix('auth')->group(function () {

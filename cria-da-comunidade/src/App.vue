@@ -1,6 +1,9 @@
 <template>
   <!-- Assistente de cadastro de profissionais: tela cheia, sem menus (é um link para enviar a quem ainda não conhece o portal) -->
   <CadastroProView v-if="ui.activeView === 'cadastroPro'" />
+  <!-- Cadastro e painel do mototaxista: também tela cheia, são links enviados por WhatsApp -->
+  <MototaxiCadastroView v-else-if="ui.activeView === 'mototaxiCadastro'" />
+  <MototaxiPainelView v-else-if="ui.activeView === 'mototaxiPainel'" />
   <template v-else>
   <div class="app">
     <AppSidebar />
@@ -48,6 +51,9 @@ import ChamadoDetail from './views/web/details/ChamadoDetail.vue'
 import FutebolView from './views/web/FutebolView.vue'
 import PeladaDetail from './views/web/details/PeladaDetail.vue'
 import CadastroProView from './views/web/CadastroProView.vue'
+import MototaxisView from './views/web/MototaxisView.vue'
+import MototaxiCadastroView from './views/web/MototaxiCadastroView.vue'
+import MototaxiPainelView from './views/web/MototaxiPainelView.vue'
 import BottomNav from './components/layout/BottomNav.vue'
 
 const ui = useUiStore()
@@ -79,13 +85,30 @@ const views = {
   futebol: FutebolView,
   peladaDetail: PeladaDetail,
   cadastroPro: CadastroProView,
+  mototaxis: MototaxisView,
+  mototaxiCadastro: MototaxiCadastroView,
+  mototaxiPainel: MototaxiPainelView,
 }
 
 const currentView = computed(() => views[ui.activeView])
 
+// /mototaxi, /mototaxi/cadastro e /mototaxi/painel/{token} (com ou sem slug da comunidade).
+// Precisa vir antes do /cadastro: "/mototaxi/cadastro" também casaria como "/{slug}/cadastro".
+function mototaxiViewFor(path: string): 'mototaxis' | 'mototaxiCadastro' | 'mototaxiPainel' | null {
+  const m = path.match(/^(?:\/[a-z0-9_-]+)?\/mototaxi(?:\/(cadastro)|\/(painel)\/[A-Za-z0-9]+)?\/?$/)
+  if (!m) return null
+  return m[1] ? 'mototaxiCadastro' : m[2] ? 'mototaxiPainel' : 'mototaxis'
+}
+
 function resolveDeepLink() {
   const path   = window.location.pathname
   const params = new URLSearchParams(window.location.search)
+
+  const mototaxi = mototaxiViewFor(path)
+  if (mototaxi) {
+    ui.activeView = mototaxi
+    return
+  }
 
   // Cadastro rápido de profissionais: /cadastro ou /{slug}/cadastro
   if (path.match(/^(?:\/[a-z0-9_-]+)?\/cadastro\/?$/)) {
@@ -229,7 +252,9 @@ watch(
 
 onMounted(async () => {
   // O link do cadastro abre na hora, sem esperar o carregamento do resto do portal.
-  if (/^(?:\/[a-z0-9_-]+)?\/cadastro\/?$/.test(window.location.pathname)) ui.activeView = 'cadastroPro'
+  const mototaxiRapido = mototaxiViewFor(window.location.pathname)
+  if (mototaxiRapido && mototaxiRapido !== 'mototaxis') ui.activeView = mototaxiRapido
+  else if (/^(?:\/[a-z0-9_-]+)?\/cadastro\/?$/.test(window.location.pathname)) ui.activeView = 'cadastroPro'
 
   // Carrega comunidades e usuário em paralelo
   await Promise.all([data.fetchComunidades(), auth.fetchMe()])
@@ -260,7 +285,9 @@ onMounted(async () => {
     if (slugMatch && data.communities.some(c => c.slug === slugMatch[1])) {
       p = slugMatch[2]
     }
-    if (p === '/' || p === '/inicio') ui.activeView = 'inicio'
+    const mototaxiPop = mototaxiViewFor(p)
+    if (mototaxiPop) ui.activeView = mototaxiPop
+    else if (p === '/' || p === '/inicio') ui.activeView = 'inicio'
     else if (p.startsWith('/eventos') && !p.match(/\/\d+/)) ui.activeView = 'eventos'
     else if (p.startsWith('/vagas') && !p.match(/\/\d+/)) ui.activeView = 'vagas'
     else if (p.startsWith('/lojas') && !p.match(/\/\d+/)) ui.activeView = 'lojas'

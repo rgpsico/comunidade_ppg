@@ -21,9 +21,16 @@ class Profissional extends Model
         'estrelas', 'total_avaliacoes', 'total_atendimentos', 'preco_a_partir',
         'whatsapp', 'cor1', 'cor2', 'tags', 'tempo_resposta',
         'verificado', 'ativo', 'plano', 'premium_expira_em',
+        'mototaxi', 'horario', 'online_em', 'lat', 'lng', 'painel_token',
     ];
 
+    /** O token abre o painel do mototaxista e a posição é dele: nenhum dos dois sai na API pública. */
+    protected $hidden = ['painel_token', 'lat', 'lng'];
+
     protected $appends = ['foto_url', 'galeria_urls', 'is_premium'];
+
+    /** O painel do mototaxista avisa a cada 30s; sem aviso por este tempo ele sai do ar. */
+    public const ONLINE_SEGUNDOS = 120;
 
     protected function casts(): array
     {
@@ -35,7 +42,16 @@ class Profissional extends Model
             'estrelas'            => 'float',
             'preco_a_partir'      => 'float',
             'premium_expira_em'   => 'datetime',
+            'mototaxi'            => 'boolean',
+            'online_em'           => 'datetime',
         ];
+    }
+
+    public function getOnlineAttribute(): bool
+    {
+        return $this->mototaxi
+            && $this->online_em !== null
+            && $this->online_em->gt(now()->subSeconds(self::ONLINE_SEGUNDOS));
     }
 
     /** Premium = plano premium E (sem validade OU validade futura) */

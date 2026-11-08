@@ -47,6 +47,8 @@ export const useUiStore = defineStore('ui', () => {
     chamados: '/chamados',
     futebol: '/futebol',
     cadastroPro: '/cadastro',
+    mototaxis: '/mototaxi',
+    mototaxiCadastro: '/mototaxi/cadastro',
   }
 
   function slug(): string {
