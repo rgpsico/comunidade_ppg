@@ -1,9 +1,19 @@
 <x-filament-widgets::widget>
+    <style>
+        @media (max-width: 640px) {
+            .ppg-analytics-wrap { padding: 14px !important; }
+            .ppg-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+            .ppg-rankings-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 400px) {
+            .ppg-kpi-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
     <x-filament::section padding="none">
-    <div style="background:#111827; border-radius:12px; padding:24px; color:#f9fafb; font-family:system-ui,sans-serif;">
+    <div class="ppg-analytics-wrap" style="background:#111827; border-radius:12px; padding:24px; color:#f9fafb; font-family:system-ui,sans-serif; overflow-x:hidden;">
 
         {{-- ── 4 KPIs ── --}}
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
+        <div class="ppg-kpi-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
 
             <div style="background:#1e2433; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; display:flex; align-items:center; gap:14px;">
                 <div style="width:44px; height:44px; background:#f97316; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -60,7 +70,9 @@
                 <p style="font-size:13px; font-weight:700; margin:0;">Visitas por dia</p>
             </div>
 
-            <div style="position:relative; padding-left:28px;">
+            @php $chartMinWidth = 28 + ($dailyViews->count() * 32); @endphp
+            <div style="overflow-x:auto;">
+            <div style="position:relative; padding-left:28px; min-width:{{ $chartMinWidth }}px;">
                 {{-- Gridlines --}}
                 <div style="position:absolute; inset:0 0 20px 28px; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none;">
                     @foreach(array_reverse($steps) as $step)
@@ -91,11 +103,12 @@
                     @endforeach
                 </div>
             </div>
+            </div>
         </div>
         @endif
 
         {{-- ── Rankings: Telas + Profissionais ── --}}
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+        <div class="ppg-rankings-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
 
             {{-- Telas --}}
             <div style="background:#1e2433; border:1px solid rgba(255,255,255,0.07); border-radius:12px; overflow:hidden;">

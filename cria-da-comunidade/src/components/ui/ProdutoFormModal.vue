@@ -37,11 +37,15 @@
               </div>
             </div>
 
-            <label class="img-upload-btn">
+            <label v-if="totalFotos < MAX_FOTOS" class="img-upload-btn">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               Adicionar fotos
-              <input type="file" accept="image/*" multiple @change="onImagens" style="display:none" />
+              <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="onImagens" style="display:none" />
             </label>
+            <p class="img-dica">
+              Opcional. Com 2 ou mais fotos a página do produto vira um carrossel. A primeira foto é a capa.
+              ({{ totalFotos }}/{{ MAX_FOTOS }})
+            </p>
           </div>
 
           <!-- Nome -->
@@ -112,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { api } from '../../services/api'
 import type { Produto } from '../../types'
 
@@ -161,14 +165,19 @@ onMounted(() => {
   }
 })
 
+const MAX_FOTOS = 10
+const totalFotos = computed(() => imagensExistentes.value.length + novasImagens.value.length)
+
 function onImagens(e: Event) {
-  const files = Array.from((e.target as HTMLInputElement).files ?? [])
-  files.forEach(f => {
+  const input = e.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  const cabem = MAX_FOTOS - totalFotos.value
+  if (files.length > cabem) erro.value = `Cada produto pode ter até ${MAX_FOTOS} fotos.`
+  files.slice(0, Math.max(0, cabem)).forEach(f => {
     novasImagens.value.push(f)
-    const reader = new FileReader()
-    reader.onload = ev => novasPreview.value.push(ev.target!.result as string)
-    reader.readAsDataURL(f)
+    novasPreview.value.push(URL.createObjectURL(f)) // síncrono: mantém a mesma ordem dos arquivos
   })
+  input.value = '' // permite escolher o mesmo arquivo de novo
 }
 
 function removerExistente(i: number) {
@@ -177,8 +186,11 @@ function removerExistente(i: number) {
 
 function removerNova(i: number) {
   novasImagens.value.splice(i, 1)
-  novasPreview.value.splice(i, 1)
+  const [url] = novasPreview.value.splice(i, 1)
+  if (url) URL.revokeObjectURL(url)
 }
+
+onBeforeUnmount(() => novasPreview.value.forEach(u => URL.revokeObjectURL(u)))
 
 async function submit() {
   erro.value = ''
@@ -203,6 +215,7 @@ async function submit() {
     if (props.produto) {
       // Edição — passa paths das imagens a manter
       imagensExistentes.value.forEach(img => fd.append('imagens_manter[]', img.path))
+      fd.append('imagens_editadas', '1') // sem isso, tirar todas as fotos não teria efeito
       result = await api.postForm<Produto>(`/produtos/${props.produto.id}`, fd)
     } else {
       result = await api.postForm<Produto>(`/lojas/${props.lojaId}/produtos`, fd)
@@ -308,6 +321,7 @@ async function submit() {
   transition: background 0.15s;
 }
 .img-remove:hover { background: #ff4444; }
+.img-dica { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 .img-upload-btn {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 14px; border-radius: 10px;

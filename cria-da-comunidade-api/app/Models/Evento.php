@@ -63,6 +63,13 @@ class Evento extends Model
         return $this->hasMany(Rsvp::class);
     }
 
+    /** Eventos que ainda não passaram: o evento continua visível até o fim do dia em que acontece. */
+    public function scopeProximos($query)
+    {
+        // A data do evento é gravada no horário de Brasília (o app roda em UTC): compara com o dia de hoje lá.
+        return $query->where('data_hora', '>=', now('America/Sao_Paulo')->toDateString());
+    }
+
     public function getDayAttribute(): string
     {
         return $this->data_hora->format('d');

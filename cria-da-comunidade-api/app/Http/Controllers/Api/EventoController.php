@@ -12,8 +12,10 @@ class EventoController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        // Eventos que já passaram somem da lista (o link direto do evento continua abrindo).
         $query = Evento::with(['organizador:id,name', 'comunidade:id,nome'])
-            ->where('ativo', true);
+            ->where('ativo', true)
+            ->proximos();
 
         if ($request->filled('categoria')) {
             $query->where('categoria', $request->categoria);
