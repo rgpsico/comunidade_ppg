@@ -1,0 +1,62 @@
+# Ambiente de HOMOLOGAÇÃO — separado da produção (containers, banco e rede próprios).
+#   Tudo em https://portaltestefront.comunidadeppg.com.br  (portal na raiz; API em /api; admin em /admin)
+# Subir/atualizar:  docker compose -f docker-compose.homolog.yml up -d --build
+name: comunidade_homolog
+
+services:
+  api:
+    image: comunidade_ppg-api:latest          # mesma imagem PHP da produção
+    container_name: comunidade_homolog_api
+    volumes:
+      - ./cria-da-comunidade-api:/var/www
+    working_dir: /var/www
+    depends_on: [mysql]
+    restart: unless-stopped
+    networks: [homolog_net]
+
+  api_nginx:
+    image: nginx:alpine
+    container_name: comunidade_homolog_api_nginx
+    volumes:
+      - ./cria-da-comunidade-api:/var/www
+      - ./docker/homolog/api.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [api]
+    restart: unless-stopped
+    networks: [homolog_net]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile.frontend
+      args:
+        VITE_API_BASE: https://portaltestefront.comunidadeppg.com.br/api
+    image: comunidade_homolog-frontend:latest
+    container_name: comunidade_homolog_frontend
+    volumes:
+      - ./docker/homolog/frontend.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/homolog/.htpasswd:/etc/nginx/.htpasswd:ro
+    depends_on: [api_nginx]
+    restart: unless-stopped
+    networks: [homolog_net, proxy_net]
+
+  mysql:
+    image: mysql:8.0
+    container_name: comunidade_homolog_mysql
+    environment:
+      MYSQL_DATABASE: comunidade
+      MYSQL_ROOT_PASSWORD: ${HOMOLOG_DB_ROOT_PASSWORD:-homolog_root}
+      MYSQL_USER: comunidade
+      MYSQL_PASSWORD: ${HOMOLOG_DB_PASSWORD:-homolog_secret}
+    command: --innodb-buffer-pool-size=128M --performance-schema=OFF
+    volumes:
+      - comunidade_homolog_mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks: [homolog_net]
+
+networks:
+  homolog_net:
+  proxy_net:
+    external: true
+
+volumes:
+  comunidade_homolog_mysql_data:

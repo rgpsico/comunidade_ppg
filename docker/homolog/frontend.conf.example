@@ -1,0 +1,49 @@
+# Homologação em um endereço só: https://portaltestefront.comunidadeppg.com.br
+# O portal (SPA) e a API/admin ficam no mesmo domínio; tudo atrás da senha e fora do Google.
+server {
+    listen 80;
+    server_name portaltestefront.comunidadeppg.com.br;
+
+    root /usr/share/nginx/html;
+    index index.html;
+    client_max_body_size 20M;
+
+    auth_basic "Homologacao";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $api http://comunidade_homolog_api_nginx;
+
+    location = /robots.txt { auth_basic off; default_type text/plain; return 200 "User-agent: *\nDisallow: /\n"; }
+
+    # /api e /sanctum: o portal manda "Authorization: Bearer" (login do usuário), que conflita com a senha do
+    # navegador. Nesses caminhos a senha é trocada por um cookie secreto, entregue a quem passou pela senha.
+    location ~ ^/(api|sanctum)(/|$) {
+        auth_basic off;
+        if ($cookie_homolog_ok != "TROQUE_POR_UM_TOKEN_ALEATORIO") { return 401; }
+        proxy_pass $api;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 120s;
+    }
+
+    # Admin Filament, arquivos enviados e páginas de compartilhamento (atrás da senha do navegador)
+    location ~ ^/(admin|livewire|storage|share|filament|css|js|fonts|images)(/|$) {
+        add_header Set-Cookie "homolog_ok=TROQUE_POR_UM_TOKEN_ALEATORIO; Path=/; Max-Age=2592000; Secure; HttpOnly; SameSite=Lax" always;
+        add_header X-Robots-Tag "noindex, nofollow" always;
+        proxy_pass $api;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        add_header Set-Cookie "homolog_ok=TROQUE_POR_UM_TOKEN_ALEATORIO; Path=/; Max-Age=2592000; Secure; HttpOnly; SameSite=Lax" always;
+        add_header X-Robots-Tag "noindex, nofollow" always;
+        try_files $uri $uri/ /index.html;
+    }
+    location ~ /\. { deny all; }
+}

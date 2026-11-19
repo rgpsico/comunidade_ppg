@@ -5,7 +5,8 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
+    'allowed_origins' => array_values(array_filter([
+        env('FRONTEND_URL'), // homologação: https://homolog.comunidadeppg.com.br
         'http://localhost:5173',
         'http://127.0.0.1:5173',
         'http://192.168.1.66:5173',
@@ -13,7 +14,7 @@ return [
         'http://ppg.comunidadeppg.com.br',
         'https://portal.comunidadeppg.com.br',
         'http://portal.comunidadeppg.com.br',
-    ],
+    ])),
 
     'allowed_origins_patterns' => [],
 
