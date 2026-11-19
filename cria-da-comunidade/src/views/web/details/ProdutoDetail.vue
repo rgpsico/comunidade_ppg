@@ -21,25 +21,13 @@
 
     <!-- Galeria -->
     <div class="gallery-wrap">
-      <div v-if="produto.imagens.length" class="gallery">
-        <div class="gallery-main">
-          <img :src="produto.imagens[activeImg]" :alt="produto.nome" class="gallery-img" />
+      <ProdutoGaleria v-if="produto.imagens.length" :imagens="produto.imagens" :nome="produto.nome">
+        <template #badge>
           <span v-if="produto.precoPromocional" class="gallery-badge-off">
             -{{ Math.round((1 - produto.precoPromocional / produto.preco) * 100) }}%
           </span>
-        </div>
-        <div v-if="produto.imagens.length > 1" class="gallery-thumbs">
-          <img
-            v-for="(img, i) in produto.imagens"
-            :key="i"
-            :src="img"
-            :alt="produto.nome"
-            class="thumb"
-            :class="{ active: activeImg === i }"
-            @click="activeImg = i"
-          />
-        </div>
-      </div>
+        </template>
+      </ProdutoGaleria>
       <div v-else class="gallery-empty" :style="{ background: `linear-gradient(135deg, ${loja.cor1}22, ${loja.cor2}22)` }">
         <span class="gallery-icon">📦</span>
       </div>
@@ -151,12 +139,12 @@
 import { ref, computed, reactive } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 import { api } from '../../../services/api'
+import ProdutoGaleria from '../../../components/ui/ProdutoGaleria.vue'
 
 const ui = useUiStore()
 const produto = computed(() => ui.selectedProduto)
 const loja    = computed(() => ui.selectedLoja)
 
-const activeImg   = ref(0)
 const loading     = ref(false)
 const enviado     = ref(false)
 const modalAberto = ref(false)
