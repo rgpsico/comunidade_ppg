@@ -14,7 +14,7 @@ class ChamadoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Chamado::with(['user:id,name', 'profissional:id,nome,foto_url'])
+        $query = Chamado::with(['user:id,name', 'profissional:id,user_id,nome,foto,cor1'])
             ->latest();
 
         if ($request->filled('comunidade_id')) {
@@ -49,9 +49,21 @@ class ChamadoController extends Controller
             'estimativa_valor' => 'nullable|string|max:100',
             'urgencia'         => 'required|in:normal,urgente,critico',
             'comunidade_id'    => 'nullable|integer|exists:comunidades,id',
+            // Fotos opcionais do problema (até 5; o celular manda fotos grandes, por isso 10 MB cada)
+            'fotos'            => 'nullable|array|max:5',
+            'fotos.*'          => 'image|mimes:jpg,jpeg,png,webp,heic,heif|max:10240',
+        ], [
+            'fotos.max'      => 'Envie no máximo 5 fotos.',
+            'fotos.*.image'  => 'Cada arquivo precisa ser uma foto.',
+            'fotos.*.max'    => 'Cada foto pode ter no máximo 10 MB.',
         ]);
 
+        unset($data['fotos']);
         $data['user_id'] = auth()->id();
+        $data['fotos'] = collect($request->file('fotos', []))
+            ->map(fn ($f) => $f->store('chamados', 'public'))
+            ->values()
+            ->all();
 
         $chamado = Chamado::create($data);
         $chamado->load('user:id,name');
@@ -69,7 +81,7 @@ class ChamadoController extends Controller
     {
         $chamado = Chamado::with([
             'user:id,name',
-            'profissional:id,nome,foto_url,whatsapp',
+            'profissional:id,user_id,nome,foto,cor1,whatsapp',
             'doacoes.user:id,name',
         ])->findOrFail($id);
 
@@ -113,7 +125,7 @@ class ChamadoController extends Controller
             );
         }
 
-        $chamado->load(['user:id,name', 'profissional:id,nome,foto_url,whatsapp', 'doacoes.user:id,name']);
+        $chamado->load(['user:id,name', 'profissional:id,user_id,nome,foto,cor1,whatsapp', 'doacoes.user:id,name']);
         return response()->json($chamado);
     }
 
@@ -138,7 +150,7 @@ class ChamadoController extends Controller
             'resolvido_em' => now(),
         ]);
 
-        $chamado->load(['user:id,name', 'profissional:id,nome,foto_url,whatsapp', 'doacoes.user:id,name']);
+        $chamado->load(['user:id,name', 'profissional:id,user_id,nome,foto,cor1,whatsapp', 'doacoes.user:id,name']);
         return response()->json($chamado);
     }
 

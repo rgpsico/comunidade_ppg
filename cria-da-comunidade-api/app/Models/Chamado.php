@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Chamado extends Model
 {
@@ -20,6 +21,18 @@ class Chamado extends Model
         'aceito_em' => 'datetime',
         'resolvido_em' => 'datetime',
     ];
+
+    protected $appends = ['fotos_urls'];
+
+    /** Fotos do problema como URLs públicas (o banco guarda o caminho no disco "public"). */
+    public function getFotosUrlsAttribute(): array
+    {
+        return collect($this->fotos ?? [])
+            ->filter()
+            ->map(fn ($p) => str_starts_with($p, 'http') ? $p : Storage::disk('public')->url($p))
+            ->values()
+            ->all();
+    }
 
     public function user(): BelongsTo
     {

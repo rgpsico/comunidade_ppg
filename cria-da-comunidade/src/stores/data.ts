@@ -301,7 +301,7 @@ function mapChamado(c: any): Chamado {
     titulo: c.titulo,
     descricao: c.descricao,
     categoria: c.categoria,
-    fotos: Array.isArray(c.fotos) ? c.fotos : [],
+    fotos: Array.isArray(c.fotos_urls) ? c.fotos_urls : (Array.isArray(c.fotos) ? c.fotos : []),
     local: c.local ?? null,
     estimativa_valor: c.estimativa_valor ?? null,
     valor_acordado: c.valor_acordado ?? null,
@@ -533,8 +533,19 @@ export const useDataStore = defineStore('data', () => {
   async function criarChamado(payload: {
     tipo: string; titulo: string; descricao: string; categoria: string
     local?: string; estimativa_valor?: string; urgencia: string; comunidade_id?: number | null
+    fotos?: File[]
   }): Promise<Chamado> {
-    const res = await api.post<any>('/chamados', payload)
+    const { fotos = [], ...campos } = payload
+    let res: any
+    if (fotos.length) {
+      // Com fotos: multipart
+      const form = new FormData()
+      Object.entries(campos).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') form.append(k, String(v)) })
+      fotos.forEach(f => form.append('fotos[]', f))
+      res = await api.postForm<any>('/chamados', form)
+    } else {
+      res = await api.post<any>('/chamados', campos)
+    }
     const created = mapChamado(res)
     chamados.value.unshift(created)
     return created

@@ -99,6 +99,22 @@
           </div>
 
           <div class="form-group">
+            <label>Fotos (opcional)</label>
+            <div class="fotos-grid">
+              <div v-for="(f, i) in fotos" :key="f.url" class="foto-item">
+                <img :src="f.url" alt="" />
+                <button type="button" class="foto-remover" aria-label="Remover foto" @click="removerFoto(i)">×</button>
+              </div>
+              <label v-if="fotos.length < MAX_FOTOS" class="foto-add">
+                <input type="file" accept="image/*" multiple hidden @change="adicionarFotos" />
+                <span class="foto-add-icone">📷</span>
+                <span>{{ fotos.length ? 'Mais fotos' : 'Adicionar foto' }}</span>
+              </label>
+            </div>
+            <small class="form-dica">Uma foto ajuda quem vai resolver a entender o problema. Até {{ MAX_FOTOS }} fotos.</small>
+          </div>
+
+          <div class="form-group">
             <label>Local (opcional)</label>
             <input v-model="form.local" class="form-input" placeholder="Ex: Rua das Flores, nº 12..." />
           </div>
@@ -123,7 +139,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onBeforeUnmount } from 'vue'
+import { comprimirImagem } from '../../utils/comprimirImagem'
 import { useUiStore } from '../../stores/ui'
 import { useDataStore } from '../../stores/data'
 import { useAuthStore } from '../../stores/auth'
@@ -177,7 +194,33 @@ const form = reactive({
   estimativa_valor: '',
 })
 
+// Fotos do chamado (prévia local; vão reduzidas no envio)
+const MAX_FOTOS = 5
+const fotos = ref<{ file: File; url: string }[]>([])
+
+function adicionarFotos(e: Event) {
+  const input = e.target as HTMLInputElement
+  const novos = Array.from(input.files ?? []).filter(f => f.type.startsWith('image/'))
+  for (const file of novos.slice(0, MAX_FOTOS - fotos.value.length)) {
+    fotos.value.push({ file, url: URL.createObjectURL(file) })
+  }
+  input.value = ''
+}
+
+function removerFoto(i: number) {
+  const [f] = fotos.value.splice(i, 1)
+  if (f) URL.revokeObjectURL(f.url)
+}
+
+function limparFotos() {
+  fotos.value.forEach(f => URL.revokeObjectURL(f.url))
+  fotos.value = []
+}
+
+onBeforeUnmount(limparFotos)
+
 function abrirModalNovo() {
+  limparFotos()
   Object.assign(form, { tipo: 'problema', titulo: '', categoria: '', urgencia: 'normal', descricao: '', local: '', estimativa_valor: '' })
   formErro.value = ''
   modalAberto.value = true
@@ -206,11 +249,13 @@ async function submitChamado() {
       local: form.local.trim() || undefined,
       estimativa_valor: form.estimativa_valor.trim() || undefined,
       comunidade_id: data.activeComunidadeId,
+      fotos: await Promise.all(fotos.value.map(f => comprimirImagem(f.file))),
     })
+    limparFotos()
     fecharModal()
     ui.openChamado(created)
   } catch (e: any) {
-    formErro.value = e?.response?.data?.message ?? 'Erro ao criar chamado.'
+    formErro.value = e?.message || 'Erro ao criar chamado.'
   } finally {
     enviando.value = false
   }
@@ -218,6 +263,23 @@ async function submitChamado() {
 </script>
 
 <style scoped>
+/* Fotos no formulário */
+.fotos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.foto-item { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--bg-card, #1e2433); }
+.foto-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-remover {
+  position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%;
+  border: 0; background: rgba(0, 0, 0, .65); color: #fff; font-size: 18px; line-height: 1; cursor: pointer;
+}
+.foto-add {
+  aspect-ratio: 1; border: 2px dashed var(--border, rgba(127, 127, 127, .35)); border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  font-size: 12px; text-align: center; cursor: pointer; opacity: .85; padding: 6px;
+}
+.foto-add:hover { opacity: 1; }
+.foto-add-icone { font-size: 22px; }
+.form-dica { display: block; margin-top: 6px; font-size: 12px; opacity: .7; }
+
 .chamados {
   padding: 40px 48px;
   max-width: 1200px;

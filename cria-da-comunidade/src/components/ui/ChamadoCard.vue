@@ -12,6 +12,11 @@
       </span>
     </div>
 
+    <div v-if="chamado.fotos?.length" class="card-foto">
+      <img :src="chamado.fotos[0]" :alt="chamado.titulo" loading="lazy" />
+      <span v-if="chamado.fotos.length > 1" class="card-foto-qtd">📷 {{ chamado.fotos.length }}</span>
+    </div>
+
     <h3 class="card-titulo">{{ chamado.titulo }}</h3>
     <p class="card-desc">{{ chamado.descricao }}</p>
 
@@ -73,6 +78,13 @@ function formatDate(iso: string): string {
 .chamado-card:hover {
   border-color: var(--orange);
   transform: translateY(-2px);
+}
+
+.card-foto { position: relative; margin: 12px 0 4px; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--line); }
+.card-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-foto-qtd {
+  position: absolute; right: 8px; bottom: 8px; background: rgba(0, 0, 0, .6); color: #fff;
+  font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 99px;
 }
 
 .chamado-card.urgencia-urgente { border-left: 3px solid var(--yellow); }

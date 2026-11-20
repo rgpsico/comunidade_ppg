@@ -24,6 +24,11 @@
       <span class="meta-item">🗓 {{ formatDate(chamado.created_at) }}</span>
     </div>
 
+    <!-- Fotos do problema -->
+    <section v-if="chamado.fotos?.length" class="section-block fotos-block">
+      <ProdutoGaleria :imagens="chamado.fotos" :nome="chamado.titulo" />
+    </section>
+
     <!-- Descrição -->
     <section class="section-block">
       <h2 class="block-title">Descrição</h2>
@@ -161,6 +166,7 @@ import { useUiStore } from '../../../stores/ui'
 import { useDataStore } from '../../../stores/data'
 import { useAuthStore } from '../../../stores/auth'
 import type { Chamado } from '../../../types'
+import ProdutoGaleria from '../../../components/ui/ProdutoGaleria.vue'
 
 const ui = useUiStore()
 const data = useDataStore()
