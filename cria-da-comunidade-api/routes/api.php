@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AvaliacaoController;
 use App\Http\Controllers\Api\ComentarioController;
 use App\Http\Controllers\Api\CurriculoController;
 use App\Http\Controllers\Api\ProdutoController;
+use App\Http\Controllers\Api\AssistenteProdutoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComunidadeController;
 use App\Http\Controllers\Api\EventoController;
@@ -84,7 +85,9 @@ Route::get('vagas/{vaga}',         [VagaController::class, 'show']);
 
 Route::get('lojas',                [LojaController::class, 'index']);
 Route::get('lojas/{loja}',         [LojaController::class, 'show']);
-Route::post('interesse',           [LojaController::class, 'interesse']);
+Route::post('interesse',           [LojaController::class, 'interesse'])->middleware('throttle:10,1');
+// Assistente de dúvidas do produto (público; cada mensagem custa uma chamada de IA)
+Route::post('produtos/{produto}/assistente', AssistenteProdutoController::class)->middleware('throttle:15,1');
 
 Route::get('artigos',              [ArtigoController::class, 'index']);
 Route::get('artigos/{artigo}',     [ArtigoController::class, 'show']);

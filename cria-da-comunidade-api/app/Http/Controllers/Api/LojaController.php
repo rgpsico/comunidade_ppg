@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Loja;
+use App\Models\ProdutoInteresse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -72,7 +73,10 @@ class LojaController extends Controller
 
     public function update(Request $request, Loja $loja): JsonResponse
     {
-        $this->authorize('update', $loja);
+        // Não existe LojaPolicy: só o dono (ou admin do portal) edita a loja.
+        if ($loja->user_id !== auth()->id() && ! auth()->user()?->hasRole(['super_admin', 'admin'])) {
+            return response()->json(['message' => 'Não autorizado.'], 403);
+        }
 
         $loja->update($request->validate([
             'nome'      => 'sometimes|string|max:150',
@@ -83,6 +87,12 @@ class LojaController extends Controller
             'cor1'      => 'nullable|string|max:7',
             'cor2'      => 'nullable|string|max:7',
             'ativo'     => 'sometimes|boolean',
+            // Políticas usadas pelo assistente dos produtos
+            'garantia_padrao' => 'nullable|string|max:300',
+            'prazo_entrega'   => 'nullable|string|max:300',
+            'entrega_info'    => 'nullable|string|max:2000',
+            'trocas_info'     => 'nullable|string|max:2000',
+            'pagamento_info'  => 'nullable|string|max:300',
         ]));
 
         return response()->json($loja);
@@ -90,7 +100,9 @@ class LojaController extends Controller
 
     public function destroy(Loja $loja): JsonResponse
     {
-        $this->authorize('delete', $loja);
+        if ($loja->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Não autorizado.'], 403);
+        }
         $loja->delete();
         return response()->json(null, 204);
     }
@@ -104,7 +116,24 @@ class LojaController extends Controller
             'loja_id'          => 'required|string',
             'comprador_nome'   => 'required|string|max:120',
             'comprador_fone'   => 'required|string|max:30',
+            'produto_id'       => 'nullable|integer',
+            'origem'           => 'nullable|in:botao,assistente',
         ]);
+
+        // Guarda o interessado (antes só ia o e-mail). Só registra se loja/produto existem de verdade.
+        $lojaModel = Loja::find((int) $data['loja_id']);
+        if ($lojaModel) {
+            $produtoModel = isset($data['produto_id'])
+                ? $lojaModel->produtos()->whereKey($data['produto_id'])->first()
+                : null;
+            ProdutoInteresse::create([
+                'loja_id'    => $lojaModel->id,
+                'produto_id' => $produtoModel?->id,
+                'nome'       => $data['comprador_nome'],
+                'telefone'   => $data['comprador_fone'],
+                'origem'     => $data['origem'] ?? 'botao',
+            ]);
+        }
 
         $preco    = $data['produto_preco'];
         $produto  = $data['produto_nome'];
@@ -118,7 +147,8 @@ class LojaController extends Controller
             "🛍 Novo interesse em produto!\n\n" .
             "Produto: {$produto}\n" .
             "Preço: {$preco}\n" .
-            "Loja: {$loja} (ID: {$lojaId})\n\n" .
+            "Loja: {$loja} (ID: {$lojaId})\n" .
+            "Origem: " . (($data['origem'] ?? 'botao') === 'assistente' ? 'assistente do produto' : 'botão Tenho interesse') . "\n\n" .
             "━━━━━━━━━━━━━━━━━━\n" .
             "Comprador: {$nome}\n" .
             "Telefone: {$fone}\n" .

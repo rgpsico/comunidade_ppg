@@ -98,6 +98,9 @@
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Adicionar produto
             </button>
+            <button class="btn-add-prod btn-politicas" @click="showPoliticas = true">
+              🛡️ Garantia, entrega e pagamento
+            </button>
           </div>
 
           <!-- Loading state -->
@@ -221,6 +224,13 @@
       @saved="onSaved"
     />
 
+    <LojaPoliticasModal
+      v-if="showPoliticas"
+      :loja="loja"
+      @close="showPoliticas = false"
+      @saved="onPoliticasSaved"
+    />
+
   </div>
 
   <div v-else class="no-loja">
@@ -277,9 +287,10 @@ import { useUiStore } from '../../../stores/ui'
 import { useDataStore } from '../../../stores/data'
 import { useAuthStore } from '../../../stores/auth'
 import { api } from '../../../services/api'
-import type { Produto } from '../../../types'
+import type { Produto, Loja } from '../../../types'
 import ProdutoCard from '../../../components/ui/ProdutoCard.vue'
 import ProdutoFormModal from '../../../components/ui/ProdutoFormModal.vue'
+import LojaPoliticasModal from '../../../components/ui/LojaPoliticasModal.vue'
 
 const ui = useUiStore()
 const data = useDataStore()
@@ -359,6 +370,13 @@ const isOwner = computed(() => {
 const showFormModal = ref(false)
 const editingProduto = ref<Produto | null>(null)
 const deletingId = ref<string | null>(null)
+
+// Políticas da loja (usadas pelo assistente dos produtos)
+const showPoliticas = ref(false)
+function onPoliticasSaved(p: Partial<Loja>) {
+  showPoliticas.value = false
+  if (loja.value) Object.assign(loja.value, p)
+}
 
 function openAddModal() {
   editingProduto.value = null
@@ -753,9 +771,12 @@ const prodsFiltrados = computed(() => {
 /* Owner bar */
 .owner-bar {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: flex-end;
   margin-bottom: 14px;
 }
+.btn-add-prod.btn-politicas { background: transparent; color: var(--cream); border: 1px solid var(--line); }
 .btn-add-prod {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 16px; border-radius: 10px;

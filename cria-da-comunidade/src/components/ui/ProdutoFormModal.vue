@@ -82,6 +82,22 @@
             <textarea v-model="form.descricao" class="field-input" rows="3" placeholder="Detalhes do produto..."></textarea>
           </div>
 
+          <!-- Usados pelo assistente que responde dúvidas dos clientes -->
+          <div class="field-group">
+            <label class="field-label">Cores / tamanhos / variações</label>
+            <input v-model="form.variacoes" class="field-input" type="text" maxlength="500" placeholder="Ex: Preto, Branco e Azul · P, M e G" />
+          </div>
+          <div class="fields-row fields-row-2">
+            <div class="field-group">
+              <label class="field-label">Garantia</label>
+              <input v-model="form.garantia" class="field-input" type="text" maxlength="300" placeholder="Vazio = garantia da loja" />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Estoque</label>
+              <input v-model="form.estoque" class="field-input" type="number" min="0" step="1" placeholder="Não informar" />
+            </div>
+          </div>
+
           <!-- Toggles -->
           <div class="toggles-row">
             <label class="toggle-item">
@@ -119,6 +135,7 @@
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { api } from '../../services/api'
 import type { Produto } from '../../types'
+import { mapProduto, type ApiProduto } from '../../stores/data'
 
 const props = defineProps<{
   lojaId: string
@@ -146,6 +163,9 @@ const form = reactive({
   descricao: '',
   disponivel: true,
   destaque: false,
+  garantia: '',
+  variacoes: '',
+  estoque: '' as string | number,
 })
 
 onMounted(() => {
@@ -157,6 +177,9 @@ onMounted(() => {
     form.descricao        = props.produto.descricao ?? ''
     form.disponivel       = props.produto.disponivel
     form.destaque         = props.produto.destaque
+    form.garantia         = props.produto.garantia ?? ''
+    form.variacoes        = props.produto.variacoes ?? ''
+    form.estoque          = props.produto.estoque ?? ''
     // Mapeia imagens existentes
     imagensExistentes.value = (props.produto.imagens ?? []).map((url) => ({
       path: url, // na edição, o frontend recebe URLs já prontas
@@ -203,6 +226,9 @@ async function submit() {
     fd.append('descricao',  form.descricao)
     fd.append('disponivel', form.disponivel ? '1' : '0')
     fd.append('destaque',   form.destaque   ? '1' : '0')
+    fd.append('garantia',   form.garantia)
+    fd.append('variacoes',  form.variacoes)
+    fd.append('estoque',    form.estoque === '' || form.estoque === null ? '' : String(form.estoque))
     if (form.precoPromocional !== '' && form.precoPromocional !== null) {
       fd.append('preco_promocional', String(form.precoPromocional))
     }
@@ -210,18 +236,19 @@ async function submit() {
     // Novas imagens
     novasImagens.value.forEach(f => fd.append('imagens[]', f))
 
-    let result: Produto
+    let result: ApiProduto
 
     if (props.produto) {
       // Edição — passa paths das imagens a manter
       imagensExistentes.value.forEach(img => fd.append('imagens_manter[]', img.path))
       fd.append('imagens_editadas', '1') // sem isso, tirar todas as fotos não teria efeito
-      result = await api.postForm<Produto>(`/produtos/${props.produto.id}`, fd)
+      result = await api.postForm<ApiProduto>(`/produtos/${props.produto.id}`, fd)
     } else {
-      result = await api.postForm<Produto>(`/lojas/${props.lojaId}/produtos`, fd)
+      result = await api.postForm<ApiProduto>(`/lojas/${props.lojaId}/produtos`, fd)
     }
 
-    emit('saved', result)
+    // A API devolve snake_case e caminhos das fotos; a lista espera o formato do app.
+    emit('saved', mapProduto(result))
   } catch (e: unknown) {
     erro.value = (e as Error).message ?? 'Erro ao salvar. Tente novamente.'
   } finally {
@@ -284,6 +311,7 @@ async function submit() {
 .input-prefix .field-input { border: none; border-radius: 0; background: transparent; }
 
 .fields-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.fields-row-2 { grid-template-columns: 1fr 1fr; }
 
 /* Toggles */
 .toggles-row { display: flex; gap: 20px; flex-wrap: wrap; }

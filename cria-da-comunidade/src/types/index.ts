@@ -121,6 +121,9 @@ export interface Produto {
   disponivel: boolean
   destaque: boolean
   ordem: number
+  garantia: string
+  variacoes: string
+  estoque: number | null
 }
 
 export interface Loja {
@@ -137,6 +140,12 @@ export interface Loja {
   cor2: string
   verificado: boolean
   ativo: boolean
+  // Políticas usadas pelo assistente dos produtos
+  garantiaPadrao: string
+  prazoEntrega: string
+  entregaInfo: string
+  trocasInfo: string
+  pagamentoInfo: string
   comunidade?: { id: number; nome: string } | null
   produtosCount: number
   produtos?: Produto[]

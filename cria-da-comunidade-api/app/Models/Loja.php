@@ -16,6 +16,7 @@ class Loja extends Model
         'user_id', 'comunidade_id', 'nome', 'descricao', 'categoria',
         'logo', 'capa', 'whatsapp', 'endereco',
         'cor1', 'cor2', 'verificado', 'ativo',
+        'garantia_padrao', 'prazo_entrega', 'entrega_info', 'trocas_info', 'pagamento_info',
     ];
 
     protected $appends = ['logo_url', 'capa_url'];

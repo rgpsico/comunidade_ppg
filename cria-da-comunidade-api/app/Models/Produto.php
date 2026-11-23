@@ -14,6 +14,7 @@ class Produto extends Model
     protected $fillable = [
         'loja_id', 'nome', 'descricao', 'preco', 'preco_promocional',
         'imagens', 'categoria', 'disponivel', 'destaque', 'ordem',
+        'garantia', 'variacoes', 'estoque',
     ];
 
     protected $appends = ['imagens_urls', 'imagem_principal_url'];
@@ -26,6 +27,7 @@ class Produto extends Model
             'destaque'          => 'boolean',
             'preco'             => 'float',
             'preco_promocional' => 'float',
+            'estoque'           => 'integer',
         ];
     }
 

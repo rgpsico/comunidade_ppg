@@ -28,6 +28,9 @@ class ProdutoController extends Controller
             'disponivel'        => 'nullable|boolean',
             'destaque'          => 'nullable|boolean',
             'ordem'             => 'nullable|integer',
+            'garantia'          => 'nullable|string|max:300',
+            'variacoes'         => 'nullable|string|max:500',
+            'estoque'           => 'nullable|integer|min:0',
             'imagens'           => 'nullable|array|max:' . self::MAX_FOTOS,
             'imagens.*'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ], ['imagens.max' => 'Cada produto pode ter até ' . self::MAX_FOTOS . ' fotos.']);
@@ -65,6 +68,9 @@ class ProdutoController extends Controller
             'disponivel'        => 'nullable|boolean',
             'destaque'          => 'nullable|boolean',
             'ordem'             => 'nullable|integer',
+            'garantia'          => 'nullable|string|max:300',
+            'variacoes'         => 'nullable|string|max:500',
+            'estoque'           => 'nullable|integer|min:0',
             'imagens_manter'    => 'nullable|array',   // paths a preservar
             'imagens_manter.*'  => 'nullable|string',
             'imagens.*'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',

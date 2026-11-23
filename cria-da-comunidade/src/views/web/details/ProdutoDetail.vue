@@ -63,7 +63,7 @@
         :class="{ sent: enviado }"
         :style="{ background: loja.cor1 }"
         :disabled="enviado"
-        @click="abrirModal"
+        @click="abrirModal()"
       >
         {{ enviado ? '✓ Interesse enviado!' : 'Tenho interesse' }}
       </button>
@@ -71,6 +71,14 @@
       <div v-if="enviado" class="feedback-sent">
         Recebemos seu interesse! Entraremos em contato em breve.
       </div>
+
+      <ProdutoAssistente
+        :produto-id="produto.id"
+        :produto-nome="produto.nome"
+        :cor="loja.cor1"
+        :interesse-enviado="enviado"
+        @interesse="abrirModal('assistente')"
+      />
     </div>
   </div>
 
@@ -88,7 +96,7 @@
           </div>
         </div>
 
-        <p class="modal-desc">Deixe seu nome e telefone e entraremos em contato.</p>
+        <p class="modal-desc">Seu nome e telefone serão enviados para a loja <b>{{ loja?.nome }}</b> entrar em contato com você sobre este produto.</p>
 
         <div class="modal-form">
           <label class="modal-label">
@@ -140,6 +148,7 @@ import { ref, computed, reactive } from 'vue'
 import { useUiStore } from '../../../stores/ui'
 import { api } from '../../../services/api'
 import ProdutoGaleria from '../../../components/ui/ProdutoGaleria.vue'
+import ProdutoAssistente from '../../../components/ui/ProdutoAssistente.vue'
 
 const ui = useUiStore()
 const produto = computed(() => ui.selectedProduto)
@@ -150,6 +159,8 @@ const enviado     = ref(false)
 const modalAberto = ref(false)
 const formErro    = ref('')
 const form        = reactive({ nome: '', fone: '' })
+// De onde veio o interesse: botão "Tenho interesse" ou cartão do assistente
+const origem      = ref<'botao' | 'assistente'>('botao')
 
 const shareUrl = computed(() =>
   produto.value
@@ -161,8 +172,9 @@ function fmt(val: number): string {
   return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-function abrirModal() {
+function abrirModal(de: 'botao' | 'assistente' = 'botao') {
   if (enviado.value) return
+  origem.value = de
   formErro.value = ''
   modalAberto.value = true
 }
@@ -188,6 +200,8 @@ async function confirmarInteresse() {
       loja_id:        loja.value.id,
       comprador_nome: form.nome.trim(),
       comprador_fone: form.fone.trim(),
+      produto_id:     Number(produto.value.id),
+      origem:         origem.value,
     })
     enviado.value = true
     modalAberto.value = false

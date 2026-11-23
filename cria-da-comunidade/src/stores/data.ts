@@ -70,6 +70,7 @@ export interface ApiProduto {
   preco: number; preco_promocional: number | null
   imagens: string[] | null; imagens_urls: string[]; imagem_principal_url: string | null
   categoria: string | null; disponivel: boolean; destaque: boolean; ordem: number
+  garantia?: string | null; variacoes?: string | null; estoque?: number | null
 }
 
 export interface ApiArtigo {
@@ -107,6 +108,8 @@ export interface ApiLoja {
   logo_url: string; capa_url: string | null; whatsapp: string | null
   endereco: string | null; cor1: string; cor2: string
   verificado: boolean; ativo: boolean; produtos_count?: number
+  garantia_padrao?: string | null; prazo_entrega?: string | null; entrega_info?: string | null
+  trocas_info?: string | null; pagamento_info?: string | null
   comunidade?: { id: number; nome: string } | null
   produtos?: ApiProduto[]
 }
@@ -249,7 +252,7 @@ function mapVaga(v: ApiVaga): Vaga {
   }
 }
 
-function mapProduto(p: ApiProduto): Produto {
+export function mapProduto(p: ApiProduto): Produto {
   return {
     id: String(p.id),
     lojaId: String(p.loja_id),
@@ -263,6 +266,9 @@ function mapProduto(p: ApiProduto): Produto {
     disponivel: p.disponivel,
     destaque: p.destaque,
     ordem: p.ordem,
+    garantia: p.garantia ?? '',
+    variacoes: p.variacoes ?? '',
+    estoque: p.estoque ?? null,
   }
 }
 
@@ -339,6 +345,11 @@ function mapLoja(l: ApiLoja): Loja {
     cor2: l.cor2 ?? '#FFD23F',
     verificado: l.verificado,
     ativo: l.ativo,
+    garantiaPadrao: l.garantia_padrao ?? '',
+    prazoEntrega: l.prazo_entrega ?? '',
+    entregaInfo: l.entrega_info ?? '',
+    trocasInfo: l.trocas_info ?? '',
+    pagamentoInfo: l.pagamento_info ?? '',
     comunidade: l.comunidade ?? null,
     produtosCount: l.produtos_count ?? (l.produtos?.length ?? 0),
     produtos: l.produtos ? l.produtos.map(mapProduto) : undefined,

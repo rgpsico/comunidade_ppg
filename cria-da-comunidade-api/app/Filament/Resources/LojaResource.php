@@ -107,6 +107,17 @@ class LojaResource extends Resource
                         ->maxSize(4096),
                 ]),
 
+            Section::make('Políticas (usadas pelo assistente dos produtos)')
+                ->columns(2)
+                ->collapsible()
+                ->schema([
+                    Forms\Components\TextInput::make('garantia_padrao')->label('Garantia padrão')->maxLength(300),
+                    Forms\Components\TextInput::make('prazo_entrega')->label('Prazo de entrega')->maxLength(300),
+                    Forms\Components\Textarea::make('entrega_info')->label('Entrega, retirada e taxas')->rows(2)->maxLength(2000),
+                    Forms\Components\Textarea::make('trocas_info')->label('Trocas e devoluções')->rows(2)->maxLength(2000),
+                    Forms\Components\TextInput::make('pagamento_info')->label('Formas de pagamento')->maxLength(300)->columnSpanFull(),
+                ]),
+
             Section::make('Status')
                 ->columns(2)
                 ->schema([
