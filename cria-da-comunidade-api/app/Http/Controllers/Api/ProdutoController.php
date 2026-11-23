@@ -15,7 +15,7 @@ class ProdutoController extends Controller
 
     public function store(Request $request, Loja $loja): JsonResponse
     {
-        if ($loja->user_id !== auth()->id()) {
+        if (! $this->podeGerenciar($loja)) {
             return response()->json(['message' => 'Não autorizado.'], 403);
         }
 
@@ -31,6 +31,9 @@ class ProdutoController extends Controller
             'garantia'          => 'nullable|string|max:300',
             'variacoes'         => 'nullable|string|max:500',
             'estoque'           => 'nullable|integer|min:0',
+            'fornecedor_nome'   => 'nullable|string|max:150',
+            'fornecedor_contato'=> 'nullable|string|max:60',
+            'fornecedor_obs'    => 'nullable|string|max:500',
             'imagens'           => 'nullable|array|max:' . self::MAX_FOTOS,
             'imagens.*'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ], ['imagens.max' => 'Cada produto pode ter até ' . self::MAX_FOTOS . ' fotos.']);
@@ -50,12 +53,12 @@ class ProdutoController extends Controller
             'ordem'      => $data['ordem'] ?? ($loja->produtos()->max('ordem') + 1),
         ]);
 
-        return response()->json($produto->fresh(), 201);
+        return response()->json($produto->fresh()->comFornecedor(), 201);
     }
 
     public function update(Request $request, Produto $produto): JsonResponse
     {
-        if ($produto->loja->user_id !== auth()->id()) {
+        if (! $this->podeGerenciar($produto->loja)) {
             return response()->json(['message' => 'Não autorizado.'], 403);
         }
 
@@ -71,6 +74,9 @@ class ProdutoController extends Controller
             'garantia'          => 'nullable|string|max:300',
             'variacoes'         => 'nullable|string|max:500',
             'estoque'           => 'nullable|integer|min:0',
+            'fornecedor_nome'   => 'nullable|string|max:150',
+            'fornecedor_contato'=> 'nullable|string|max:60',
+            'fornecedor_obs'    => 'nullable|string|max:500',
             'imagens_manter'    => 'nullable|array',   // paths a preservar
             'imagens_manter.*'  => 'nullable|string',
             'imagens.*'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
@@ -108,12 +114,22 @@ class ProdutoController extends Controller
             'imagens' => $paths ?: null,
         ]);
 
-        return response()->json($produto->fresh());
+        return response()->json($produto->fresh()->comFornecedor());
+    }
+
+    /** Dados internos do produto (fornecedor) para o formulário de edição do dono. */
+    public function privado(Produto $produto): JsonResponse
+    {
+        if (! $this->podeGerenciar($produto->loja)) {
+            return response()->json(['message' => 'Não autorizado.'], 403);
+        }
+
+        return response()->json($produto->only(Produto::CAMPOS_FORNECEDOR));
     }
 
     public function destroy(Produto $produto): JsonResponse
     {
-        if ($produto->loja->user_id !== auth()->id()) {
+        if (! $this->podeGerenciar($produto->loja)) {
             return response()->json(['message' => 'Não autorizado.'], 403);
         }
 
@@ -125,5 +141,13 @@ class ProdutoController extends Controller
         $produto->delete();
 
         return response()->json(null, 204);
+    }
+
+    /** Dono da loja ou admin do portal (o app já mostra os botões de edição para admin). */
+    private function podeGerenciar(?Loja $loja): bool
+    {
+        $user = auth()->user();
+
+        return $loja && $user && ($loja->user_id === $user->id || $user->hasRole(['super_admin', 'admin']));
     }
 }

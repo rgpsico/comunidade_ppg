@@ -145,6 +145,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Produtos
     Route::post('lojas/{loja}/produtos',          [ProdutoController::class, 'store']);
     Route::post('produtos/{produto}',             [ProdutoController::class, 'update']);
+    Route::get('produtos/{produto}/privado',      [ProdutoController::class, 'privado']);
     Route::delete('produtos/{produto}',           [ProdutoController::class, 'destroy']);
 
     // Avaliações (escrita)

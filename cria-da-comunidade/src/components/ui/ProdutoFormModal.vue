@@ -98,6 +98,25 @@
             </div>
           </div>
 
+          <!-- Revenda: de quem comprar quando vender. Só o dono/admin vê; não aparece para o cliente nem para o assistente. -->
+          <div class="fornecedor-box">
+            <div class="fornecedor-titulo">🔒 Fornecedor <small>só você vê</small></div>
+            <div class="fields-row fields-row-2">
+              <div class="field-group">
+                <label class="field-label">Nome</label>
+                <input v-model="form.fornecedor_nome" class="field-input" type="text" maxlength="150" placeholder="Ex: Loja do Zé — Saara" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">WhatsApp / telefone</label>
+                <input v-model="form.fornecedor_contato" class="field-input" type="tel" maxlength="60" placeholder="(21) 99999-9999" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Observação</label>
+              <input v-model="form.fornecedor_obs" class="field-input" type="text" maxlength="500" placeholder="Ex: Rua da Alfândega 120 · custo R$ 180" />
+            </div>
+          </div>
+
           <!-- Toggles -->
           <div class="toggles-row">
             <label class="toggle-item">
@@ -166,6 +185,9 @@ const form = reactive({
   garantia: '',
   variacoes: '',
   estoque: '' as string | number,
+  fornecedor_nome: '',
+  fornecedor_contato: '',
+  fornecedor_obs: '',
 })
 
 onMounted(() => {
@@ -180,6 +202,14 @@ onMounted(() => {
     form.garantia         = props.produto.garantia ?? ''
     form.variacoes        = props.produto.variacoes ?? ''
     form.estoque          = props.produto.estoque ?? ''
+    // Fornecedor não vem na lista pública: busca à parte (só dono/admin recebe).
+    api.get<{ fornecedor_nome: string | null; fornecedor_contato: string | null; fornecedor_obs: string | null }>(`/produtos/${props.produto.id}/privado`)
+      .then(f => {
+        form.fornecedor_nome    = f.fornecedor_nome ?? ''
+        form.fornecedor_contato = f.fornecedor_contato ?? ''
+        form.fornecedor_obs     = f.fornecedor_obs ?? ''
+      })
+      .catch(() => { /* sem permissão: campos ficam vazios */ })
     // Mapeia imagens existentes
     imagensExistentes.value = (props.produto.imagens ?? []).map((url) => ({
       path: url, // na edição, o frontend recebe URLs já prontas
@@ -228,6 +258,9 @@ async function submit() {
     fd.append('destaque',   form.destaque   ? '1' : '0')
     fd.append('garantia',   form.garantia)
     fd.append('variacoes',  form.variacoes)
+    fd.append('fornecedor_nome',    form.fornecedor_nome)
+    fd.append('fornecedor_contato', form.fornecedor_contato)
+    fd.append('fornecedor_obs',     form.fornecedor_obs)
     fd.append('estoque',    form.estoque === '' || form.estoque === null ? '' : String(form.estoque))
     if (form.precoPromocional !== '' && form.precoPromocional !== null) {
       fd.append('preco_promocional', String(form.precoPromocional))
@@ -312,6 +345,9 @@ async function submit() {
 
 .fields-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .fields-row-2 { grid-template-columns: 1fr 1fr; }
+.fornecedor-box { border: 1px dashed var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.fornecedor-titulo { font-size: 13px; font-weight: 700; color: var(--cream); }
+.fornecedor-titulo small { font-weight: 500; color: var(--muted); margin-left: 6px; }
 
 /* Toggles */
 .toggles-row { display: flex; gap: 20px; flex-wrap: wrap; }

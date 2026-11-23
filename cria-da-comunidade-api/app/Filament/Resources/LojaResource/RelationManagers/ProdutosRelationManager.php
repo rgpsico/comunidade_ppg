@@ -73,6 +73,26 @@ class ProdutosRelationManager extends RelationManager
                         ->columnSpanFull(),
                 ]),
 
+            Section::make('Para o assistente responder')
+                ->columns(3)
+                ->collapsible()
+                ->schema([
+                    Forms\Components\TextInput::make('variacoes')->label('Cores / tamanhos / variações')->maxLength(500)->placeholder('Ex: Preto, Branco e Azul'),
+                    Forms\Components\TextInput::make('garantia')->label('Garantia')->maxLength(300)->helperText('Vazio = garantia padrão da loja'),
+                    Forms\Components\TextInput::make('estoque')->label('Estoque')->numeric()->minValue(0)->helperText('Vazio = não informado'),
+                ]),
+
+            // Dado interno da revenda: não aparece no site nem para o assistente.
+            Section::make('🔒 Fornecedor (revenda — só o admin vê)')
+                ->description('De quem comprar quando vender. Vai junto no aviso de venda.')
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('fornecedor_nome')->label('Fornecedor')->maxLength(150)->placeholder('Ex: Loja do Zé — Saara'),
+                    Forms\Components\TextInput::make('fornecedor_contato')->label('WhatsApp / telefone')->tel()->maxLength(60),
+                    Forms\Components\Textarea::make('fornecedor_obs')->label('Observação')->rows(2)->maxLength(500)
+                        ->placeholder('Endereço, preço de custo, horário…')->columnSpanFull(),
+                ]),
+
             Section::make('Status')
                 ->columns(2)
                 ->schema([
@@ -111,6 +131,12 @@ class ProdutosRelationManager extends RelationManager
                     ->label('Promoção')
                     ->money('BRL')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('fornecedor_nome')
+                    ->label('Fornecedor')
+                    ->description(fn (Produto $record) => $record->fornecedor_contato)
+                    ->url(fn (Produto $record) => self::linkWhatsapp($record->fornecedor_contato), shouldOpenInNewTab: true)
+                    ->placeholder('—')
+                    ->toggleable(),
                 Tables\Columns\IconColumn::make('destaque')
                     ->label('★')
                     ->boolean(),
@@ -155,7 +181,9 @@ class ProdutosRelationManager extends RelationManager
             ])
             ->filtersFormColumns(3)
             ->actions([
-                Actions\EditAction::make(),
+                // O fornecedor fica em $hidden no model (fora da API pública); sem isto o formulário abriria vazio.
+                Actions\EditAction::make()
+                    ->mutateRecordDataUsing(fn (array $data, Produto $record) => [...$data, ...$record->only(Produto::CAMPOS_FORNECEDOR)]),
                 Actions\Action::make('publicar_facebook')
                     ->label('Divulgar')
                     ->icon('heroicon-o-share')
@@ -226,5 +254,12 @@ class ProdutosRelationManager extends RelationManager
                     ->action(fn ($records) => $records->each->delete())
                     ->deselectRecordsAfterCompletion(),
             ]);
+    }
+
+    public static function linkWhatsapp(?string $fone): ?string
+    {
+        $d = preg_replace('/\D/', '', (string) $fone);
+
+        return $d ? 'https://wa.me/' . (strlen($d) <= 11 ? '55' : '') . $d : null;
     }
 }

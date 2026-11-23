@@ -153,8 +153,9 @@ class LojaController extends Controller
             "Comprador: {$nome}\n" .
             "Telefone: {$fone}\n" .
             "WhatsApp: {$wppLink}\n" .
-            "━━━━━━━━━━━━━━━━━━\n\n" .
-            "Data: " . now()->format('d/m/Y H:i'),
+            "━━━━━━━━━━━━━━━━━━\n" .
+            $this->blocoFornecedor($produtoModel ?? null) .
+            "\nData: " . now()->format('d/m/Y H:i'),
             function ($msg) use ($produto, $loja, $nome) {
                 $msg->to('rogernevesn@gmail.com')
                     ->from(config('mail.from.address'), config('mail.from.name'))
@@ -163,5 +164,22 @@ class LojaController extends Controller
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    /** Revenda: no aviso de venda vai de quem comprar o produto (dado interno, só neste e-mail). */
+    private function blocoFornecedor($produto): string
+    {
+        if (! $produto || ! ($produto->fornecedor_nome || $produto->fornecedor_contato)) {
+            return '';
+        }
+        $digitos = preg_replace('/\D/', '', (string) $produto->fornecedor_contato);
+        $wpp = $digitos ? "\nWhatsApp: https://wa.me/" . (strlen($digitos) <= 11 ? '55' : '') . $digitos : '';
+
+        return "📦 Buscar com o fornecedor\n"
+            . "Fornecedor: " . ($produto->fornecedor_nome ?: '-') . "\n"
+            . "Contato: " . ($produto->fornecedor_contato ?: '-')
+            . $wpp
+            . ($produto->fornecedor_obs ? "\nObs.: {$produto->fornecedor_obs}" : '')
+            . "\n━━━━━━━━━━━━━━━━━━\n";
     }
 }

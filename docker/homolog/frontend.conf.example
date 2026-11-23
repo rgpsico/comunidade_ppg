@@ -30,7 +30,7 @@ server {
     }
 
     # Admin Filament, arquivos enviados e páginas de compartilhamento (atrás da senha do navegador)
-    location ~ ^/(admin|livewire|storage|share|filament|css|js|fonts|images)(/|$) {
+    location ~ ^/(admin|livewire(?:-[^/]+)?|storage|share|filament|css|js|fonts|images)(/|$) {
         add_header Set-Cookie "homolog_ok=TROQUE_POR_UM_TOKEN_ALEATORIO; Path=/; Max-Age=2592000; Secure; HttpOnly; SameSite=Lax" always;
         add_header X-Robots-Tag "noindex, nofollow" always;
         proxy_pass $api;

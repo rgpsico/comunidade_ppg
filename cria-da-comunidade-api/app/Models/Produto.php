@@ -15,9 +15,21 @@ class Produto extends Model
         'loja_id', 'nome', 'descricao', 'preco', 'preco_promocional',
         'imagens', 'categoria', 'disponivel', 'destaque', 'ordem',
         'garantia', 'variacoes', 'estoque',
+        'fornecedor_nome', 'fornecedor_contato', 'fornecedor_obs',
     ];
 
     protected $appends = ['imagens_urls', 'imagem_principal_url'];
+
+    // Fornecedor é dado interno da revenda: fora de toda resposta pública (lista da loja, página do produto).
+    // Só o dono/admin recebe, via comFornecedor().
+    public const CAMPOS_FORNECEDOR = ['fornecedor_nome', 'fornecedor_contato', 'fornecedor_obs'];
+
+    protected $hidden = self::CAMPOS_FORNECEDOR;
+
+    public function comFornecedor(): static
+    {
+        return $this->makeVisible(self::CAMPOS_FORNECEDOR);
+    }
 
     protected function casts(): array
     {
